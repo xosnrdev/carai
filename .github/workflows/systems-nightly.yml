@@ -29,7 +29,7 @@ jobs:
           make -C ./nosocket/ all && make -C ./nosocket/ install
 
       - name: Install other language packages
-        run: >
+        run: |
           apt-get install -y python3 golang php
           npm i -g typescript@latest
 
