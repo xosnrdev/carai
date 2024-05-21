@@ -30,8 +30,7 @@ jobs:
 
       - name: Install other language packages
         run: |
-          apt-get install -y python3 golang php
-          npm i -g typescript@latest
+          apt-get install -y python3 sqlite3 lua5.4
 
       - name: Setup directory
         run: mkdir -p /code/$(whoami)
