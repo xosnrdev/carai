@@ -2,9 +2,9 @@ language = "PHP"
 version = "8.1"
 compiled = false
 extension = "php"
-environment = ["PATH=/opt/php/8.1/bin"]
+environment = [ "PATH=/opt/php/8.1/bin" ]
 build_command = []
-run_command = ["php", "{file}"]
+run_command = [ "php", "{file}" ]
 test_file = "test.php"
 aliases = ["php"]
 should_limit_memory = true

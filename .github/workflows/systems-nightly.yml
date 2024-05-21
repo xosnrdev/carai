@@ -49,10 +49,10 @@ jobs:
         run: npm run test
         env:
           LANGUAGE_JAVASCRIPT: true
+          LANGUAGE_C: true
+          LANGUAGE_LUA: true
           LANGUAGE_PYTHON: true
-          LANGUAGE_GO: true
-          LANGUAGE_PHP: true
-          LANGUAGE_TYPESCRIPT: true
+          LANGUAGE_SQLITE: true
 
       - name: Codecov
         uses: codecov/codecov-action@v3
