@@ -1,0 +1,43 @@
+FROM node:20.11-bookworm
+
+LABEL maintainer="Success Kingsley successxodev@gmail.com"
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils curl tar bzip2 gzip
+
+# Copy project files
+COPY ./nosocket ./nosocket
+COPY ./packages ./packages
+COPY ./scripts ./scripts
+COPY package*.json .
+COPY tsconfig.json .
+COPY ./src ./src
+COPY build.js .
+
+# Install npm dependencies for the project
+RUN npm ci
+
+# Build and install executables
+RUN make -C ./nosocket/ all install && \
+    node ./scripts/install.cjs && \
+    node ./scripts/register-users.cjs
+
+# Build the project
+RUN npm run build
+
+# Clean up unnecessary files
+RUN rm -rf node_modules && npm ci --omit=dev
+
+# Set environment variables and expose ports
+ENV PORT=50051
+ENV NODE_ENV=production
+EXPOSE ${PORT}
+
+# Define the default command to run the application
+CMD ["node", "./dist/index.js"]

@@ -1,0 +1,111 @@
+name: Main System
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  rce:
+    name: RCE
+    runs-on: ubuntu-latest
+    container: node:20.12
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./rce
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup packages && nosocket
+        run: >
+          apt-get update &&
+          apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
+          make -C ./nosocket/ all && make -C ./nosocket/ install
+
+      - name: Install other language packages
+        run: >
+          apt-get install -y python3 go1.2 bun1.0 php8.1
+
+      - name: Setup directory
+        run: mkdir -p /code/$(whoami)
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npx eslint --ext .ts,.js,.cjs .
+
+      - name: Build
+        run: npm run build
+
+      - name: Test & coverage
+        run: npm run test
+        env:
+          LANGUAGE_JAVASCRIPT: true
+          LANGUAGE_TYPESCRIPT: true
+          LANGUAGE_PHP: true
+          LANGUAGE_PYTHON: true
+          LANGUAGE_GO: true
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: rce
+
+  build-rce:
+    name: Build RCE
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    needs:
+      - rce
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rce
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: "{{defaultContext}}:rce"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: carai-rce
+        with:
+          environment: production
+          ignore_empty: true
