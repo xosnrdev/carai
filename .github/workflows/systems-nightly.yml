@@ -30,7 +30,9 @@ jobs:
 
       - name: Install other language packages
         run: >
-          apt-get install -y python3 go1.2 bun1.0 php8.1
+          apt-get install -y python3 golang-1.17 php8.1
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Setup directory
         run: mkdir -p /code/$(whoami)
