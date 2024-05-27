@@ -80,3 +80,5 @@ $RECYCLE.BIN/
 
 # Visual Studio Code
 .vscode/*
+
+docker-compose.yml
