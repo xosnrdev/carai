@@ -1,6 +1,6 @@
 import onBoardingMock from '@/lib/constants/onboarding';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation'; // Corrected import for useRouter
+import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { BiSolidRightArrow } from 'react-icons/bi';
 import Banner from '../banner/banner';
