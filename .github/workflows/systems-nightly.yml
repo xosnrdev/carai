@@ -82,10 +82,11 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: rce
+          version: latest
 
   build-editor:
     name: Build Editor
-    runs-on: ubntu-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
       - editor
