@@ -1,21 +1,27 @@
 'use client';
 
-import CodeEditor from '@/components/ui/editor/editor';
-import Onboarding from '@/components/ui/onboarding/onboarding';
-import useEditor from '@/hooks/useEditor';
-import { FC, useMemo } from 'react';
+import Editor from '@/components/ui/editor';
+import Onboarding from '@/components/ui/onboarding';
+import { useTabContext } from '@/sdk/tabkit/store';
+import { FC } from 'react';
 
 const Home: FC = () => {
-  const { isActiveTabOnboarding } = useEditor();
+	const { isTabOnboarding, isTabEditor } = useTabContext();
 
-  // Memoized component based on the active tab
-  const content = useMemo(() => {
-    return isActiveTabOnboarding ? <Onboarding /> : <CodeEditor />;
-  }, [isActiveTabOnboarding]);
+	const view = () => {
+		switch (true) {
+			case isTabOnboarding:
+				return <Onboarding />;
 
-  return (
-    <main className="flex flex-grow items-center justify-center">{content}</main>
-  );
+			case isTabEditor:
+				return <Editor />;
+
+			default:
+				return <Onboarding />;
+		}
+	};
+
+	return <main className="flex flex-col">{view()}</main>;
 };
 
 export default Home;

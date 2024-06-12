@@ -157,7 +157,7 @@ export async function acquireRuntime() {
       const configFile = await fs.readFile(configFilePath, "utf8");
       const configObject = toml.parse(configFile);
       const runtime = new Runtime(
-        configObject.language,
+        configObject.language.toLowerCase(),
         configObject.version,
         false,
         configObject.extension,

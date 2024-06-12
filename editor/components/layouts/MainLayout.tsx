@@ -1,30 +1,29 @@
 'use client';
 
-import EditorProvider from '@/context/editor';
+import TabProvider from '@/components/providers/TabProvider';
 import { FC, ReactNode } from 'react';
-import ToastProvider from '../../context/toast';
-import Header from '../ui/header/header';
-import Sidebar from '../ui/sidebar/sidebar';
+import { Toaster } from 'react-hot-toast';
+import Header from '../ui/header';
+import Sidebar from '../ui/sidebar';
 import EditorLayout from './EditorLayout';
 
 interface IMainLayoutProp {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 const MainLayout: FC<IMainLayoutProp> = ({ children }) => (
-  <div className="relative flex flex-col h-screen overflow-hidden max-width__wrapper">
-    <EditorProvider>
-      <Header />
-      <ToastProvider>
-        <div className="flex flex-row">
-          <Sidebar />
-          <main className="grow">
-            <EditorLayout>{children}</EditorLayout>
-          </main>
-        </div>
-      </ToastProvider>
-    </EditorProvider>
-  </div>
+	<div className="flex flex-col h-screen">
+		<TabProvider>
+			<Header />
+			<Toaster position="top-center" reverseOrder={true} />
+			<div className="inline-flex flex-row overflow-hidden">
+				<Sidebar />
+				<main className="grow overflow-y-auto ">
+					<EditorLayout>{children}</EditorLayout>
+				</main>
+			</div>
+		</TabProvider>
+	</div>
 );
 
 export default MainLayout;

@@ -3,8 +3,6 @@ import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
 import * as Sentry from "@sentry/node";
 import console from "console";
-import cors from 'cors';
-import helmet from "helmet";
 import polka from "polka";
 import { z } from "zod";
 import { ClientError, ServerError } from "./Error";
@@ -28,8 +26,8 @@ Sentry.init({
   integrations: [
     ...Sentry.defaultIntegrations,
     new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.Undici()
-  ]
+    new Sentry.Integrations.Undici(),
+  ],
 });
 
 (async () => {
@@ -37,39 +35,53 @@ Sentry.init({
   const users = new SystemUsers(64101 + 0, 64101 + 49, 64101);
 
   const executeSchema = z.object({
-    language: z.string().min(1),
+    language: z.string().toLowerCase().min(1),
     version: z.string().default("latest"),
     code: z.string().optional(),
-    files: z.array(z.object({
-      name: z.string().min(1),
-      code: z.string().min(1),
-      entrypoint: z.boolean().default(false)
-    })).optional(),
+    files: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          code: z.string().min(1),
+          entrypoint: z.boolean().default(false),
+        }),
+      )
+      .optional(),
     compileTimeout: z.number().max(30_000).optional(),
     runTimeout: z.number().max(30_000).optional(),
-    memoryLimit: z.number().max(1024 * 1024 * 1024).optional()
+    memoryLimit: z
+      .number()
+      .max(1024 * 1024 * 1024)
+      .optional(),
   });
 
   const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
 
   const server = polka({
     onError: (err, req, res, next) => {
-      Sentry.Handlers.errorHandler()(err as Error, req, res, next as () => void);
+      Sentry.Handlers.errorHandler()(
+        err as Error,
+        req,
+        res,
+        next as () => void,
+      );
 
-      res.writeHead(500, { "Content-Type": "application/json" })
+      res
+        .writeHead(500, { "Content-Type": "application/json" })
         .end(JSON.stringify({ error: err }));
     },
     onNoMatch: (_req, res) => {
-      res.writeHead(404, { "Content-Type": "application/json" })
+      res
+        .writeHead(404, { "Content-Type": "application/json" })
         .end(JSON.stringify({ message: "Not found" }));
-    }
+    },
   });
 
-  server.use(helmet());
-
-  server.use(cors())
-
-  server.use(Sentry.Handlers.requestHandler({ include: { ip: true, request: true, transaction: true, user: true } }));
+  server.use(
+    Sentry.Handlers.requestHandler({
+      include: { ip: true, request: true, transaction: true, user: true },
+    }),
+  );
 
   server.use(Sentry.Handlers.tracingHandler());
 
@@ -104,11 +116,15 @@ Sentry.init({
     } catch (error) {
       switch (req.headers["accept"]) {
         case "application/x-www-form-urlencoded": {
-          res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
-            new URLSearchParams({
-              msg: "Invalid body content with the Content-Type header specification"
-            }).toString()
-          );
+          res
+            .writeHead(400, {
+              "Content-Type": "application/x-www-form-urlencoded",
+            })
+            .end(
+              new URLSearchParams({
+                msg: "Invalid body content with the Content-Type header specification",
+              }).toString(),
+            );
           break;
         }
 
@@ -116,8 +132,8 @@ Sentry.init({
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
             JSON.stringify({
-              msg: "Invalid body content with the Content-Type header specification"
-            })
+              msg: "Invalid body content with the Content-Type header specification",
+            }),
           );
       }
     }
@@ -128,13 +144,17 @@ Sentry.init({
 
     switch (req.headers["accept"]) {
       case "application/x-www-form-urlencoded": {
-        res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+        res
+          .writeHead(200, {
+            "Content-Type": "application/x-www-form-urlencoded",
+          })
           .end(new URLSearchParams(response).toString());
         break;
       }
       case "application/json":
       default:
-        res.writeHead(200, { "Content-Type": "application/json" })
+        res
+          .writeHead(200, { "Content-Type": "application/json" })
           .end(JSON.stringify(response));
     }
   });
@@ -169,13 +189,17 @@ Sentry.init({
           searchParams.append("runtimes", childSearchParams.toString());
         }
 
-        res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+        res
+          .writeHead(200, {
+            "Content-Type": "application/x-www-form-urlencoded",
+          })
           .end(searchParams.toString());
         break;
       }
       case "application/json":
       default:
-        res.writeHead(200, { "Content-Type": "application/json" })
+        res
+          .writeHead(200, { "Content-Type": "application/json" })
           .end(JSON.stringify(response));
     }
   });
@@ -186,30 +210,46 @@ Sentry.init({
     if (!parsedBody.success) {
       switch (req.headers.accept) {
         case "application/x-www-form-urlencoded": {
-          res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
-            new URLSearchParams({
-              message: "Missing parameters: " + parsedBody.error.errors.map(o => o.message).join(", ")
-            }).toString()
-          );
+          res
+            .writeHead(400, {
+              "Content-Type": "application/x-www-form-urlencoded",
+            })
+            .end(
+              new URLSearchParams({
+                message:
+                  "Missing parameters: " +
+                  parsedBody.error.errors.map((o) => o.message).join(", "),
+              }).toString(),
+            );
           break;
         }
         case "application/json":
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
             JSON.stringify({
-              message: "Missing parameters: " + parsedBody.error.errors.map(o => o.message).join(", ")
-            })
+              message:
+                "Missing parameters: " +
+                parsedBody.error.errors.map((o) => o.message).join(", "),
+            }),
           );
       }
 
       return;
     }
 
-    if (parsedBody.data.code === undefined && parsedBody.data.files === undefined) {
+    if (
+      parsedBody.data.code === undefined &&
+      parsedBody.data.files === undefined
+    ) {
       throw new ClientError("Both code and files must not be empty", 400);
     }
 
-    if (parsedBody.data.code !== undefined && parsedBody.data.code === "" && (parsedBody.data.files !== undefined && parsedBody.data.files.length === 0)) {
+    if (
+      parsedBody.data.code !== undefined &&
+      parsedBody.data.code === "" &&
+      parsedBody.data.files !== undefined &&
+      parsedBody.data.files.length === 0
+    ) {
       throw new ClientError("Both code and files must not be empty", 400);
     }
 
@@ -220,10 +260,18 @@ Sentry.init({
           throw new ClientError("File name cannot be empty", 400);
         }
 
-        codeRequestFiles.push({ fileName: file.name, code: file.code, entrypoint: file.entrypoint });
+        codeRequestFiles.push({
+          fileName: file.name,
+          code: file.code,
+          entrypoint: file.entrypoint,
+        });
       }
     } else if (parsedBody.data.code !== undefined) {
-      codeRequestFiles.push({ fileName: "", code: parsedBody.data.code, entrypoint: true });
+      codeRequestFiles.push({
+        fileName: "",
+        code: parsedBody.data.code,
+        entrypoint: true,
+      });
     } else {
       throw new ServerError("Wrong validation on our side for files and code");
     }
@@ -234,7 +282,7 @@ Sentry.init({
       files: codeRequestFiles,
       compileTimeout: parsedBody.data.compileTimeout,
       runTimeout: parsedBody.data.runTimeout,
-      memoryLimit: parsedBody.data.memoryLimit
+      memoryLimit: parsedBody.data.memoryLimit,
     };
 
     try {
@@ -279,26 +327,34 @@ Sentry.init({
             searchParams.append("compile", childSearchParams.toString());
           }
 
-          res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+          res
+            .writeHead(200, {
+              "Content-Type": "application/x-www-form-urlencoded",
+            })
             .end(searchParams.toString());
           break;
         }
         case "application/json":
         default:
-          res.writeHead(200, { "Content-Type": "application/json" })
+          res
+            .writeHead(200, { "Content-Type": "application/json" })
             .end(JSON.stringify(response));
       }
     } catch (err: unknown) {
       if (err instanceof ClientError) {
         switch (req.headers["content-type"]) {
           case "application/x-www-form-urlencoded": {
-            res.writeHead(err.code, { "Content-Type": "application/x-www-form-urlencoded" })
+            res
+              .writeHead(err.code, {
+                "Content-Type": "application/x-www-form-urlencoded",
+              })
               .end(new URLSearchParams({ message: err.message }).toString());
             break;
           }
           case "application/json":
           default:
-            res.writeHead(err.code, { "Content-Type": "application/json" })
+            res
+              .writeHead(err.code, { "Content-Type": "application/json" })
               .end(JSON.stringify({ message: err.message }));
         }
         return;
@@ -317,13 +373,21 @@ Sentry.init({
 
         switch (req.headers["accept"]) {
           case "application/x-www-form-urlencoded": {
-            res.writeHead(500, { "Content-Type": "application/x-www-form-urlencoded" })
-              .end(new URLSearchParams({ message: "Something's wrong on our end" }).toString());
+            res
+              .writeHead(500, {
+                "Content-Type": "application/x-www-form-urlencoded",
+              })
+              .end(
+                new URLSearchParams({
+                  message: "Something's wrong on our end",
+                }).toString(),
+              );
             break;
           }
           case "application/json":
           default:
-            res.writeHead(500, { "Content-Type": "application/json" })
+            res
+              .writeHead(500, { "Content-Type": "application/json" })
               .end(JSON.stringify({ message: "Something's wrong on our end" }));
         }
       }
@@ -333,7 +397,8 @@ Sentry.init({
   });
 
   server.get("/healthz", (_req, res) => {
-    res.writeHead(200, { "Content-Type": "application/json" })
+    res
+      .writeHead(200, { "Content-Type": "application/json" })
       .end(JSON.stringify({ status: "ok" }));
   });
 
@@ -343,7 +408,7 @@ Sentry.init({
 
   process.on("SIGINT", () => {
     console.log("Server shutting down..");
-    server.server?.close(err => {
+    server.server?.close((err) => {
       console.log(`Error closing server: ${err}`);
     });
   });
