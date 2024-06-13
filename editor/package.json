@@ -1,5 +1,5 @@
 {
-	"name": "carai-editor",
+	"name": "@carai/editor",
 	"version": "0.0.1",
 	"private": true,
 	"engines": {
@@ -37,6 +37,7 @@
 		"tailwindcss-animate": "^1.0.7"
 	},
 	"devDependencies": {
+		"@tailwindcss/typography": "^0.5.13",
 		"@types/node": "^20.14.2",
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
@@ -47,6 +48,7 @@
 		"eslint-config-prettier": "^9.1.0",
 		"postcss": "^8.4.38",
 		"prettier": "^3.3.2",
+		"prettier-plugin-tailwindcss": "^0.6.4",
 		"tailwindcss": "^3.4.4",
 		"typescript": "^5.4.5"
 	}

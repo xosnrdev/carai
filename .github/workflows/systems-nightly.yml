@@ -79,10 +79,9 @@ jobs:
           LANGUAGE_SQLITE: true
 
       - name: Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: rce
-          version: latest
 
   build-editor:
     name: Build Editor

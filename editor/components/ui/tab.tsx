@@ -1,15 +1,15 @@
-import { cn } from '@/lib/utils';
-import { FC, MouseEvent, memo, useCallback } from 'react';
+import { cn } from '@/lib/utils'
+import { FC, MouseEvent, memo, useCallback } from 'react'
 
 const Tab: FC<TabProps> = memo(
 	({ id, title, activeTabId, setActiveTab, closeTab }) => {
 		const handleCloseTab = useCallback(
 			function (e: MouseEvent<HTMLButtonElement> | KeyboardEvent) {
-				e.preventDefault();
-				closeTab(e, id);
+				e.preventDefault()
+				closeTab(e, id)
 			},
 			[closeTab, id]
-		);
+		)
 
 		// useKeyPress({
 		// 	targetKey: 'w',
@@ -22,7 +22,7 @@ const Tab: FC<TabProps> = memo(
 			<div
 				key={id}
 				className={cn(
-					'flex items-center border-t-2 border-solid border-[#FFFFFF] dark:border-[#1E1E2A] dark:bg-[#1E1E2A] bg-[#FFFFFF] px-4 py-3 transition-all duration-150 hover:border-primary dark:hover:border-secondary-foreground delay-300 ease-linear',
+					'm-auto flex h-12 items-center border-t-2 border-solid border-[#FFFFFF] bg-[#FFFFFF] px-2 transition-all delay-300 duration-150 ease-linear hover:border-primary dark:border-[#1E1E2A] dark:bg-[#1E1E2A] dark:hover:border-secondary-foreground',
 					{
 						'border-primary dark:border-secondary-foreground':
 							activeTabId === id,
@@ -41,16 +41,16 @@ const Tab: FC<TabProps> = memo(
 				<button
 					role="button"
 					onClick={handleCloseTab}
-					className={cn('ml-2 p-1 rounded-full dark:bg-[#E0E0F5] bg-primary', {
+					className={cn('ml-2 rounded-full bg-primary p-1 dark:bg-[#E0E0F5]', {
 						'animate-pulse': activeTabId === id,
 					})}
 					aria-label="close tab"
 				></button>
 			</div>
-		);
+		)
 	}
-);
+)
 
-Tab.displayName = 'Tab';
+Tab.displayName = 'Tab'
 
-export default Tab;
+export default Tab

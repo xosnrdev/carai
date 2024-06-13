@@ -1,79 +1,70 @@
-import { tabBarProps } from '@/lib/constants/ui';
+import { tabBarProps } from '@/lib/constants/ui'
 import {
 	InternalServerError,
 	MissingParameterError,
 	RuntimeNotFoundError,
-} from '@/lib/types/error';
-import { cn } from '@/lib/utils';
-import { RCEClient } from '@/network/rce-client';
-import { useTabContext } from '@/sdk/tabkit/store';
-import { FC, MouseEvent, useCallback, useState } from 'react';
-import toast from 'react-hot-toast';
-import { Button } from './button';
-import Tab from './tab';
+} from '@/lib/types/error'
+import { cn } from '@/lib/utils'
+import { RCEClient } from '@/network/rce-client'
+import { useTabContext } from '@/sdk/tabkit/store'
+import { FC, MouseEvent, useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
+import { Button } from './button'
+import Tab from './tab'
 
 const rceClient = new RCEClient({
-	baseURL: new URL(process.env.NEXT_PUBLIC_BASE_URL as string),
-});
+	baseURL: new URL(process.env.NEXT_PUBLIC_RCE_URL as string),
+})
 
 const TabBar: FC = () => {
 	const { tabs, activeTab, removeTab, setActiveTab, switchTab, isTabEditor } =
-		useTabContext();
+		useTabContext()
 
 	const handleCloseTab = (
 		e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
 		tabId: string
 	) => {
-		removeTab(tabId);
-		e.stopPropagation();
-	};
+		removeTab(tabId)
+		e.stopPropagation()
+	}
 
-	// useKeyPress({
-	//   targetKey: 'q',
-	//   callback: function (event) {
-	//     event.preventDefault();
-	//     closeAllTabs;
-	//   },
-	//   modifier: 'ctrlKey',
-	// });
-
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [isOpen, setIsOpen] = useState<Boolean>(false);
-	const [output, setOutput] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [isOpen, setIsOpen] = useState<Boolean>(false)
+	const [output, setOutput] = useState<string | null>(null)
 
 	const handleCodeExecution = useCallback(async () => {
 		if (!activeTab?.content.trim()) {
-			toast.error('Blank code!');
-			return;
+			toast.error('Blank code!')
+			return
 		}
 
-		const { meta: language, content: code } = activeTab;
+		const { meta: language, content: code } = activeTab
 
 		if (language && code) {
 			try {
-				setIsLoading(true);
+				setIsLoading(true)
 
 				const codeResponse = await rceClient.execute({
 					language: language,
 					version: 'latest',
 					code,
-				});
-				setOutput(codeResponse.runtime.output);
+				})
+				setOutput(codeResponse.runtime.output)
 			} catch (error) {
 				if (
 					error instanceof MissingParameterError ||
 					error instanceof InternalServerError ||
 					error instanceof RuntimeNotFoundError
 				) {
-					console.error(error.message);
+					console.error(error.message)
 				}
 			} finally {
-				setIsLoading(false);
+				setIsLoading(false)
 			}
 		}
-	}, [activeTab]);
+	}, [activeTab])
 	return (
-		<div className="sticky top-0 z-10 flex flex-row items-center w-full bg-secondary px-6 justify-between overflow-hidden">
+		<div className="sticky top-0 z-10 flex w-full flex-row items-center justify-between overflow-hidden bg-secondary px-8">
 			<div className="flex flex-row items-center">
 				{activeTab &&
 					tabs.length > 1 &&
@@ -83,15 +74,15 @@ const TabBar: FC = () => {
 								tabs.findIndex((tab) => tab.id === activeTab?.id) === 0) ||
 							(index === 1 &&
 								tabs.findIndex((tab) => tab.id === activeTab?.id) ===
-									tabs.length - 1);
+									tabs.length - 1)
 
 						return (
 							<div
 								key={index}
 								className={cn(
-									'dark:text-[#FFFFFF66] text-muted-foreground mx-auto flex flex-row items-center px-4 py-3',
+									'mx-auto flex flex-row items-center px-2 text-muted-foreground dark:text-[#FFFFFF66]',
 									{
-										'dark:text-white text-primary': !isDisabled,
+										'text-primary dark:text-white': !isDisabled,
 									}
 								)}
 							>
@@ -108,7 +99,7 @@ const TabBar: FC = () => {
 									<el.icon size={22} />
 								</button>
 							</div>
-						);
+						)
 					})}
 				<div className="flex flex-row">
 					{activeTab &&
@@ -126,29 +117,29 @@ const TabBar: FC = () => {
 			</div>
 
 			{isTabEditor && (
-				<Button
-					className="gap-x-3 rounded-sm bg-[#1B501D] hover:bg-[#1B501D] text-white"
+				<button
+					className="inline-flex items-center gap-x-2 bg-[#1B501D] p-2 text-base text-white"
 					onClick={(e) => {
-						e.preventDefault();
+						e.preventDefault()
 						if (activeTab?.content.trim()) {
 							toast.promise(handleCodeExecution(), {
 								loading: 'Running code...',
 								success: <b>Great success!</b>,
 								error: <b>Oops, an error occurred!</b>,
-							});
+							})
 
 							if (!isOpen) {
-								setIsOpen(true);
+								setIsOpen(true)
 							}
 						} else {
-							handleCodeExecution();
+							handleCodeExecution()
 						}
 					}}
 					disabled={isLoading}
 				>
 					<svg
-						width="24"
-						height="24"
+						width="20"
+						height="20"
 						viewBox="0 0 24 24"
 						fill="none"
 						xmlns="http://www.w3.org/2000/svg"
@@ -170,22 +161,22 @@ const TabBar: FC = () => {
 						</defs>
 					</svg>
 					{isLoading ? 'Running' : 'Run'}
-				</Button>
+				</button>
 			)}
 
 			{output && isOpen && (
-				<div className="z-50 rounded-sm p-2 mx-auto fixed right-[5%] bottom-[15%] bg-secondary overflow-auto">
+				<div className="fixed bottom-[15%] right-[5%] z-50 mx-auto overflow-auto rounded-sm bg-secondary p-2">
 					<button
 						onClick={() => setIsOpen(false)}
 						className="float-right text-sm"
 					>
 						x
 					</button>
-					<pre className="text-sm tracking-normal p-3">{output}</pre>
+					<pre className="p-3 text-sm tracking-normal">{output}</pre>
 				</div>
 			)}
 		</div>
-	);
-};
+	)
+}
 
-export default TabBar;
+export default TabBar

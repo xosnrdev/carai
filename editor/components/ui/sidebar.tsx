@@ -1,39 +1,40 @@
-'use client';
+'use client'
 
-import { languageProps, sidebarProps } from '@/lib/constants/ui';
-import { cn } from '@/lib/utils';
-import useKeyPress from '@/sdk/hooks/useKeyPress';
-import { TabError, useTabContext } from '@/sdk/tabkit/store';
-import Link from 'next/link';
-import { FC, useCallback, useState } from 'react';
-import toast from 'react-hot-toast';
-import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
-import { Button } from './button';
-import { Input } from './input';
-import { Label } from './label';
-import Modal from './modal';
-import { RadioGroup, RadioGroupItem } from './radio-group';
+import { languageProps, sidebarProps } from '@/lib/constants/ui'
+import { cn } from '@/lib/utils'
+import useKeyPress from '@/sdk/hooks/useKeyPress'
+import { TabError, useTabContext } from '@/sdk/tabkit/store'
+import Link from 'next/link'
+import { FC, useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
+import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md'
+import { Button } from './button'
+import { Input } from './input'
+import { Label } from './label'
+import Modal from './modal'
+import { RadioGroup, RadioGroupItem } from './radio-group'
+import { usePathname } from 'next/navigation'
 
 const Sidebar: FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isOpen, setIsOpen] = useState(false)
 	const [selectedLanguage, setSelectedLanguage] =
-		useState<LanguageProps | null>(null);
-	const [currentView, setCurrentView] = useState(0);
-	const [searchQuery, setSearchQuery] = useState('');
+		useState<LanguageProps | null>(null)
+	const [currentView, setCurrentView] = useState(0)
+	const [searchQuery, setSearchQuery] = useState('')
+	const pathname = usePathname()
+	const [activeNav, setActiveNav] = useState<number | null>(null)
+	const { addTab } = useTabContext()
 
-	const [activeNav, setActiveNav] = useState<number | null>(null);
-	const { addTab } = useTabContext();
-
-	const itemsPerView = 3;
+	const itemsPerView = 3
 
 	const handleChange = useCallback((language: LanguageProps) => {
-		setSelectedLanguage(language);
-	}, []);
+		setSelectedLanguage(language)
+	}, [])
 
 	const handleClick = useCallback(() => {
 		if (selectedLanguage) {
-			const { title: meta, extension } = selectedLanguage;
-			const filename = `index${extension}`;
+			const { title: meta, extension } = selectedLanguage
+			const filename = `index${extension}`
 			try {
 				addTab({
 					title: filename,
@@ -43,57 +44,57 @@ const Sidebar: FC = () => {
 						maxContentSize: 5000,
 						maxTabs: 5,
 					},
-				});
+				})
 			} catch (error) {
 				if (error instanceof TabError) {
-					toast.error(<p className="whitespace-nowrap ">{error.message}</p>);
+					toast.error(<p className="whitespace-nowrap">{error.message}</p>)
 				}
 			}
-			setIsOpen(false);
+			setIsOpen(false)
 		}
-	}, [selectedLanguage, addTab]);
+	}, [selectedLanguage, addTab])
 
 	const handleModal = useCallback(() => {
-		setIsOpen(true);
-	}, []);
+		setIsOpen(true)
+	}, [])
 
 	useKeyPress({
 		targetKey: 't',
 		callback: handleModal,
 		modifier: 'ctrlKey',
-	});
+	})
 
 	return (
 		<>
 			{isOpen && (
 				<Modal title="Choose A Language" onClose={() => setIsOpen(false)}>
-					<div className="grid grid-cols-1 gap-y-4 w-full">
+					<div className="grid w-full grid-cols-1 gap-y-4">
 						<Input
 							type="text"
 							value={searchQuery}
 							onChange={(event) => setSearchQuery(event.target.value)}
-							placeholder="Search languageProps..."
-							className="focus-visible:ring-offset-0 py-6 rounded-sm focus-visible:ring-2 placeholder:tracking-wide"
+							placeholder="Search language..."
+							className="rounded-sm py-6 placeholder:tracking-wide focus-visible:ring-2 focus-visible:ring-offset-0"
 							aria-label="search language"
 						/>
 
-						<div className="flex flex-row justify-between items-center">
+						<div className="flex flex-row items-center justify-between">
 							<button
 								onClick={() => setCurrentView(currentView - 1)}
 								disabled={currentView === 0}
 								aria-label="previous"
-								className="disabled:dark:text-[#FFFFFF66] disabled:text-muted-foreground"
+								className="disabled:text-muted-foreground disabled:dark:text-[#FFFFFF66]"
 							>
 								<MdNavigateBefore size={50} />
 							</button>
 
 							<RadioGroup
-								className="grid grid-cols-3 gap-4 w-full"
+								className="grid w-full grid-cols-3 gap-4"
 								onKeyDown={function (event) {
 									if (event.key === 'Enter') {
-										event.preventDefault();
-										event.stopPropagation();
-										handleClick();
+										event.preventDefault()
+										event.stopPropagation()
+										handleClick()
 									}
 								}}
 							>
@@ -135,7 +136,7 @@ const Sidebar: FC = () => {
 									(currentView + 1) * itemsPerView >= languageProps.length
 								}
 								aria-label="next"
-								className="disabled:dark:text-[#FFFFFF66] disabled:text-muted-foreground"
+								className="disabled:text-muted-foreground disabled:dark:text-[#FFFFFF66]"
 							>
 								<MdNavigateNext size={50} />
 							</button>
@@ -143,11 +144,11 @@ const Sidebar: FC = () => {
 
 						<Button
 							onClick={function (e) {
-								e.preventDefault();
-								handleClick();
+								e.preventDefault()
+								handleClick()
 							}}
 							aria-label="start coding"
-							className="hover:bg-blue-600 text-white"
+							className="rounded-sm border border-solid border-primary bg-inherit text-black transition-all delay-300 duration-150 ease-linear hover:bg-primary hover:text-white dark:border-[#CDCDDA] dark:text-white dark:hover:bg-[#CDCDDA] dark:hover:text-black"
 						>
 							Start Coding
 						</Button>
@@ -155,43 +156,44 @@ const Sidebar: FC = () => {
 				</Modal>
 			)}
 
-			<aside className="sticky top-0 left-0 flex h-screen flex-col bg-secondary border-r border-solid border-background/80 px-3 py-16">
-				{sidebarProps.map(({ label, ...val }, idx) => (
-					<div
-						key={idx}
-						className={cn(
-							'dark:text-secondary-foreground/30 text-muted-foreground mx-auto flex flex-col items-center p-4',
-							{
-								'text-primary dark:text-[#CDCDDA]': activeNav === idx,
-							}
-						)}
-					>
-						{idx === 0 ? (
-							<button
-								onClick={(e) => {
-									handleModal();
-									setActiveNav(idx);
-									e.preventDefault();
-								}}
-								aria-label={label}
-							>
-								<val.icon size={30} />
-							</button>
-						) : (
-							<Link href={'/'} aria-label="label">
-								<val.icon
-									size={30}
-									onClick={() => {
-										setActiveNav(idx);
+			<aside className="sticky left-0 top-0 m-auto flex h-screen w-16 flex-col border-r border-solid border-background/80 bg-secondary py-16">
+				{pathname === '/' &&
+					sidebarProps.map(({ label, ...val }, idx) => (
+						<div
+							key={idx}
+							className={cn(
+								'mx-auto my-4 flex flex-col items-center text-muted-foreground dark:text-secondary-foreground/30',
+								{
+									'text-primary dark:text-[#CDCDDA]': activeNav === idx,
+								}
+							)}
+						>
+							{idx === 0 ? (
+								<button
+									onClick={(e) => {
+										handleModal()
+										setActiveNav(idx)
+										e.preventDefault()
 									}}
-								/>
-							</Link>
-						)}
-					</div>
-				))}
+									aria-label={label}
+								>
+									<val.icon size={30} />
+								</button>
+							) : (
+								<Link href={'/'} aria-label="label">
+									<val.icon
+										size={30}
+										onClick={() => {
+											setActiveNav(idx)
+										}}
+									/>
+								</Link>
+							)}
+						</div>
+					))}
 			</aside>
 		</>
-	);
-};
+	)
+}
 
-export default Sidebar;
+export default Sidebar

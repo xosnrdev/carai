@@ -1,10 +1,10 @@
-import { EditorProps } from '@monaco-editor/react';
-import { useTabContext } from '@/sdk/tabkit/store';
-import { editor as MonacoEditorType } from 'monaco-editor';
-import { useTheme } from 'next-themes';
-import dynamic from 'next/dynamic';
-import { FC, useCallback } from 'react';
-import LoadingSpinner from './loading-spinner';
+import { EditorProps } from '@monaco-editor/react'
+import { useTabContext } from '@/sdk/tabkit/store'
+import { editor as MonacoEditorType } from 'monaco-editor'
+import { useTheme } from 'next-themes'
+import dynamic from 'next/dynamic'
+import { FC, useCallback } from 'react'
+import LoadingSpinner from './loading-spinner'
 
 const MonacoEditor = dynamic<EditorProps>(
 	() => import('@monaco-editor/react'),
@@ -12,11 +12,11 @@ const MonacoEditor = dynamic<EditorProps>(
 		loading: () => <LoadingSpinner />,
 		ssr: false,
 	}
-);
+)
 
 const Editor: FC = () => {
-	const { updateTab, activeTab } = useTabContext();
-	const { theme } = useTheme();
+	const { updateTab, activeTab } = useTabContext()
+	const { theme } = useTheme()
 
 	const handleEditorChange = useCallback(
 		(content: string | undefined) => {
@@ -24,20 +24,20 @@ const Editor: FC = () => {
 				updateTab({
 					id: activeTab.id,
 					content,
-				});
+				})
 			}
 		},
 		[updateTab, activeTab]
-	);
+	)
 
 	const handleEditorDidMount = useCallback(
 		(editorInstance: MonacoEditorType.IStandaloneCodeEditor) => {
 			if (activeTab) {
-				editorInstance.focus();
+				editorInstance.focus()
 			}
 		},
 		[activeTab]
-	);
+	)
 
 	const editorConfigOptions: MonacoEditorType.IStandaloneEditorConstructionOptions =
 		{
@@ -81,13 +81,13 @@ const Editor: FC = () => {
 			suggestSelection: 'first',
 			formatOnType: false,
 			formatOnPaste: false,
-		};
+		}
 
 	return (
 		<div
 			role="edit text"
 			aria-label="code editor"
-			className="flex flex-col h-screen"
+			className="flex h-screen flex-col"
 		>
 			{activeTab && (
 				<MonacoEditor
@@ -102,7 +102,7 @@ const Editor: FC = () => {
 				/>
 			)}
 		</div>
-	);
-};
+	)
+}
 
-export default Editor;
+export default Editor

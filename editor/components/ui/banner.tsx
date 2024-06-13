@@ -1,5 +1,5 @@
-import Image from 'next/image';
-import { FC } from 'react';
+import Image from 'next/image'
+import { FC } from 'react'
 
 const Banner: FC = () => (
 	<>
@@ -9,9 +9,9 @@ const Banner: FC = () => (
 			width={500}
 			height={400}
 			priority
-			className="w-auto h-auto"
+			className="h-auto w-auto"
 		/>
 	</>
-);
+)
 
-export default Banner;
+export default Banner

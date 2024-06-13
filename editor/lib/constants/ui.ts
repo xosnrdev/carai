@@ -1,11 +1,11 @@
-import { HiUsers } from 'react-icons/hi2';
+import { HiUsers } from 'react-icons/hi2'
 import {
 	IoIosArrowDropleftCircle,
 	IoIosArrowDroprightCircle,
 	IoIosCloseCircle,
 	IoIosInformationCircle,
-} from 'react-icons/io';
-import { MdAddBox } from 'react-icons/md';
+} from 'react-icons/io'
+import { MdAddBox } from 'react-icons/md'
 import {
 	SiC,
 	SiCplusplus,
@@ -21,8 +21,8 @@ import {
 	SiSqlite,
 	SiTypescript,
 	SiV,
-} from 'react-icons/si';
-import { TbAlertTriangleFilled } from 'react-icons/tb';
+} from 'react-icons/si'
+import { TbAlertTriangleFilled } from 'react-icons/tb'
 
 export const sidebarProps: SidebarProps[] = [
 	{
@@ -33,7 +33,7 @@ export const sidebarProps: SidebarProps[] = [
 		icon: HiUsers,
 		label: 'Users',
 	},
-];
+]
 
 export const navProps: NavProps[] = [
 	{
@@ -45,7 +45,7 @@ export const navProps: NavProps[] = [
 	{
 		icon: IoIosInformationCircle,
 	},
-];
+]
 
 export const languageProps: LanguageProps[] = [
 	{
@@ -174,7 +174,7 @@ export const languageProps: LanguageProps[] = [
 			size: 40,
 		},
 	},
-];
+]
 
 export const headerProps: RouteProps[] = [
 	{
@@ -185,7 +185,7 @@ export const headerProps: RouteProps[] = [
 		label: 'Sign In',
 		path: '/sign-in',
 	},
-];
+]
 
 export const onboardingProps: OnboardingProps = {
 	links: [
@@ -205,7 +205,7 @@ export const onboardingProps: OnboardingProps = {
 		'Keep track of changes',
 		'Start collaborating today',
 	],
-};
+}
 
 export const tabBarProps: TabBarProps[] = [
 	{
@@ -216,4 +216,4 @@ export const tabBarProps: TabBarProps[] = [
 		icon: IoIosArrowDroprightCircle,
 		label: 'next_tab',
 	},
-];
+]

@@ -1,5 +1,5 @@
-import { Variants, motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { Variants, motion, AnimatePresence } from 'framer-motion'
+import { ReactNode } from 'react'
 
 const PageTransition: Variants = {
 	initial: {
@@ -19,7 +19,7 @@ const PageTransition: Variants = {
 			ease: 'easeInOut',
 		},
 	},
-};
+}
 
 const AnimatedLayout = ({ children }: { children: ReactNode }) => {
 	return (
@@ -34,7 +34,7 @@ const AnimatedLayout = ({ children }: { children: ReactNode }) => {
 				{children}
 			</motion.div>
 		</AnimatePresence>
-	);
-};
+	)
+}
 
-export default AnimatedLayout;
+export default AnimatedLayout

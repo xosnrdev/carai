@@ -1,8 +1,8 @@
-import { FC, ReactNode } from 'react';
-import { ThemeProvider } from '../providers/ThemeProvider';
+import { FC, ReactNode } from 'react'
+import { ThemeProvider } from '../providers/ThemeProvider'
 
 interface IThemeLayoutProp {
-	children: ReactNode;
+	children: ReactNode
 }
 
 const ThemeLayout: FC<IThemeLayoutProp> = ({ children }) => {
@@ -18,7 +18,7 @@ const ThemeLayout: FC<IThemeLayoutProp> = ({ children }) => {
 				{children}
 			</ThemeProvider>
 		</>
-	);
-};
+	)
+}
 
-export default ThemeLayout;
+export default ThemeLayout

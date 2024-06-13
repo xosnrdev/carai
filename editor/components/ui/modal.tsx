@@ -1,10 +1,5 @@
-import { FC } from 'react';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogTitle,
-} from './dialog';
+import { FC } from 'react'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from './dialog'
 
 const Modal: FC<ModalProps> = ({ title, description, children, onClose }) => {
 	return (
@@ -17,7 +12,7 @@ const Modal: FC<ModalProps> = ({ title, description, children, onClose }) => {
 				</DialogContent>
 			</Dialog>
 		</>
-	);
-};
+	)
+}
 
-export default Modal;
+export default Modal

@@ -1,12 +1,12 @@
 export class MissingParameterError extends Error {
 	constructor(public override message: string) {
-		super(message);
+		super(message)
 	}
 }
 
 export class InternalServerError extends Error {
 	constructor(public override message: string) {
-		super(message);
+		super(message)
 	}
 }
 
@@ -15,9 +15,9 @@ export class RuntimeNotFoundError extends Error {
 		const combination: string =
 			language !== undefined && version !== undefined
 				? ` of ${language} and ${version}`
-				: '';
+				: ''
 		super(
 			`Provided language-version combination${combination} does not exists on the RCE engine`
-		);
+		)
 	}
 }

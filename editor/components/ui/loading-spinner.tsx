@@ -1,5 +1,5 @@
-import Image from 'next/image';
-import { FC } from 'react';
+import Image from 'next/image'
+import { FC } from 'react'
 
 const LoadingSpinner: FC = () => (
 	<div className="flex flex-col items-center justify-center">
@@ -12,6 +12,6 @@ const LoadingSpinner: FC = () => (
 			className=""
 		/>
 	</div>
-);
+)
 
-export default LoadingSpinner;
+export default LoadingSpinner

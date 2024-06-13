@@ -1,50 +1,50 @@
 export type Runtime = {
-	language: string;
-	version: string;
-	aliases: string[];
-	compiled: boolean;
-};
+	language: string
+	version: string
+	aliases: string[]
+	compiled: boolean
+}
 
 export type RuntimeResponse = {
-	runtime: Runtime[];
-};
+	runtime: Runtime[]
+}
 
 export type ErrorResponse = {
-	message: string;
-};
+	message: string
+}
 
 export type CodeRequestBase = {
-	language: string;
-	version: string;
-	compileTimeout?: number;
-	runTimeout?: number;
-	memoryLimit?: number;
-};
+	language: string
+	version: string
+	compileTimeout?: number
+	runTimeout?: number
+	memoryLimit?: number
+}
 
 export type CodeSnippetRequest = CodeRequestBase & {
-	code: string;
-};
+	code: string
+}
 
 export type CodeFileRequest = CodeRequestBase & {
 	files: Array<{
-		name: string;
-		code: string;
-		entrypoint: boolean;
-	}>;
-};
+		name: string
+		code: string
+		entrypoint: boolean
+	}>
+}
 
-export type CodeRequest = CodeSnippetRequest | CodeFileRequest;
+export type CodeRequest = CodeSnippetRequest | CodeFileRequest
 
 export type CodeOutput = {
-	stdout: string;
-	stderr: string;
-	output: string;
-	exitCode: number;
-};
+	stdout: string
+	stderr: string
+	output: string
+	exitCode: number
+}
 
 export type CodeResponse = {
-	language: string;
-	version: string;
-	compile: CodeOutput;
-	runtime: CodeOutput;
-};
+	language: string
+	version: string
+	compile: CodeOutput
+	runtime: CodeOutput
+}

@@ -1,4 +1,4 @@
-import localFont from 'next/font/local';
+import localFont from 'next/font/local'
 
 const nohemi = localFont({
 	src: [
@@ -50,6 +50,6 @@ const nohemi = localFont({
 	],
 
 	variable: '--font-nohemi',
-});
+})
 
-export default nohemi;
+export default nohemi

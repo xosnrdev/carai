@@ -1,25 +1,25 @@
-import { motion } from 'framer-motion';
-import { useTheme } from 'next-themes';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { BsMoonFill, BsSunFill } from 'react-icons/bs';
+import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { BsMoonFill, BsSunFill } from 'react-icons/bs'
 
 const ThemeSwitch: FC = () => {
-	const [mounted, setMounted] = useState(false);
-	const { theme, setTheme, resolvedTheme } = useTheme();
+	const [mounted, setMounted] = useState(false)
+	const { theme, setTheme, resolvedTheme } = useTheme()
 
-	useEffect(() => setMounted(true), []);
+	useEffect(() => setMounted(true), [])
 
 	const handleThemeToggle = useCallback(() => {
-		setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
-	}, [setTheme, resolvedTheme]);
+		setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+	}, [setTheme, resolvedTheme])
 
 	const displayIcon = useMemo(() => {
 		return theme === 'dark' || resolvedTheme === 'dark' ? (
 			<BsSunFill size={20} />
 		) : (
 			<BsMoonFill size={20} />
-		);
-	}, [theme, resolvedTheme]);
+		)
+	}, [theme, resolvedTheme])
 
 	return (
 		<motion.button
@@ -48,7 +48,7 @@ const ThemeSwitch: FC = () => {
 				{mounted && displayIcon}
 			</svg>
 		</motion.button>
-	);
-};
+	)
+}
 
-export default ThemeSwitch;
+export default ThemeSwitch
