@@ -1,6 +1,6 @@
 FROM node:20.12-alpine3.18 AS build
 
-WORKDIR /home/app
+WORKDIR /app
 
 ADD . ./
 
@@ -11,23 +11,17 @@ RUN npm i -g pnpm@latest && \
 
 FROM node:20.12-alpine3.18 AS production
 
+WORKDIR /app
+
+COPY --from=build /app/.next/ ./.next
+COPY --from=build /app/package.json ./
+COPY --from=build /app/public ./public
+
 RUN npm i -g pnpm@latest && \
-	adduser -D carai && \
-	echo "carai ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-USER carai
-
-WORKDIR /home/carai/app
-
-COPY --from=build /home/app/.next/ ./.next
-COPY --from=build /home/app/package.json ./
-COPY --from=build /home/app/public ./public
-
-RUN pnpm fetch && \
+	pnpm fetch && \
 	pnpm install --prod
 
 ENV PORT=3000
-ENV HOST=0.0.0.0
 ENV NODE_ENV=production
 
 EXPOSE ${PORT}
