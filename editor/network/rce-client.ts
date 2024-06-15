@@ -17,8 +17,7 @@ export class RCEClient {
 	private readonly baseURL: URL
 
 	constructor(config: ClientConfig) {
-		this.baseURL =
-			config.baseURL ?? new URL(process.env.NEXT_PUBLIC_RCE_URL as string)
+		this.baseURL = config.baseURL ?? new URL('https://cexaengine.com')
 	}
 
 	public async execute(

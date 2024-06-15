@@ -9,7 +9,6 @@ const LoadingSpinner: FC = () => (
 			height={100}
 			alt="loading spinner"
 			priority
-			className=""
 		/>
 	</div>
 )

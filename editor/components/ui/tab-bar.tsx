@@ -49,7 +49,6 @@ const TabBar: FC = () => {
 					version: 'latest',
 					code,
 				})
-				const { compile, runtime } = codeResponse
 				setOutput(codeResponse)
 			} catch (error) {
 				if (

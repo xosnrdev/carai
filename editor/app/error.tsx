@@ -17,9 +17,14 @@ export default function Error({
 	return (
 		<html>
 			<body>
-				<div className="prose prose-base mx-auto grid min-h-screen max-w-prose place-content-center dark:prose-invert">
+				<div className="prose prose-base mx-auto grid min-h-screen max-w-prose place-content-center">
 					<h2>Something went wrong!</h2>
-					<Button variant={'ghost'} size={'sm'} onClick={() => reset()}>
+					<Button
+						variant={'outline'}
+						size={'sm'}
+						onClick={() => reset()}
+						role="reset and try again"
+					>
 						Try again
 					</Button>
 				</div>
