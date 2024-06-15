@@ -10,11 +10,7 @@ Sentry.init({
 	attachStacktrace: true,
 	sampleRate: 1.0,
 	tracesSampleRate: 0.2,
-	tracePropagationTargets: [
-		'localhost',
-		/^\//,
-		/^https:\/\/cexaengine\.com\/api/,
-	],
+	tracePropagationTargets: ['localhost', 'https://cexaengine.com'],
 	// Capture Replay for 10% of all sessions,
 	// plus for 100% of sessions with an error
 	replaysSessionSampleRate: 0.02,

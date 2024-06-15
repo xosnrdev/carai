@@ -6,6 +6,7 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 export const nextConfig = {
 	poweredByHeader: false,
+	output: 'standalone',
 }
 
 export async function rewrites() {
@@ -29,7 +30,4 @@ export default withSentryConfig(nextConfig, {
 	tunnelRoute: '/monitoring-tunnel',
 	widenClientFileUpload: true,
 	hideSourceMaps: true,
-	sourcemaps: {
-		disable: true,
-	},
 })

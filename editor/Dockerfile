@@ -11,25 +11,29 @@ RUN npm i -g pnpm@latest && \
 
 FROM node:20.12-alpine3.18 AS production
 
-RUN npm i -g pnpm@latest && \
-	adduser -D carai && \
-	echo "carai ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# RUN npm i -g pnpm@latest && \
+# 	adduser -D carai && \
+# 	echo "carai ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-USER carai
+# USER carai
 
-WORKDIR /home/carai/app
+WORKDIR /home/app
 
-COPY --from=build /home/app/.next/ ./.next
-COPY --from=build /home/app/package.json ./
+ENV NODE_ENV production
+
+COPY --from=build /home/app/.next/static ./.next/static
+COPY --from=build /home/app/.next/standalone ./
 COPY --from=build /home/app/public ./public
 
-RUN pnpm fetch && \
+RUN npm i -g pnpm@latest && \
+	pnpm fetch && \
 	pnpm install --prod
 
-ENV PORT=3000
-ENV HOST=0.0.0.0
-ENV NODE_ENV=production
+ENV PORT 3000
+ENV HOSTNAME 0.0.0.0
+ENV SENTRY_AUTH_TOKEN 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
 
-EXPOSE ${PORT}
 
-CMD ["pnpm", "start"]
+EXPOSE 3000
+
+CMD ["node", "server.js"]
