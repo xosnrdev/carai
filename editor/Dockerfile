@@ -11,12 +11,6 @@ RUN npm i -g pnpm@latest && \
 
 FROM node:20.12-alpine3.18 AS production
 
-# RUN npm i -g pnpm@latest && \
-# 	adduser -D carai && \
-# 	echo "carai ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# USER carai
-
 WORKDIR /home/app
 
 ENV NODE_ENV production

@@ -12,9 +12,7 @@ import toast from 'react-hot-toast'
 import Tab from './tab'
 import { CodeResponse } from '@/lib/types/response'
 
-const rceClient = new RCEClient({
-	baseURL: new URL(process.env.NEXT_PUBLIC_RCE_URL as string),
-})
+const rceClient = new RCEClient()
 
 const TabBar: FC = () => {
 	const { tabs, activeTab, removeTab, setActiveTab, switchTab, isTabEditor } =

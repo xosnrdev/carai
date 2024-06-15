@@ -9,15 +9,11 @@ import type {
 	ErrorResponse,
 } from '../lib/types/response'
 
-export type ClientConfig = {
-	baseURL?: URL
-}
-
 export class RCEClient {
 	private readonly baseURL: URL
 
-	constructor(config: ClientConfig) {
-		this.baseURL = config.baseURL ?? new URL('https://cexaengine.com')
+	constructor() {
+		this.baseURL = new URL('https://cexaengine.com')
 	}
 
 	public async execute(
