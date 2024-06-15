@@ -13,7 +13,7 @@ const ThemeLayout: FC<IThemeLayoutProp> = ({ children }) => {
 				defaultTheme="dark"
 				enableSystem
 				disableTransitionOnChange
-				storageKey={process.env.NEXT_PUBLIC_STORAGE_KEY}
+				storageKey={process.env.STORAGE_KEY}
 			>
 				{children}
 			</ThemeProvider>

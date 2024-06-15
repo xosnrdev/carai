@@ -1,6 +1,6 @@
 'use client'
 
-import { languageProps, sidebarProps } from '@/lib/constants/ui'
+import { sidebarProps } from '@/lib/constants/ui'
 import { cn } from '@/lib/utils'
 import useKeyPress from '@/sdk/hooks/useKeyPress'
 import { TabError, useTabContext } from '@/sdk/tabkit/store'
@@ -14,6 +14,151 @@ import { Label } from './label'
 import Modal from './modal'
 import { RadioGroup, RadioGroupItem } from './radio-group'
 import { usePathname } from 'next/navigation'
+import {
+	SiC,
+	SiCplusplus,
+	SiElixir,
+	SiErlang,
+	SiGo,
+	SiJavascript,
+	SiJulia,
+	SiLua,
+	SiPhp,
+	SiPython,
+	SiRuby,
+	SiSqlite,
+	SiTypescript,
+	SiV,
+} from 'react-icons/si'
+
+const languageProps: LanguageProps[] = [
+	{
+		title: 'Javascript',
+		extension: '.js',
+		iconProps: {
+			icon: SiJavascript,
+			className: 'text-yellow-500',
+			size: 40,
+		},
+	},
+	// {
+	// 	title: 'Go',
+	// 	extension: '.go',
+	// 	iconProps: {
+	// 		icon: SiGo,
+	// 		className: 'text-blue-500',
+	// 		size: 40,
+	// 	},
+	// },
+	{
+		title: 'Python',
+		extension: '.py',
+		iconProps: {
+			icon: SiPython,
+			className: 'text-blue-600',
+			size: 40,
+		},
+	},
+	{
+		title: 'Typescript',
+		extension: '.ts',
+		iconProps: {
+			icon: SiTypescript,
+			className: 'text-blue-400',
+			size: 40,
+		},
+	},
+	{
+		title: 'C',
+		extension: '.c',
+		iconProps: {
+			icon: SiC,
+			className: 'text-blue-800',
+			size: 40,
+		},
+	},
+	{
+		title: 'C++',
+		extension: '.cpp',
+		iconProps: {
+			icon: SiCplusplus,
+			className: 'text-purple-500',
+			size: 40,
+		},
+	},
+	// {
+	// 	title: 'V',
+	// 	extension: '.v',
+	// 	iconProps: {
+	// 		icon: SiV,
+	// 		className: 'text-blue-500',
+	// 		size: 40,
+	// 	},
+	// },
+	{
+		title: 'PHP',
+		extension: '.php',
+		iconProps: {
+			icon: SiPhp,
+			className: 'text-purple-600',
+			size: 40,
+		},
+	},
+	{
+		title: 'SQLite3',
+		extension: '.sqlite',
+		iconProps: {
+			icon: SiSqlite,
+			className: 'text-blue-900',
+			size: 40,
+		},
+	},
+	{
+		title: 'Ruby',
+		extension: '.rb',
+		iconProps: {
+			icon: SiRuby,
+			className: 'text-red-600',
+			size: 40,
+		},
+	},
+	{
+		title: 'Lua',
+		extension: '.lua',
+		iconProps: {
+			icon: SiLua,
+			className: 'text-blue-300',
+			size: 40,
+		},
+	},
+	{
+		title: 'Julia',
+		extension: '.jl',
+		iconProps: {
+			icon: SiJulia,
+			className: 'text-purple-700',
+			size: 40,
+		},
+	},
+	// {
+	// 	title: 'Erlang',
+	// 	extension: '.erl',
+	// 	iconProps: {
+	// 		icon: SiErlang,
+	// 		className: 'text-red-500',
+	// 		size: 40,
+	// 	},
+	// },
+	// {
+	// 	title: 'Elixir',
+	// 	extension: '.ex',
+	// 	iconProps: {
+	// 		icon: SiElixir,
+	// 		className: 'text-purple-500',
+	// 		size: 40,
+	// 	},
+	// },
+]
 
 const Sidebar: FC = () => {
 	const [isOpen, setIsOpen] = useState(false)
@@ -41,8 +186,8 @@ const Sidebar: FC = () => {
 					meta,
 					content: '',
 					config: {
-						maxContentSize: 5000,
-						maxTabs: 5,
+						maxContentSize: 10 * 1000,
+						maxTabs: 10,
 					},
 				})
 			} catch (error) {

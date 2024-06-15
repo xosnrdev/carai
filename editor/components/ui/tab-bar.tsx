@@ -9,8 +9,8 @@ import { RCEClient } from '@/network/rce-client'
 import { useTabContext } from '@/sdk/tabkit/store'
 import { FC, MouseEvent, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Button } from './button'
 import Tab from './tab'
+import { CodeResponse } from '@/lib/types/response'
 
 const rceClient = new RCEClient({
 	baseURL: new URL(process.env.NEXT_PUBLIC_RCE_URL as string),
@@ -30,7 +30,7 @@ const TabBar: FC = () => {
 
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [isOpen, setIsOpen] = useState<Boolean>(false)
-	const [output, setOutput] = useState<string | null>(null)
+	const [output, setOutput] = useState<CodeResponse | null>(null)
 
 	const handleCodeExecution = useCallback(async () => {
 		if (!activeTab?.content.trim()) {
@@ -49,20 +49,34 @@ const TabBar: FC = () => {
 					version: 'latest',
 					code,
 				})
-				setOutput(codeResponse.runtime.output)
+				const { compile, runtime } = codeResponse
+				setOutput(codeResponse)
 			} catch (error) {
 				if (
 					error instanceof MissingParameterError ||
 					error instanceof InternalServerError ||
 					error instanceof RuntimeNotFoundError
 				) {
-					console.error(error.message)
+					throw error.message
 				}
 			} finally {
 				setIsLoading(false)
 			}
 		}
 	}, [activeTab])
+	const hasCompileError = output?.compile.stderr.trim()
+	const hasRuntimeError = output?.runtime.stderr.trim()
+	const compileOutput = output?.compile.output.trim()
+	const runtimeOutput = output?.runtime.output.trim()
+
+	const combinedOutput = [compileOutput, runtimeOutput]
+		.filter(Boolean)
+		.join('\n')
+	const combinedError = [hasCompileError, hasRuntimeError]
+		.filter(Boolean)
+		.join('\n')
+	const displayOutput =
+		combinedOutput ?? 'Oops, an error occurred!\nNo response.'
 	return (
 		<div className="sticky top-0 z-10 flex w-full flex-row items-center justify-between overflow-hidden bg-secondary px-8">
 			<div className="flex flex-row items-center">
@@ -121,18 +135,24 @@ const TabBar: FC = () => {
 					className="inline-flex items-center gap-x-2 bg-[#1B501D] p-2 text-base text-white"
 					onClick={(e) => {
 						e.preventDefault()
-						if (activeTab?.content.trim()) {
-							toast.promise(handleCodeExecution(), {
-								loading: 'Running code...',
-								success: <b>Great success!</b>,
-								error: <b>Oops, an error occurred!</b>,
-							})
+						try {
+							if (activeTab?.content.trim()) {
+								toast.promise(handleCodeExecution(), {
+									loading: <b>Running code...</b>,
+									success: <b>Run success!</b>,
+									error: <b>Oops, an error occurred!</b>,
+								})
 
-							if (!isOpen) {
-								setIsOpen(true)
+								if (!isOpen) {
+									setIsOpen(true)
+								}
+							} else {
+								handleCodeExecution()
 							}
-						} else {
-							handleCodeExecution()
+						} catch (error) {
+							if (error instanceof InternalServerError) {
+								throw error.message
+							}
 						}
 					}}
 					disabled={isLoading}
@@ -165,14 +185,21 @@ const TabBar: FC = () => {
 			)}
 
 			{output && isOpen && (
-				<div className="fixed bottom-[15%] right-[5%] z-50 mx-auto overflow-auto rounded-sm bg-secondary p-2">
+				<div className="prose prose-lg fixed bottom-[15%] right-[5%] z-50 mx-auto h-[33%] w-[40%] overflow-auto rounded-sm bg-secondary p-2 dark:prose-invert">
 					<button
 						onClick={() => setIsOpen(false)}
 						className="float-right text-sm"
 					>
 						x
 					</button>
-					<pre className="p-3 text-sm tracking-normal">{output}</pre>
+
+					<pre
+						className={cn('h-full w-full p-3 text-sm tracking-normal', {
+							'text-yellow-500': !!combinedError,
+						})}
+					>
+						{combinedError || displayOutput.trim()}
+					</pre>
 				</div>
 			)}
 		</div>

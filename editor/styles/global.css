@@ -4,7 +4,7 @@
 
 html,
 body {
-	@apply h-full scroll-smooth tracking-wide antialiased;
+	@apply hidden h-full scroll-smooth tracking-wide antialiased lg:block xl:block;
 }
 
 ::-webkit-scrollbar {
