@@ -89,6 +89,8 @@ jobs:
     timeout-minutes: 30
     needs:
       - editor
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
     permissions:
       contents: read
       packages: write
