@@ -1,9 +1,8 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /**
  * @type {import('next').NextConfig}
  */
-
-import { withSentryConfig } from '@sentry/nextjs'
-
 export const nextConfig = {
 	poweredByHeader: false,
 	output: 'standalone',
@@ -20,19 +19,6 @@ export async function rewrites() {
 
 export default withSentryConfig(
 	withSentryConfig(nextConfig, {
-		org: 'xosnrdev',
-		project: 'carai-editor',
-
-		// An auth token is required for uploading source maps.
-		authToken: process.env.SENTRY_AUTH_TOKEN,
-
-		silent: false, // Can be used to suppress logs
-		disableLogger: true,
-		tunnelRoute: '/monitoring-tunnel',
-		widenClientFileUpload: true,
-		hideSourceMaps: true,
-	}),
-	{
 		// For all available options, see:
 		// https://github.com/getsentry/sentry-webpack-plugin#options
 
@@ -64,6 +50,6 @@ export default withSentryConfig(
 		// See the following for more information:
 		// https://docs.sentry.io/product/crons/
 		// https://vercel.com/docs/cron-jobs
-		automaticVercelMonitors: true,
-	}
+		automaticVercelMonitors: false,
+	})
 )
