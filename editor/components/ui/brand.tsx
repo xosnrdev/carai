@@ -26,7 +26,7 @@ const Brand: FC<BrandProps> = ({ width = 110, height = 50, ...props }) => {
 				width={width}
 				height={height}
 				priority
-				className="pointer-events-none h-auto w-auto select-none"
+				className="pointer-events-none h-auto w-auto"
 				{...props}
 			/>
 		</Link>

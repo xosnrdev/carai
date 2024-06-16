@@ -10,6 +10,7 @@ import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { PersistConfig, persistReducer, persistStore } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import { editor } from 'monaco-editor'
 
 export class TabError extends Error {
 	constructor(public readonly message: string) {
@@ -37,6 +38,8 @@ type Tab = Readonly<{
 	isDirty: boolean
 
 	meta?: string
+
+	viewState?: editor.ICodeEditorViewState | null
 
 	config: TabConfig
 }>
@@ -130,6 +133,7 @@ const tabSlice = createSlice({
 				),
 				isDirty: !!payload.content,
 				meta: payload.meta,
+				viewState: null,
 				config: {
 					...defaultConfig,
 					...config,
@@ -220,7 +224,7 @@ const tabSlice = createSlice({
 		},
 
 		updateTab: (state, { payload }: PayloadAction<UpdateTabPayload>) => {
-			const { id, content, config } = payload
+			const { id, content, config, viewState } = payload
 			const tab = state.entities[id]
 
 			if (tab) {
@@ -242,6 +246,7 @@ const tabSlice = createSlice({
 					changes: {
 						content: updatedContent.slice(0, maxContentSize),
 						isDirty,
+						viewState: viewState ?? tab.viewState,
 					},
 				})
 			}

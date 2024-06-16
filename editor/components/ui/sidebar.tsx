@@ -215,6 +215,7 @@ const Sidebar: FC = () => {
 				<Modal title="Choose A Language" onClose={() => setIsOpen(false)}>
 					<div className="grid w-full grid-cols-1 gap-y-4">
 						<Input
+							id="inputarea"
 							type="text"
 							value={searchQuery}
 							onChange={(event) => setSearchQuery(event.target.value)}

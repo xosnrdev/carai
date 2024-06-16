@@ -1,9 +1,9 @@
-import { EditorProps } from '@monaco-editor/react'
 import { useTabContext } from '@/sdk/tabkit/store'
-import { editor as MonacoEditorType } from 'monaco-editor'
+import { EditorProps } from '@monaco-editor/react'
+import { editor as monacoEditor } from 'monaco-editor'
 import { useTheme } from 'next-themes'
 import dynamic from 'next/dynamic'
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useRef, useState } from 'react'
 import LoadingSpinner from './loading-spinner'
 
 const MonacoEditor = dynamic<EditorProps>(
@@ -17,29 +17,70 @@ const MonacoEditor = dynamic<EditorProps>(
 const Editor: FC = () => {
 	const { updateTab, activeTab } = useTabContext()
 	const { theme } = useTheme()
+	const editorContainerRef = useRef<HTMLDivElement>(null)
+	const [editorInstance, setEditorInstance] =
+		useState<monacoEditor.IStandaloneCodeEditor | null>(null)
 
 	const handleEditorChange = useCallback(
 		(content: string | undefined) => {
-			if (activeTab) {
+			if (activeTab && editorInstance) {
+				const rawViewState = editorInstance.saveViewState()
+				const viewState = JSON.parse(JSON.stringify(rawViewState))
 				updateTab({
 					id: activeTab.id,
 					content,
+					viewState,
 				})
 			}
 		},
-		[updateTab, activeTab]
+		[updateTab, activeTab, editorInstance]
 	)
 
 	const handleEditorDidMount = useCallback(
-		(editorInstance: MonacoEditorType.IStandaloneCodeEditor) => {
-			if (activeTab) {
-				editorInstance.focus()
+		(editorInstance: monacoEditor.IStandaloneCodeEditor) => {
+			if (activeTab && activeTab.viewState) {
+				editorInstance.restoreViewState(activeTab.viewState)
+			}
+			const setAttributes = () => {
+				const textarea = editorContainerRef.current?.querySelector('.inputarea')
+				if (textarea && activeTab) {
+					textarea.id = 'monaco-editor-textarea'
+					editorInstance.focus()
+				} else {
+					console.warn('Textarea not found or activeTab is undefined')
+				}
+			}
+
+			setAttributes()
+
+			const handleDomChange: MutationCallback = (mutations) => {
+				mutations.forEach((mutation) => {
+					if (mutation.type === 'childList') {
+						setAttributes()
+					}
+				})
+			}
+
+			const observer = new MutationObserver(handleDomChange)
+
+			if (editorContainerRef.current) {
+				observer.observe(editorContainerRef.current, {
+					childList: true,
+					subtree: true,
+				})
+			} else {
+				console.warn('Editor container not found')
+			}
+			setEditorInstance(editorInstance)
+			return () => {
+				observer.disconnect()
+				editorInstance.dispose()
 			}
 		},
 		[activeTab]
 	)
 
-	const editorConfigOptions: MonacoEditorType.IStandaloneEditorConstructionOptions =
+	const editorConfigOptions: monacoEditor.IStandaloneEditorConstructionOptions =
 		{
 			wordWrap: 'on',
 			minimap: {
@@ -70,35 +111,28 @@ const Editor: FC = () => {
 			lightbulb: {
 				enabled: false,
 			},
-			quickSuggestions: false,
-			parameterHints: {
-				enabled: false,
-			},
-			suggestOnTriggerCharacters: false,
-			acceptSuggestionOnEnter: 'off',
-			tabCompletion: 'off',
-			wordBasedSuggestions: 'off',
 			suggestSelection: 'first',
-			formatOnType: false,
-			formatOnPaste: false,
 		}
 
 	return (
 		<div
-			role="edit text"
+			ref={editorContainerRef}
+			id="editor-container"
+			role="textbox"
 			aria-label="code editor"
+			tabIndex={0}
 			className="flex h-screen flex-col"
 		>
 			{activeTab && (
 				<MonacoEditor
-					loading
+					loading={<LoadingSpinner />}
 					theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
 					language={activeTab.meta?.toLowerCase()}
 					value={activeTab.content}
 					onChange={handleEditorChange}
 					onMount={handleEditorDidMount}
 					options={editorConfigOptions}
-					aria-label="Code Editor Area"
+					aria-label="code editor area"
 				/>
 			)}
 		</div>

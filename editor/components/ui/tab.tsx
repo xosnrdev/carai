@@ -32,7 +32,7 @@ const Tab: FC<TabProps> = memo(
 				<span
 					role="button"
 					onClick={() => setActiveTab(id)}
-					className="cursor-pointer select-none whitespace-nowrap"
+					className="cursor-pointer whitespace-nowrap"
 					aria-label="switch active tab"
 				>
 					{title}

@@ -25,7 +25,7 @@ RUN npm i -g pnpm@latest && \
 
 ENV PORT 3000
 ENV HOSTNAME 0.0.0.0
-ENV SENTRY_AUTH_TOKEN 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
+ENV SENTRY_AUTH_TOKEN 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
 
 
 EXPOSE 3000
