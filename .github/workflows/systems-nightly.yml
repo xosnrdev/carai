@@ -13,6 +13,8 @@ jobs:
   editor:
     name: Editor
     runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
     container: node:20.12
     timeout-minutes: 30
     defaults:
@@ -35,8 +37,11 @@ jobs:
 
       - name: Build
         run: pnpm build
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: editor
 
   rce:
     name: RCE
@@ -89,6 +94,8 @@ jobs:
   build-editor:
     name: Build Editor
     runs-on: ubuntu-latest
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
     timeout-minutes: 30
     needs:
       - editor
@@ -98,8 +105,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        # with:
-        #   fetch-depth: 0
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -129,8 +136,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
 
       - name: Create Sentry release
         uses: getsentry/action-release@v1
