@@ -9,15 +9,6 @@ export const nextConfig = {
 	output: 'standalone',
 }
 
-export async function rewrites() {
-	return [
-		{
-			source: '/api/:path*',
-			destination: 'https://cexaengine.com/api/:path*',
-		},
-	]
-}
-
 export default withSentryConfig(nextConfig, {
 	// For all available options, see:
 	// https://github.com/getsentry/sentry-webpack-plugin#options
