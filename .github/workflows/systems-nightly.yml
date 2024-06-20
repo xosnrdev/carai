@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{secrets.EDITOR_SENTRY_DSN}}
     container: node:20.12
     timeout-minutes: 30
     defaults:
@@ -26,8 +27,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: latest
 
       - name: Install dependencies
         run: pnpm install
@@ -47,6 +46,8 @@ jobs:
     name: RCE
     runs-on: ubuntu-latest
     container: node:20.12
+    env:
+      SENTRY_DSN: ${{secrets.RCE_SENTRY_DSN}}
     timeout-minutes: 30
     defaults:
       run:
@@ -96,6 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{secrets.EDITOR_SENTRY_DSN}}
     timeout-minutes: 30
     needs:
       - editor
@@ -141,6 +143,9 @@ jobs:
     name: Build RCE
     runs-on: ubuntu-latest
     timeout-minutes: 720
+    env:
+      SENTRY_DSN: ${{secrets.RCE_SENTRY_DSN}}
+      SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
     needs:
       - rce
     permissions:
@@ -149,8 +154,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        # with:
-        #   fetch-depth: 0
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

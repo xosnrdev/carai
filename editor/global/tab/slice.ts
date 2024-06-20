@@ -1,16 +1,9 @@
-import {
-	PayloadAction,
-	combineReducers,
-	configureStore,
-	createEntityAdapter,
-	createSlice,
-	nanoid,
-} from '@reduxjs/toolkit'
-import { useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { PersistConfig, persistReducer, persistStore } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
-import { editor } from 'monaco-editor'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
+import type { editor } from 'monaco-editor'
+import { useSelector } from 'react-redux'
+import type { RootState } from '../store'
+import store from '../store'
 
 export class TabError extends Error {
 	constructor(public readonly message: string) {
@@ -46,9 +39,9 @@ type Tab = Readonly<{
 
 export type TabId = Tab['id']
 
-type AddTabPayload = Omit<Tab, 'id' | 'isDirty'>
+export type AddTabPayload = Omit<Tab, 'id' | 'isDirty'>
 
-type UpdateTabPayload = Partial<Tab> & {
+export type UpdateTabPayload = Partial<Tab> & {
 	id: TabId
 }
 
@@ -58,10 +51,10 @@ const defaultConfig: TabConfig = {
 	maxContentSize: 1000,
 }
 
-const tabAdapter = createEntityAdapter<Tab>()
+export const tabAdapter = createEntityAdapter<Tab>()
 
-const defaultTab: Tab = {
-	id: '_welcome_tab_id',
+export const defaultTab: Tab = {
+	id: 'welcome_tabview',
 	title: 'welcome',
 	content: '',
 	isDirty: false,
@@ -253,75 +246,19 @@ const tabSlice = createSlice({
 		},
 	},
 })
+export default tabSlice
 
-type RootState = {
-	tabs: ReturnType<typeof tabSlice.reducer>
-}
-
-const { selectAll: selectAllTabs, selectById: selectTabById } =
+export const { selectAll: selectAllTabs, selectById: selectTabById } =
 	tabAdapter.getSelectors<RootState>((state) => state.tabs)
 
-const { addTab, setActiveTab, removeTab, switchTab, closeAllTabs, updateTab } =
-	tabSlice.actions
-
-const rootReducer = combineReducers({
-	tabs: tabSlice.reducer,
-})
-
-const persistConfig: PersistConfig<RootState> = {
-	key: 'root',
-	storage,
-	whitelist: ['tabs'],
-}
-
-const persistedReducer = persistReducer(persistConfig, rootReducer)
-
-export const store = configureStore({
-	reducer: persistedReducer,
-	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware({
-			serializableCheck: {
-				ignoredActions: ['persist/PERSIST'],
-			},
-		}),
-	devTools: process.env.NODE_ENV !== 'production',
-})
-
-type AppDispatch = typeof store.dispatch
-
-const useAppSelector = <T>(selector: (state: RootState) => T) =>
+export const useAppSelector = <T>(selector: (state: RootState) => T) =>
 	useSelector<RootState, T>(selector)
 
-export const useTabContext = () => {
-	const dispatch = useDispatch<AppDispatch>()
-	const tabs = useAppSelector(selectAllTabs)
-	const activeTabId = useAppSelector((state) => state.tabs.activeTabId)
-	const activeTab = useAppSelector((state) =>
-		activeTabId ? selectTabById(state, activeTabId) : null
-	)
-	const isTabOnboarding = activeTab && activeTab.id === '_welcome_tab_id'
-	const isTabEditor = activeTab && activeTab.id !== '_welcome_tab_id'
-
-	const boundActions = useMemo(
-		() => ({
-			addTab: (payload: AddTabPayload) => dispatch(addTab(payload)),
-			removeTab: (tabId: TabId) => dispatch(removeTab(tabId)),
-			updateTab: (payload: UpdateTabPayload) => dispatch(updateTab(payload)),
-			setActiveTab: (tabId: TabId) => dispatch(setActiveTab(tabId)),
-			switchTab: (direction: 'next' | 'previous') =>
-				dispatch(switchTab(direction)),
-			closeAllTabs: () => dispatch(closeAllTabs()),
-		}),
-		[dispatch]
-	)
-
-	return {
-		tabs,
-		activeTabId,
-		activeTab,
-		isTabOnboarding,
-		isTabEditor,
-		...boundActions,
-	}
-}
-export const persistor = persistStore(store)
+export const {
+	addTab,
+	setActiveTab,
+	removeTab,
+	switchTab,
+	closeAllTabs,
+	updateTab,
+} = tabSlice.actions

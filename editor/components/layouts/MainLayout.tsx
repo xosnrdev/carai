@@ -1,29 +1,33 @@
 'use client'
 
-import TabProvider from '@/components/providers/TabProvider'
-import { FC, ReactNode } from 'react'
+import { type FC, type ReactNode } from 'react'
 import { Toaster } from 'react-hot-toast'
+import GlobalProvider from '../providers/GlobalProvider'
 import Header from '../ui/header'
 import Sidebar from '../ui/sidebar'
-import EditorLayout from './EditorLayout'
+import ThemeLayout from './ThemeLayout'
 
-interface IMainLayoutProp {
+export interface MainLayoutProps {
 	children: ReactNode
 }
 
-const MainLayout: FC<IMainLayoutProp> = ({ children }) => (
-	<div className="flex h-screen flex-col">
-		<TabProvider>
-			<Header />
-			<Toaster position="top-center" reverseOrder={true} />
-			<div className="inline-flex flex-row overflow-hidden">
-				<Sidebar />
-				<main className="grow overflow-y-auto">
-					<EditorLayout>{children}</EditorLayout>
-				</main>
-			</div>
-		</TabProvider>
-	</div>
-)
+const MainLayout: FC<MainLayoutProps> = ({ children }) => {
+	return (
+		<ThemeLayout>
+			<GlobalProvider>
+				<div className="flex h-screen flex-col">
+					<Header />
+					<Toaster position="top-center" reverseOrder={true} />
+					<div className="flex flex-row overflow-hidden">
+						<Sidebar />
+						<div className="grow bg-[#FFFFFF] dark:bg-[#1E1E2A]">
+							{children}
+						</div>
+					</div>
+				</div>
+			</GlobalProvider>
+		</ThemeLayout>
+	)
+}
 
 export default MainLayout

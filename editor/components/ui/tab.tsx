@@ -20,6 +20,10 @@ const Tab: FC<TabProps> = memo(
 		// });
 		return (
 			<div
+				id="tab-container"
+				tabIndex={0}
+				role="tab"
+				aria-label="tab"
 				key={id}
 				className={cn(
 					'm-auto flex h-12 items-center border-t-2 border-solid border-[#FFFFFF] bg-[#FFFFFF] px-2 transition-all delay-300 duration-150 ease-linear hover:border-primary dark:border-[#1E1E2A] dark:bg-[#1E1E2A] dark:hover:border-secondary-foreground',

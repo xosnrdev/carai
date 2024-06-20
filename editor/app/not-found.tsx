@@ -2,8 +2,9 @@
 
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import type { FC } from 'react'
 
-export default function NotFound() {
+const NotFound: FC = () => {
 	const router = useRouter()
 	return (
 		<section className="prose prose-xl mx-auto grid min-h-screen place-content-center dark:prose-invert">
@@ -36,3 +37,5 @@ export default function NotFound() {
 		</section>
 	)
 }
+
+export default NotFound

@@ -1,5 +1,5 @@
-import { Variants, motion, AnimatePresence } from 'framer-motion'
-import { ReactNode } from 'react'
+import { AnimatePresence, Variants, motion } from 'framer-motion'
+import type { FC, ReactNode } from 'react'
 
 const PageTransition: Variants = {
 	initial: {
@@ -21,7 +21,11 @@ const PageTransition: Variants = {
 	},
 }
 
-const AnimatedLayout = ({ children }: { children: ReactNode }) => {
+interface AnimatedLayoutProps {
+	children: ReactNode
+}
+
+const AnimatedLayout: FC<AnimatedLayoutProps> = ({ children }) => {
 	return (
 		<AnimatePresence>
 			<motion.div

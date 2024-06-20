@@ -1,25 +1,18 @@
 'use client'
 
+import { TabError } from '@/global/tab/slice'
+import useKeyPress from '@/hooks/useKeyPress'
+import useTabContext from '@/hooks/useTabContext'
 import { sidebarProps } from '@/lib/constants/ui'
 import { cn } from '@/lib/utils'
-import useKeyPress from '@/sdk/hooks/useKeyPress'
-import { TabError, useTabContext } from '@/sdk/tabkit/store'
 import Link from 'next/link'
-import { FC, useCallback, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { type FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md'
-import { Button } from './button'
-import { Input } from './input'
-import { Label } from './label'
-import Modal from './modal'
-import { RadioGroup, RadioGroupItem } from './radio-group'
-import { usePathname } from 'next/navigation'
 import {
 	SiC,
 	SiCplusplus,
-	SiElixir,
-	SiErlang,
-	SiGo,
 	SiJavascript,
 	SiJulia,
 	SiLua,
@@ -28,8 +21,12 @@ import {
 	SiRuby,
 	SiSqlite,
 	SiTypescript,
-	SiV,
 } from 'react-icons/si'
+import { Button } from './button'
+import { Input } from './input'
+import { Label } from './label'
+import Modal from './modal'
+import { RadioGroup, RadioGroupItem } from './radio-group'
 
 const languageProps: LanguageProps[] = [
 	{
@@ -186,7 +183,7 @@ const Sidebar: FC = () => {
 					meta,
 					content: '',
 					config: {
-						maxContentSize: 10 * 1000,
+						maxContentSize: 10 * 500,
 						maxTabs: 10,
 					},
 				})

@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react'
+import type { FC, ReactNode } from 'react'
 import { ThemeProvider } from '../providers/ThemeProvider'
 
 interface IThemeLayoutProp {

@@ -5,17 +5,16 @@
 import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
-	dsn: 'https://f48e61d0f37c7305174dd13b6a1b952d@o4506923082973184.ingest.us.sentry.io/4507421399777280',
+	dsn: process.env.SENTRY_DSN,
 
 	sampleRate: 1.0,
 	attachStacktrace: true,
-	tracePropagationTargets: ['localhost', 'https://cexaengine.com'],
 
 	// Adjust this value in production, or use tracesSampler for greater control
 	tracesSampleRate: 0.2,
 
 	// Setting this option to true will print useful information to the console while you're setting up Sentry.
-	debug: process.env.NODE_ENV !== 'production',
+	debug: false,
 
 	replaysOnErrorSampleRate: 0.5,
 
@@ -30,6 +29,5 @@ Sentry.init({
 			maskAllText: true,
 			blockAllMedia: true,
 		}),
-		Sentry.browserTracingIntegration(),
 	],
 })
