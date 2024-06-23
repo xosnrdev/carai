@@ -26,7 +26,7 @@ const Tab: FC<TabProps> = memo(
 				aria-label="tab"
 				key={id}
 				className={cn(
-					'm-auto flex h-12 items-center border-t-2 border-solid border-[#FFFFFF] bg-[#FFFFFF] px-2 transition-all delay-300 duration-150 ease-linear hover:border-primary dark:border-[#1E1E2A] dark:bg-[#1E1E2A] dark:hover:border-secondary-foreground',
+					'flex h-10 items-center border-t-2 border-solid border-[#FFFFFF] bg-[#FFFFFF] px-1 transition-all delay-300 duration-150 ease-linear hover:border-primary dark:border-[#1E1E2A] dark:bg-[#1E1E2A] dark:hover:border-secondary-foreground lg:h-12 lg:px-2 xl:h-12 xl:px-2',
 					{
 						'border-primary dark:border-secondary-foreground':
 							activeTabId === id,

@@ -10,11 +10,11 @@ const Onboarding: FC = () => {
 	const router = useRouter()
 
 	return (
-		<AnimatedLayout key="_welcome">
-			<div className="mx-auto hidden min-h-screen px-12 pt-12 xl:block">
-				<div className="flex flex-row items-center justify-between">
+		<AnimatedLayout key="welcome_tabview">
+			<div className="mx-auto h-dvh pt-4 lg:px-12 lg:pt-8 xl:px-12 xl:pt-8">
+				<div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between xl:flex-row xl:justify-between">
 					<div className="grid grid-cols-1 gap-y-6">
-						<h1 className="text-6xl font-extrabold text-primary dark:text-secondary-foreground">
+						<h1 className="text-nowrap text-2xl font-extrabold text-primary dark:text-secondary-foreground lg:text-6xl xl:text-6xl">
 							Get Started with Carai
 						</h1>
 
@@ -22,7 +22,7 @@ const Onboarding: FC = () => {
 							{onboardingProps.texts.map((text, idx) => (
 								<li
 									key={idx}
-									className="flex flex-row items-center gap-x-1 gap-y-2 text-xl text-foreground/50 transition-opacity duration-300 hover:cursor-pointer hover:opacity-75"
+									className="z-10 flex flex-row items-center gap-x-1 gap-y-2 text-nowrap text-base text-foreground/50 transition-opacity duration-300 hover:cursor-pointer hover:opacity-75 lg:text-xl xl:text-xl"
 								>
 									<BiSolidRightArrow />
 									<p className="leading-10">{text}</p>
@@ -30,7 +30,7 @@ const Onboarding: FC = () => {
 							))}
 						</ul>
 
-						<div className="mt-12 grid max-w-md gap-y-4">
+						<div className="mt-12 grid gap-y-4 lg:max-w-md xl:max-w-md">
 							{onboardingProps.links.map((link, idx) => (
 								<Button
 									key={idx}
@@ -46,7 +46,9 @@ const Onboarding: FC = () => {
 							))}
 						</div>
 					</div>
-					<Banner />
+					<div className="hidden lg:block xl:block">
+						<Banner />
+					</div>
 				</div>
 			</div>
 		</AnimatedLayout>

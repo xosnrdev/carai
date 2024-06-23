@@ -15,7 +15,7 @@ const MainLayout: FC<MainLayoutProps> = ({ children }) => {
 	return (
 		<ThemeLayout>
 			<GlobalProvider>
-				<div className="flex h-screen flex-col">
+				<div className="flex h-dvh flex-col overflow-hidden">
 					<Header />
 					<Toaster position="top-center" reverseOrder={true} />
 					<div className="flex flex-row overflow-hidden">

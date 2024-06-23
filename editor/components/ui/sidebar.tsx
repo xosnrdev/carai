@@ -7,7 +7,7 @@ import { sidebarProps } from '@/lib/constants/ui'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { type FC, useCallback, useState } from 'react'
+import { useCallback, useState, type FC } from 'react'
 import toast from 'react-hot-toast'
 import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md'
 import {
@@ -210,7 +210,7 @@ const Sidebar: FC = () => {
 		<>
 			{isOpen && (
 				<Modal title="Choose A Language" onClose={() => setIsOpen(false)}>
-					<div className="grid w-full grid-cols-1 gap-y-4">
+					<div className="grid grid-cols-1 gap-y-4">
 						<Input
 							id="inputarea"
 							type="text"
@@ -232,7 +232,7 @@ const Sidebar: FC = () => {
 							</button>
 
 							<RadioGroup
-								className="grid w-full grid-cols-3 gap-4"
+								className="grid w-full grid-cols-3 lg:gap-4 xl:gap-4"
 								onKeyDown={function (event) {
 									if (event.key === 'Enter') {
 										event.preventDefault()
@@ -252,7 +252,7 @@ const Sidebar: FC = () => {
 										(currentView + 1) * itemsPerView
 									)
 									.map((language, idx) => (
-										<span key={idx}>
+										<div key={idx}>
 											<RadioGroupItem
 												value={language.title}
 												id={language.title}
@@ -267,9 +267,11 @@ const Sidebar: FC = () => {
 													size={language.iconProps.size}
 													className={language.iconProps.className}
 												/>
-												{language.title}
+												<span className="text-xs lg:text-base xl:text-base">
+													{language.title}
+												</span>
 											</Label>
-										</span>
+										</div>
 									))}
 							</RadioGroup>
 
@@ -299,7 +301,7 @@ const Sidebar: FC = () => {
 				</Modal>
 			)}
 
-			<aside className="sticky left-0 top-0 m-auto flex h-screen w-16 flex-col border-r border-solid border-background/80 bg-secondary py-16">
+			<aside className="sticky left-0 top-0 flex h-dvh w-12 flex-col border-r border-solid border-background/80 bg-secondary py-16 lg:w-16 xl:w-16">
 				{pathname === '/' &&
 					sidebarProps.map(({ label, ...val }, idx) => (
 						<div

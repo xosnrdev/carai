@@ -14,12 +14,12 @@ const Header: FC = () => {
 
 	const router = useRouter()
 	return (
-		<header className="sticky top-0 z-50 m-auto flex h-16 w-full flex-row items-center justify-between border-b border-solid border-background/80 bg-secondary px-8">
+		<header className="sticky top-0 z-50 m-auto flex h-14 w-full flex-row items-center justify-between border-b border-solid border-background/80 bg-secondary px-4 lg:h-16 lg:px-8 xl:h-16 xl:px-8">
 			<Brand />
 			<div className="flex flex-row items-center justify-center gap-x-6">
 				<ThemeSwitch />
 				{isTabViewEditor && (
-					<div className="flex flex-row gap-x-4">
+					<div className="hidden flex-row gap-x-4 lg:flex xl:flex">
 						{headerProps.map((prop, idx) => (
 							<Button
 								key={idx}

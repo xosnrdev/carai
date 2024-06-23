@@ -54,16 +54,16 @@
 		@apply border-border;
 	}
 	body {
-		@apply m-0 box-border hidden h-full w-full scroll-smooth bg-background p-0 tracking-wide text-foreground antialiased lg:block xl:block;
+		@apply m-0 box-border h-full w-full scroll-smooth bg-background p-0 tracking-wide text-foreground antialiased;
 
 		.custom-scrollbar::-webkit-scrollbar {
-			@apply block h-3 w-3;
+			@apply block size-3;
 		}
 		.custom-scrollbar::-webkit-scrollbar-track {
 			@apply bg-inherit;
 		}
 		.custom-scrollbar::-webkit-scrollbar-thumb {
-			@apply bg-black bg-opacity-30 backdrop-blur dark:bg-white/30;
+			@apply bg-black bg-opacity-30 backdrop-blur-sm dark:bg-white/30;
 		}
 
 		.custom-scrollbar::-webkit-scrollbar-thumb:hover {

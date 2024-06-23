@@ -1,4 +1,3 @@
-import useAppContext from '@/hooks/useAppContext'
 import useTabContext from '@/hooks/useTabContext'
 import { tabBarProps } from '@/lib/constants/ui'
 import { type CodeResponse, type ErrorResponse } from '@/lib/types/response'
@@ -15,18 +14,16 @@ const TabBar: FC = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const {
 		tabs,
+		onResize,
 		activeTab,
 		removeTab,
-		setActiveTab,
 		switchTab,
-		isTabViewEditor,
-	} = useTabContext()
-	const {
-		resizePanelVisible,
-		setResizePanelVisible,
-		setCodeResponse,
+		setOnResize,
 		codeResponse,
-	} = useAppContext()
+		setActiveTab,
+		isTabViewEditor,
+		setCodeResponse,
+	} = useTabContext()
 
 	const handleCloseTab = (
 		e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
@@ -36,26 +33,39 @@ const TabBar: FC = () => {
 		e.stopPropagation()
 	}
 
-	const handleResizePanelVisible = useCallback(() => {
-		if (resizePanelVisible) {
-			setResizePanelVisible(false)
+	const handleOnResizeVisible = useCallback(() => {
+		if (!activeTab) return
+		const { id } = activeTab
+
+		if (onResize?.visible) {
+			setOnResize({
+				id,
+				onResize: {
+					visible: false,
+				},
+			})
 		} else {
-			setResizePanelVisible(true)
+			setOnResize({
+				id,
+				onResize: {
+					visible: true,
+				},
+			})
 		}
-	}, [resizePanelVisible, setResizePanelVisible])
+	}, [onResize?.visible, setOnResize, activeTab])
 
 	const handleCodeExecution = useCallback(() => {
 		return new Promise<CodeResponse>((resolve, reject) => {
-			if (!activeTab?.content.trim()) {
+			if (!activeTab) return
+			const { id, meta: language, content: code } = activeTab
+
+			if (!code.trim()) {
 				reject(new Error('Blank code!'))
 				return
 			}
 
-			const { meta: language, content: code } = activeTab
-
 			if (language && code) {
 				setIsLoading(true)
-
 				rceHandler
 					.execute({
 						language: language,
@@ -64,10 +74,10 @@ const TabBar: FC = () => {
 					})
 					.then((codeResponse) => {
 						if (!codeResponse) {
-							reject(new Error('code reponse null!'))
+							reject(new Error('code response null!'))
 						}
 
-						setCodeResponse(codeResponse)
+						setCodeResponse({ id, codeResponse })
 						resolve(codeResponse)
 					})
 					.catch((error: ErrorResponse) => {
@@ -79,10 +89,10 @@ const TabBar: FC = () => {
 					})
 			}
 		})
-	}, [activeTab, setCodeResponse])
+	}, [setCodeResponse, activeTab])
 
 	return (
-		<div className="sticky top-0 z-10 flex w-full flex-row items-center justify-between bg-secondary px-8">
+		<div className="sticky top-0 z-10 flex w-full flex-row items-center justify-between bg-secondary lg:px-8 xl:px-8">
 			<div className="flex flex-row items-center">
 				{activeTab &&
 					tabs.length > 1 &&
@@ -155,7 +165,15 @@ const TabBar: FC = () => {
 								error: (err: Error) => <b>{err.message}</b>,
 							})
 							if (!codeResponse) return
-							if (!resizePanelVisible) setResizePanelVisible(true)
+							if (activeTab && !onResize?.visible) {
+								const { id } = activeTab
+								setOnResize({
+									id,
+									onResize: {
+										visible: true,
+									},
+								})
+							}
 						}}
 						disabled={isLoading}
 					>
@@ -189,9 +207,9 @@ const TabBar: FC = () => {
 						size={'icon'}
 						role="button"
 						className="rounded-none text-2xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
-						onClick={handleResizePanelVisible}
+						onClick={handleOnResizeVisible}
 					>
-						{resizePanelVisible ? '⇥' : '⇤'}
+						{onResize?.visible ? '⇥' : '⇤'}
 					</Button>
 				</div>
 			)}

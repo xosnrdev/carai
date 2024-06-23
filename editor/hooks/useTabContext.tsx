@@ -6,10 +6,14 @@ import {
 	selectAllTabs,
 	selectTabById,
 	setActiveTab,
+	setCodeResponse,
+	setOnResize,
 	switchTab,
 	updateTab,
-	useAppSelector,
+	useTabSelector,
 	type AddTabPayload,
+	type CodeResponsePayload,
+	type OnResizePayload,
 	type TabId,
 	type UpdateTabPayload,
 } from '@/global/tab/slice'
@@ -18,11 +22,22 @@ import { useDispatch } from 'react-redux'
 
 const useTabContext = () => {
 	const dispatch = useDispatch<AppDispatch>()
-	const tabs = useAppSelector(selectAllTabs)
-	const activeTabId = useAppSelector((state) => state.tabs.activeTabId)
-	const activeTab = useAppSelector((state) =>
+	const tabs = useTabSelector(selectAllTabs)
+	const activeTabId = useTabSelector((state) => state.tabs.activeTabId)
+	const activeTab = useTabSelector((state) =>
 		activeTabId ? selectTabById(state, activeTabId) : null
 	)
+	const codeResponse = useTabSelector((state) =>
+		activeTabId
+			? state.tabs.entities[activeTabId].editorViewState?.codeResponse
+			: null
+	)
+	const onResize = useTabSelector((state) =>
+		activeTabId
+			? state.tabs.entities[activeTabId].editorViewState?.onResize
+			: null
+	)
+
 	const isTabViewOnboarding = activeTab && activeTab.id === 'welcome_tabview'
 	const isTabViewEditor = activeTab && activeTab.id !== 'welcome_tabview'
 
@@ -35,17 +50,24 @@ const useTabContext = () => {
 			switchTab: (direction: 'next' | 'previous') =>
 				dispatch(switchTab(direction)),
 			closeAllTabs: () => dispatch(closeAllTabs()),
+			setCodeResponse: (payload: CodeResponsePayload) =>
+				dispatch(setCodeResponse(payload)),
+			setOnResize: (payload: OnResizePayload) => {
+				dispatch(setOnResize(payload))
+			},
 		}),
 		[dispatch]
 	)
 
 	return {
 		tabs,
-		activeTabId,
 		activeTab,
-		isTabViewOnboarding,
-		isTabViewEditor,
+		activeTabId,
+		codeResponse,
 		...boundActions,
+		isTabViewEditor,
+		isTabViewOnboarding,
+		onResize,
 	}
 }
 

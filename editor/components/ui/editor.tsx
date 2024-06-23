@@ -15,7 +15,7 @@ const MonacoEditor = dynamic<EditorProps>(
 )
 
 const Editor: FC = () => {
-	const { updateTab, activeTab } = useTabContext()
+	const { updateTab, activeTab, codeResponse, onResize } = useTabContext()
 	const { theme } = useTheme()
 	const editorContainerRef = useRef<HTMLDivElement>(null)
 	const [editorInstance, setEditorInstance] =
@@ -24,22 +24,29 @@ const Editor: FC = () => {
 	const handleEditorChange = useCallback(
 		(content: string | undefined) => {
 			if (activeTab && editorInstance) {
-				const rawViewState = editorInstance.saveViewState()
-				const viewState = JSON.parse(JSON.stringify(rawViewState))
-				updateTab({
-					id: activeTab.id,
-					content,
-					viewState,
-				})
+				const defaultViewState = editorInstance.saveViewState()
+				if (defaultViewState) {
+					const extendedViewState = {
+						...defaultViewState,
+						codeResponse,
+						onResize,
+					}
+					const editorViewState = JSON.parse(JSON.stringify(extendedViewState))
+					updateTab({
+						id: activeTab.id,
+						content,
+						editorViewState,
+					})
+				}
 			}
 		},
-		[updateTab, activeTab, editorInstance]
+		[updateTab, activeTab, editorInstance, codeResponse, onResize]
 	)
 
 	const handleEditorDidMount = useCallback(
 		(editorInstance: editorType.IStandaloneCodeEditor) => {
-			if (activeTab && activeTab.viewState) {
-				editorInstance.restoreViewState(activeTab.viewState)
+			if (activeTab && activeTab.editorViewState) {
+				editorInstance.restoreViewState(activeTab.editorViewState)
 			}
 			const setAttributes = () => {
 				const textarea = editorContainerRef.current?.querySelector('.inputarea')

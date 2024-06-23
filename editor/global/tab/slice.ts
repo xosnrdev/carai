@@ -1,9 +1,10 @@
+import { CodeResponse } from '@/lib/types/response'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
 import type { editor } from 'monaco-editor'
 import { useSelector } from 'react-redux'
+import type { PanelOnResize } from 'react-resizable-panels'
 import type { RootState } from '../store'
-import store from '../store'
 
 export class TabError extends Error {
 	constructor(public readonly message: string) {
@@ -32,12 +33,30 @@ type Tab = Readonly<{
 
 	meta?: string
 
-	viewState?: editor.ICodeEditorViewState | null
+	editorViewState?:
+		| (editor.ICodeEditorViewState & {
+				codeResponse: CodeResponse | null
+				onResize: Partial<{
+					panelOnResize: PanelOnResize
+					visible: Boolean
+				}>
+		  })
+		| null
 
 	config: TabConfig
 }>
 
 export type TabId = Tab['id']
+
+export type CodeResponsePayload = {
+	id: TabId
+	codeResponse: NonNullable<Tab['editorViewState']>['codeResponse']
+}
+
+export type OnResizePayload = {
+	id: TabId
+	onResize: NonNullable<Tab['editorViewState']>['onResize']
+}
 
 export type AddTabPayload = Omit<Tab, 'id' | 'isDirty'>
 
@@ -53,12 +72,20 @@ const defaultConfig: TabConfig = {
 
 export const tabAdapter = createEntityAdapter<Tab>()
 
-export const defaultTab: Tab = {
+const defaultTab: Tab = {
 	id: 'welcome_tabview',
 	title: 'welcome',
 	content: '',
 	isDirty: false,
 	config: { closable: true },
+}
+
+const defaultEditorViewState: Tab['editorViewState'] = {
+	...(null as any),
+	codeResponse: null,
+	onResize: {
+		visible: true,
+	},
 }
 
 const initialState = tabAdapter.getInitialState({
@@ -126,7 +153,7 @@ const tabSlice = createSlice({
 				),
 				isDirty: !!payload.content,
 				meta: payload.meta,
-				viewState: null,
+				editorViewState: defaultEditorViewState,
 				config: {
 					...defaultConfig,
 					...config,
@@ -216,8 +243,12 @@ const tabSlice = createSlice({
 			state.activeTabId = null
 		},
 
-		updateTab: (state, { payload }: PayloadAction<UpdateTabPayload>) => {
-			const { id, content, config, viewState } = payload
+		updateTab: (
+			state,
+			{
+				payload: { id, content, config, editorViewState },
+			}: PayloadAction<UpdateTabPayload>
+		) => {
 			const tab = state.entities[id]
 
 			if (tab) {
@@ -239,9 +270,33 @@ const tabSlice = createSlice({
 					changes: {
 						content: updatedContent.slice(0, maxContentSize),
 						isDirty,
-						viewState: viewState ?? tab.viewState,
+						editorViewState: editorViewState ?? tab.editorViewState,
 					},
 				})
+			}
+		},
+		setCodeResponse: (
+			state,
+			{ payload: { id, codeResponse } }: PayloadAction<CodeResponsePayload>
+		) => {
+			const tab = state.entities[id]
+			if (tab && tab.editorViewState) {
+				tab.editorViewState.codeResponse = codeResponse
+			}
+		},
+		setOnResize: (
+			state,
+			{
+				payload: {
+					id,
+					onResize: { visible, panelOnResize },
+				},
+			}: PayloadAction<OnResizePayload>
+		) => {
+			const tab = state.entities[id]
+			if (tab && tab.editorViewState) {
+				tab.editorViewState.onResize.visible = visible
+				tab.editorViewState.onResize.panelOnResize = panelOnResize
 			}
 		},
 	},
@@ -251,7 +306,7 @@ export default tabSlice
 export const { selectAll: selectAllTabs, selectById: selectTabById } =
 	tabAdapter.getSelectors<RootState>((state) => state.tabs)
 
-export const useAppSelector = <T>(selector: (state: RootState) => T) =>
+export const useTabSelector = <T>(selector: (state: RootState) => T) =>
 	useSelector<RootState, T>(selector)
 
 export const {
@@ -261,4 +316,6 @@ export const {
 	switchTab,
 	closeAllTabs,
 	updateTab,
+	setCodeResponse,
+	setOnResize,
 } = tabSlice.actions

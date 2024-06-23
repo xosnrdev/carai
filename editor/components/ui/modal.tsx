@@ -5,7 +5,7 @@ const Modal: FC<ModalProps> = ({ title, description, children, onClose }) => {
 	return (
 		<>
 			<Dialog open onOpenChange={onClose}>
-				<DialogContent className="bg-secondary">
+				<DialogContent className="max-w-sm bg-secondary lg:max-w-lg xl:max-w-lg">
 					<DialogTitle>{title}</DialogTitle>
 					<DialogDescription>{description}</DialogDescription>
 					{children}
