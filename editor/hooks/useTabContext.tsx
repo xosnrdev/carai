@@ -1,4 +1,4 @@
-import type { AppDispatch } from '@/global/store'
+import { useGlobalSelector, type AppDispatch } from '@/global/store'
 import {
 	addTab,
 	closeAllTabs,
@@ -10,7 +10,6 @@ import {
 	setOnResize,
 	switchTab,
 	updateTab,
-	useTabSelector,
 	type AddTabPayload,
 	type CodeResponsePayload,
 	type OnResizePayload,
@@ -22,17 +21,20 @@ import { useDispatch } from 'react-redux'
 
 const useTabContext = () => {
 	const dispatch = useDispatch<AppDispatch>()
-	const tabs = useTabSelector(selectAllTabs)
-	const activeTabId = useTabSelector((state) => state.tabs.activeTabId)
-	const activeTab = useTabSelector((state) =>
+	const tabs = useGlobalSelector(selectAllTabs)
+	const activeTabId = useGlobalSelector((state) => state.tabs.activeTabId)
+	const activeTab = useGlobalSelector((state) =>
 		activeTabId ? selectTabById(state, activeTabId) : null
 	)
-	const codeResponse = useTabSelector((state) =>
+	const codeResponse = useGlobalSelector((state) =>
 		activeTabId
 			? state.tabs.entities[activeTabId].editorViewState?.codeResponse
 			: null
 	)
-	const onResize = useTabSelector((state) =>
+	const switchTabByIndex = useGlobalSelector((state) =>
+		activeTabId ? state.tabs.ids.indexOf(activeTabId) : null
+	)
+	const onResize = useGlobalSelector((state) =>
 		activeTabId
 			? state.tabs.entities[activeTabId].editorViewState?.onResize
 			: null
@@ -40,6 +42,7 @@ const useTabContext = () => {
 
 	const isTabViewOnboarding = activeTab && activeTab.id === 'welcome_tabview'
 	const isTabViewEditor = activeTab && activeTab.id !== 'welcome_tabview'
+	const isMobileView = window.matchMedia('(max-width: 600px)').matches
 
 	const boundActions = useMemo(
 		() => ({
@@ -61,13 +64,15 @@ const useTabContext = () => {
 
 	return {
 		tabs,
+		onResize,
 		activeTab,
 		activeTabId,
+		isMobileView,
 		codeResponse,
 		...boundActions,
 		isTabViewEditor,
+		switchTabByIndex,
 		isTabViewOnboarding,
-		onResize,
 	}
 }
 

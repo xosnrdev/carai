@@ -17,7 +17,7 @@ export default function GlobalError({
 	return (
 		<html>
 			<body>
-				<div className="prose prose-lg mx-auto grid min-h-screen max-w-prose place-content-center">
+				<div className="prose prose-xl mx-auto flex min-h-dvh flex-col items-center justify-center">
 					<h2>Something went wrong!</h2>
 					<Button
 						variant={'outline'}

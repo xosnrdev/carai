@@ -7,7 +7,7 @@ import type { FC } from 'react'
 const NotFound: FC = () => {
 	const router = useRouter()
 	return (
-		<section className="prose prose-xl mx-auto grid min-h-screen place-content-center dark:prose-invert">
+		<section className="prose prose-xl mx-auto flex min-h-dvh flex-col items-center justify-center dark:prose-invert">
 			<h5 className="uppercase tracking-widest">404 | Not Found</h5>
 			<Button
 				variant={null}

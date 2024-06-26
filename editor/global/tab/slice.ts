@@ -1,9 +1,7 @@
-import { CodeResponse } from '@/lib/types/response'
+import type { CodeResponse } from '@/lib/types/response'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
 import type { editor } from 'monaco-editor'
-import { useSelector } from 'react-redux'
-import type { PanelOnResize } from 'react-resizable-panels'
 import type { RootState } from '../store'
 
 export class TabError extends Error {
@@ -37,7 +35,6 @@ type Tab = Readonly<{
 		| (editor.ICodeEditorViewState & {
 				codeResponse: CodeResponse | null
 				onResize: Partial<{
-					panelOnResize: PanelOnResize
 					visible: Boolean
 				}>
 		  })
@@ -109,7 +106,7 @@ function validatePayload(
 
 	if (maxTabs && state.ids.length >= maxTabs) {
 		errors.push(`Max tab
-		 (${maxTabs}) reached!`)
+		 (${maxTabs})`)
 	}
 
 	if (!title || typeof title !== 'string') {
@@ -171,37 +168,38 @@ const tabSlice = createSlice({
 		},
 
 		removeTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
-			if (state.entities[tabId].config.closable) {
+			if (
+				state.activeTabId === tabId &&
+				state.entities[tabId].config.closable
+			) {
 				const { ids } = state
 				const removedTabIndex = ids.indexOf(tabId)
 				tabAdapter.removeOne(state, tabId)
 
-				if (state.activeTabId === tabId) {
-					state.activeTabId = null
+				state.activeTabId = null
 
-					const idsLength = ids.length
-					let nextIndex: number | null = null
+				const idsLength = ids.length
+				let nextIndex: number | null = null
 
-					for (let i = removedTabIndex + 1; i < idsLength; i++) {
+				for (let i = removedTabIndex + 1; i < idsLength; i++) {
+					const id = ids[i]
+					if (state.entities[id]) {
+						nextIndex = i
+						break
+					}
+				}
+
+				if (nextIndex === null) {
+					for (let i = removedTabIndex - 1; i >= 0; i--) {
 						const id = ids[i]
 						if (state.entities[id]) {
 							nextIndex = i
 							break
 						}
 					}
-
-					if (nextIndex === null) {
-						for (let i = removedTabIndex - 1; i >= 0; i--) {
-							const id = ids[i]
-							if (state.entities[id]) {
-								nextIndex = i
-								break
-							}
-						}
-					}
-
-					state.activeTabId = nextIndex !== null ? ids[nextIndex] : null
 				}
+
+				state.activeTabId = nextIndex !== null ? ids[nextIndex] : null
 			}
 		},
 
@@ -289,14 +287,13 @@ const tabSlice = createSlice({
 			{
 				payload: {
 					id,
-					onResize: { visible, panelOnResize },
+					onResize: { visible },
 				},
 			}: PayloadAction<OnResizePayload>
 		) => {
 			const tab = state.entities[id]
 			if (tab && tab.editorViewState) {
 				tab.editorViewState.onResize.visible = visible
-				tab.editorViewState.onResize.panelOnResize = panelOnResize
 			}
 		},
 	},
@@ -305,9 +302,6 @@ export default tabSlice
 
 export const { selectAll: selectAllTabs, selectById: selectTabById } =
 	tabAdapter.getSelectors<RootState>((state) => state.tabs)
-
-export const useTabSelector = <T>(selector: (state: RootState) => T) =>
-	useSelector<RootState, T>(selector)
 
 export const {
 	addTab,

@@ -5,6 +5,11 @@
 import { withSentryConfig } from '@sentry/nextjs'
 
 export const nextConfig = {
+	reactStrictMode: true,
+	swcMinify: true,
+	compiler: {
+		removeConsole: process.env.NODE_ENV === 'production',
+	},
 	poweredByHeader: false,
 	output: 'standalone',
 	experimental: {

@@ -1,3 +1,5 @@
+import type { TabId } from '@/global/tab/slice'
+import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
 import { tabBarProps } from '@/lib/constants/ui'
 import { type CodeResponse, type ErrorResponse } from '@/lib/types/response'
@@ -7,7 +9,6 @@ import { useCallback, useState, type FC, type MouseEvent } from 'react'
 import toast from 'react-hot-toast'
 import { Button } from './button'
 import Tab from './tab'
-import type { TabId } from '@/global/tab/slice'
 
 const rceHandler = new RCEHandler()
 
@@ -20,11 +21,14 @@ const TabBar: FC = () => {
 		removeTab,
 		switchTab,
 		setOnResize,
+		activeTabId,
+		isMobileView,
+		closeAllTabs,
 		codeResponse,
 		setActiveTab,
 		isTabViewEditor,
 		setCodeResponse,
-		activeTabId,
+		switchTabByIndex,
 	} = useTabContext()
 
 	const handleCloseTab = (
@@ -58,11 +62,11 @@ const TabBar: FC = () => {
 
 	const handleCodeExecution = useCallback(() => {
 		return new Promise<CodeResponse>((resolve, reject) => {
-			if (!activeTab) return 
+			if (!activeTab) return
 			const { id, meta: language, content: code } = activeTab
 
 			if (!code.trim()) {
-				reject(new Error('Blank code!'))
+				reject(new Error('No payload exit 1'))
 				return
 			}
 
@@ -75,8 +79,10 @@ const TabBar: FC = () => {
 						code,
 					})
 					.then((codeResponse) => {
-						if (!codeResponse) {
-							reject(new Error('code response null!'))
+						if (!codeResponse.runtime.output.trim()) {
+							reject(
+								new Error('No response exit ' + codeResponse.runtime.exitCode)
+							)
 						}
 
 						setCodeResponse({ id, codeResponse })
@@ -93,6 +99,25 @@ const TabBar: FC = () => {
 		})
 	}, [setCodeResponse, activeTab])
 
+	useKeyPress({
+		targetKey: 'q',
+		callback: () => {
+			if (activeTab) {
+				closeAllTabs()
+			}
+		},
+		modifier: 'ctrlKey',
+	})
+	useKeyPress({
+		targetKey: 'Tab',
+		callback: () => {
+			if (tabs) {
+				switchTab(switchTabByIndex === tabs.length ? 'previous' : 'next')
+			}
+		},
+		modifier: 'altKey',
+	})
+
 	return (
 		<div className="sticky top-0 z-10 flex w-full flex-row items-center justify-between bg-secondary lg:px-8 xl:px-8">
 			<div className="flex flex-row items-center">
@@ -101,9 +126,9 @@ const TabBar: FC = () => {
 					tabBarProps.map((prop, index) => {
 						const isDisabled =
 							(index === 0 &&
-								tabs.findIndex((tab) => tab.id === activeTab?.id) === 0) ||
+								tabs.findIndex((tab) => tab.id === activeTabId) === 0) ||
 							(index === 1 &&
-								tabs.findIndex((tab) => tab.id === activeTab?.id) ===
+								tabs.findIndex((tab) => tab.id === activeTabId) ===
 									tabs.length - 1)
 
 						return (
@@ -124,8 +149,8 @@ const TabBar: FC = () => {
 									aria-label={`Switch to ${index === 0 ? 'previous' : 'next'} tab`}
 									aria-disabled={
 										index === 0
-											? activeTab?.id === tabs[0]?.id
-											: activeTab?.id === tabs[tabs.length - 1]?.id
+											? activeTabId === tabs[0]?.id
+											: activeTabId === tabs[tabs.length - 1]?.id
 									}
 									disabled={isDisabled}
 								>
@@ -155,15 +180,16 @@ const TabBar: FC = () => {
 			</div>
 
 			{isTabViewEditor && (
-				<div className="inline-flex items-center justify-center space-x-3">
-					<button
+				<div className="inline-flex flex-row items-center justify-center space-x-3">
+					<Button
 						className="inline-flex items-center gap-x-2 bg-[#1B501D] p-2 text-base text-white"
+						variant={null}
 						onClick={(e) => {
 							e.preventDefault()
 							toast.promise(handleCodeExecution(), {
-								loading: <b>Running code...</b>,
-								success: <b>Run success!</b>,
-								error: (err: Error) => <b>{err.message}</b>,
+								loading: 'Processing...',
+								success: 'Process exit 0',
+								error: (err: Error) => <>{err.message}</>,
 							})
 							if (!codeResponse) return
 							if (activeTab && !onResize?.visible) {
@@ -202,16 +228,18 @@ const TabBar: FC = () => {
 							</defs>
 						</svg>
 						{isLoading ? 'Running' : 'Run'}
-					</button>
-					<Button
-						variant={null}
-						size={'icon'}
-						role="button"
-						className="rounded-none text-2xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
-						onClick={handleOnResizeVisible}
-					>
-						{onResize?.visible ? '⇥' : '⇤'}
 					</Button>
+					{!isMobileView && (
+						<Button
+							variant={null}
+							size={'icon'}
+							role="button"
+							className="rounded-none text-2xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
+							onClick={handleOnResizeVisible}
+						>
+							{onResize?.visible ? '⇥' : '⇤'}
+						</Button>
+					)}
 				</div>
 			)}
 		</div>

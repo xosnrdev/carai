@@ -1,6 +1,6 @@
 'use client'
 
-import { type FC, type ReactNode } from 'react'
+import type { FC, ReactNode } from 'react'
 import { Toaster } from 'react-hot-toast'
 import GlobalProvider from '../providers/GlobalProvider'
 import Header from '../ui/header'
@@ -15,7 +15,7 @@ const MainLayout: FC<MainLayoutProps> = ({ children }) => {
 	return (
 		<ThemeLayout>
 			<GlobalProvider>
-				<div className="flex h-dvh flex-col">
+				<div className="flex h-dvh flex-col overflow-hidden">
 					<Header />
 					<Toaster position="top-center" reverseOrder={true} />
 					<div className="flex flex-row overflow-hidden">

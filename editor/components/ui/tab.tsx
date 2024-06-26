@@ -1,33 +1,35 @@
+import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
-import { FC, MouseEvent, memo, useCallback } from 'react'
+import { type FC, type MouseEvent, memo, useCallback } from 'react'
 
 const Tab: FC<TabProps> = memo(
 	({ id, title, activeTabId, setActiveTab, closeTab }) => {
 		const pathname = usePathname()
-		const { tabs } = useTabContext()
+		const { tabs, isMobileView } = useTabContext()
+		const { setIsOpen, isOpen } = useAppContext()
 		const handleCloseTab = useCallback(
 			(e: MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
 				closeTab(e, id)
+				if (!isOpen && isMobileView && tabs.length - 1 === 0) {
+					setIsOpen(true)
+				}
 			},
-			[closeTab, id]
+			[closeTab, id, tabs, setIsOpen, isOpen, isMobileView]
 		)
 
 		useKeyPress({
 			targetKey: 'w',
 			callback: (e) => {
-				if (pathname === '/') {
-					tabs.forEach((tab, idx) => {
-						if (tab.id === id) {
-							handleCloseTab(e)
-						}
-					})
+				if (id && pathname === '/') {
+					handleCloseTab(e)
 				}
 			},
 			modifier: 'ctrlKey',
 		})
+
 		return (
 			<div
 				id="tab-container"

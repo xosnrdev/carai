@@ -1,17 +1,17 @@
-// import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
-// const appSlice = createSlice({
-// 	name: 'app',
-// 	initialState: {
-// 		resizePanelVisible: true,
-// 	},
-// 	reducers: {
-// 		onResizePanelVisible: (state, action: PayloadAction<boolean>) => {
-// 			state.resizePanelVisible = action.payload
-// 		},
-// 	},
-// })
+const appSlice = createSlice({
+	name: 'app',
+	initialState: {
+		isOpen: false,
+	},
+	reducers: {
+		onIsOpen: (state, action: PayloadAction<boolean>) => {
+			state.isOpen = action.payload
+		},
+	},
+})
 
-// export default appSlice
+export default appSlice
 
-// export const { onResizePanelVisible } = appSlice.actions
+export const { onIsOpen } = appSlice.actions

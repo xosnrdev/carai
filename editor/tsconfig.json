@@ -30,7 +30,8 @@
 		".next/types/**/*.ts",
 		"lib/fonts/nohemi.ts",
 		"lib/types/ui.d.ts",
-		"dist/types/**/*.ts"
+		"dist/types/**/*.ts",
+		"next.config.mjs"
 	],
 	"exclude": ["node_modules"]
 }

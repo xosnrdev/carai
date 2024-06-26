@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import Editor from '@/components/ui/editor'
 import Footer from '@/components/ui/footer'
 import Onboarding from '@/components/ui/onboarding'
@@ -9,20 +10,28 @@ import {
 	ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import TabBar from '@/components/ui/tab-bar'
+import useAppContext from '@/hooks/useAppContext'
 import useTabContext from '@/hooks/useTabContext'
 import type { CodeResponse } from '@/lib/types/response'
 import { cn } from '@/lib/utils'
 import { RCEFormatter } from '@/network/rce-client'
-import { usePathname } from 'next/navigation'
-import { useEffect, useState, type FC } from 'react'
+import { useCallback, useEffect, useState, type FC } from 'react'
 import type { PanelOnResize } from 'react-resizable-panels'
 
 const Home: FC = () => {
-	const pathname = usePathname()
-	const { isTabViewEditor, activeTab, tabs, codeResponse, onResize } =
-		useTabContext()
+	const {
+		tabs,
+		onResize,
+		activeTab,
+		activeTabId,
+		codeResponse,
+		isMobileView,
+		setOnResize,
+		isTabViewEditor,
+	} = useTabContext()
 	const [minSize, setMinSize] = useState(30)
 	const [defaultSize, setDefaultSize] = useState(70)
+	const { isOpen } = useAppContext()
 
 	useEffect(() => {
 		if (activeTab) {
@@ -45,6 +54,27 @@ const Home: FC = () => {
 		}
 	}
 
+	const handleOnResizeVisible = useCallback(() => {
+		if (!activeTab) return
+		const { id } = activeTab
+
+		if (onResize?.visible) {
+			setOnResize({
+				id,
+				onResize: {
+					visible: false,
+				},
+			})
+		} else {
+			setOnResize({
+				id,
+				onResize: {
+					visible: true,
+				},
+			})
+		}
+	}, [onResize?.visible, setOnResize, activeTab])
+
 	const adjustedDefaultSize = onResize?.visible
 		? Math.max(0, 100 - defaultSize)
 		: 0
@@ -63,7 +93,7 @@ const Home: FC = () => {
 	return (
 		<main className="relative size-full">
 			<ResizablePanelGroup
-				direction="horizontal"
+				direction={isMobileView ? 'vertical' : 'horizontal'}
 				role="tabpanel"
 				id="editor-playground-container"
 				className="absolute"
@@ -75,7 +105,7 @@ const Home: FC = () => {
 					order={1}
 				>
 					<div className="flex size-full flex-col">
-						{pathname === '/' && <TabBar />}
+						<TabBar />
 						<div
 							className={cn('custom-scrollbar flex-1 overflow-y-scroll', {
 								'overflow-hidden': isTabViewEditor,
@@ -88,19 +118,28 @@ const Home: FC = () => {
 									role="tabpanel"
 									tabIndex={0}
 									aria-label={`playground for ${activeTab ? activeTab.meta : 'unknown language'}`}
-									key={activeTab?.id}
+									key={activeTabId}
 								/>
 							) : (
-								<Onboarding />
+								!isMobileView && <Onboarding />
 							)}
 						</div>
-						<Footer />
+						<div
+							className={cn('block', {
+								hidden: isTabViewEditor && isMobileView && onResize?.visible,
+							})}
+						>
+							<Footer />
+						</div>
 					</div>
 				</ResizablePanel>
 
 				{isTabViewEditor && onResize?.visible && (
 					<>
-						<ResizableHandle className="border-x border-solid border-primary dark:border-secondary-foreground" />
+						<ResizableHandle
+							className="border-x border-solid border-primary dark:border-secondary-foreground"
+							withHandle={isMobileView}
+						/>
 						<ResizablePanel
 							minSize={adjustedMinSize}
 							defaultSize={adjustedDefaultSize}
@@ -112,14 +151,15 @@ const Home: FC = () => {
 								<div
 									tabIndex={0}
 									id="playground-right-container"
-									className="custom-scrollbar flex-1 overflow-x-scroll font-mono"
+									className="custom-scrollbar flex-1 overflow-scroll font-mono"
 									role="tabpanel"
-									key={activeTab?.id}
+									key={activeTabId}
 								>
 									{codeResponse && (
 										<pre
 											className={cn('whitespace-pre-wrap', {
 												'text-yellow-500': combinedError,
+												'text-sm': isMobileView,
 											})}
 										>
 											{combinedError || displayOutput}
@@ -131,6 +171,18 @@ const Home: FC = () => {
 					</>
 				)}
 			</ResizablePanelGroup>
+
+			{isMobileView && isTabViewEditor && !isOpen && (
+				<Button
+					variant={null}
+					size={'icon'}
+					role="button"
+					className="fixed right-0 top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] animate-bounce rounded-none text-2xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
+					onClick={handleOnResizeVisible}
+				>
+					{onResize?.visible ? '↓' : '↑'}
+				</Button>
+			)}
 		</main>
 	)
 }

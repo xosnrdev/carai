@@ -26,6 +26,7 @@ import { Input } from './input'
 import { Label } from './label'
 import Modal from './modal'
 import { RadioGroup, RadioGroupItem } from './radio-group'
+import useAppContext from '@/hooks/useAppContext'
 
 const languageProps: LanguageProps[] = [
 	{
@@ -157,13 +158,13 @@ const languageProps: LanguageProps[] = [
 ]
 
 const Sidebar: FC = () => {
-	const [isOpen, setIsOpen] = useState(false)
+	const { addTab, isMobileView, isTabViewEditor, tabs } = useTabContext()
+	const { isOpen, setIsOpen } = useAppContext()
 	const [selectedLanguage, setSelectedLanguage] =
 		useState<LanguageProps | null>(null)
 	const [searchQuery, setSearchQuery] = useState('')
 	const pathname = usePathname()
 	const [activeNav, setActiveNav] = useState<number | null>(null)
-	const { addTab } = useTabContext()
 
 	const filteredLanguages = useMemo(() => {
 		const lowerCaseSearchQuery = searchQuery.toLowerCase().trim()
@@ -192,8 +193,8 @@ const Sidebar: FC = () => {
 					meta,
 					content: '',
 					config: {
-						maxContentSize: 10 * 500,
-						maxTabs: 5,
+						maxContentSize: isMobileView ? 10 * 100 : 10 * 500,
+						maxTabs: isMobileView ? 2 : 5,
 					},
 				})
 			} catch (error) {
@@ -203,7 +204,7 @@ const Sidebar: FC = () => {
 			}
 			setIsOpen(false)
 		}
-	}, [addTab, selectedLanguage])
+	}, [addTab, selectedLanguage, isMobileView, setIsOpen])
 
 	const handleModal = () => {
 		setIsOpen(true)
@@ -222,7 +223,10 @@ const Sidebar: FC = () => {
 	return (
 		<>
 			{isOpen && (
-				<Modal title="Choose A Language" onClose={() => setIsOpen(false)}>
+				<Modal
+					title="Choose A Language"
+					onClose={() => setIsOpen(isMobileView ? true : false)}
+				>
 					<div className="grid grid-cols-1 place-content-between gap-y-2 lg:gap-y-4 xl:gap-y-4">
 						<Input
 							id="inputarea"

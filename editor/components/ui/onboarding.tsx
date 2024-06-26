@@ -11,7 +11,7 @@ const Onboarding: FC = () => {
 
 	return (
 		<AnimatedLayout key="welcome_tabview">
-			<div className="flex pt-4 lg:flex-row lg:items-center lg:justify-between lg:px-12 xl:flex-row xl:items-center xl:justify-between xl:px-12">
+			<div className="flex place-content-center items-center pt-4 lg:flex-row lg:justify-between lg:px-12 xl:flex-row xl:justify-between xl:px-12">
 				<div className="flex flex-col gap-y-6">
 					<h1 className="text-nowrap text-2xl font-extrabold text-primary dark:text-secondary-foreground lg:text-6xl xl:text-6xl">
 						Get Started with Carai
