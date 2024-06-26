@@ -1,9 +1,9 @@
 import useTabContext from '@/hooks/useTabContext'
-import { EditorProps } from '@monaco-editor/react'
+import type { EditorProps } from '@monaco-editor/react'
 import type { editor as editorType } from 'monaco-editor'
 import { useTheme } from 'next-themes'
 import dynamic from 'next/dynamic'
-import { FC, useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, type FC } from 'react'
 import LoadingSpinner from './loading-spinner'
 
 const MonacoEditor = dynamic<EditorProps>(
@@ -14,16 +14,17 @@ const MonacoEditor = dynamic<EditorProps>(
 	}
 )
 
-const Editor: FC = () => {
-	const { updateTab, activeTab, codeResponse, onResize } = useTabContext()
+const Editor: FC<EditorDivProps> = ({ ...props }) => {
+	const { updateTab, activeTab, codeResponse, onResize, isTabViewEditor } =
+		useTabContext()
 	const { theme } = useTheme()
-	const editorContainerRef = useRef<HTMLDivElement>(null)
+	const editorContainerRef = useRef<HTMLDivElement | null>(null)
 	const [editorInstance, setEditorInstance] =
 		useState<editorType.IStandaloneCodeEditor | null>(null)
 
 	const handleEditorChange = useCallback(
 		(content: string | undefined) => {
-			if (activeTab && editorInstance) {
+			if (isTabViewEditor && activeTab && editorInstance) {
 				const defaultViewState = editorInstance.saveViewState()
 				if (defaultViewState) {
 					const extendedViewState = {
@@ -40,7 +41,14 @@ const Editor: FC = () => {
 				}
 			}
 		},
-		[updateTab, activeTab, editorInstance, codeResponse, onResize]
+		[
+			updateTab,
+			activeTab,
+			editorInstance,
+			codeResponse,
+			onResize,
+			isTabViewEditor,
+		]
 	)
 
 	const handleEditorDidMount = useCallback(
@@ -48,39 +56,11 @@ const Editor: FC = () => {
 			if (activeTab && activeTab.editorViewState) {
 				editorInstance.restoreViewState(activeTab.editorViewState)
 			}
-			const setAttributes = () => {
-				const textarea = editorContainerRef.current?.querySelector('.inputarea')
-				if (textarea && activeTab) {
-					textarea.id = 'monaco-editor-textarea'
-					editorInstance.focus()
-				} else {
-					console.warn('Textarea not found or activeTab is undefined')
-				}
-			}
 
-			setAttributes()
+			editorInstance.focus()
 
-			const handleDomChange: MutationCallback = (mutations) => {
-				mutations.forEach((mutation) => {
-					if (mutation.type === 'childList') {
-						setAttributes()
-					}
-				})
-			}
-
-			const observer = new MutationObserver(handleDomChange)
-
-			if (editorContainerRef.current) {
-				observer.observe(editorContainerRef.current, {
-					childList: true,
-					subtree: true,
-				})
-			} else {
-				console.warn('Editor container not found')
-			}
 			setEditorInstance(editorInstance)
 			return () => {
-				observer.disconnect()
 				editorInstance.dispose()
 			}
 		},
@@ -103,15 +83,7 @@ const Editor: FC = () => {
 	return (
 		<>
 			{activeTab && (
-				<div
-					ref={editorContainerRef}
-					id="playground-left-container"
-					role="tabpanel"
-					tabIndex={0}
-					className="h-full"
-					key={activeTab.id}
-					aria-label={`playground for ${activeTab ? activeTab.meta : 'unknown language'}`}
-				>
+				<div ref={editorContainerRef} {...props}>
 					<MonacoEditor
 						loading={<LoadingSpinner />}
 						theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}

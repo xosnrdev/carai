@@ -15,12 +15,12 @@ const MainLayout: FC<MainLayoutProps> = ({ children }) => {
 	return (
 		<ThemeLayout>
 			<GlobalProvider>
-				<div className="flex h-dvh flex-col overflow-hidden">
+				<div className="flex h-dvh flex-col">
 					<Header />
 					<Toaster position="top-center" reverseOrder={true} />
 					<div className="flex flex-row overflow-hidden">
 						<Sidebar />
-						<div className="grow bg-[#FFFFFF] dark:bg-[#1E1E2A]">
+						<div className="flex-1 bg-[#FFFFFF] dark:bg-[#1E1E2A]">
 							{children}
 						</div>
 					</div>

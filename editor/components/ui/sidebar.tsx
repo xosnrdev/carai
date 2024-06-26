@@ -7,9 +7,8 @@ import { sidebarProps } from '@/lib/constants/ui'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useCallback, useState, type FC } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react'
 import toast from 'react-hot-toast'
-import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md'
 import {
 	SiC,
 	SiCplusplus,
@@ -161,30 +160,40 @@ const Sidebar: FC = () => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [selectedLanguage, setSelectedLanguage] =
 		useState<LanguageProps | null>(null)
-	const [currentView, setCurrentView] = useState(0)
 	const [searchQuery, setSearchQuery] = useState('')
 	const pathname = usePathname()
 	const [activeNav, setActiveNav] = useState<number | null>(null)
 	const { addTab } = useTabContext()
 
-	const itemsPerView = 3
+	const filteredLanguages = useMemo(() => {
+		const lowerCaseSearchQuery = searchQuery.toLowerCase().trim()
+		return languageProps.filter((language) =>
+			language.title.toLowerCase().includes(lowerCaseSearchQuery)
+		)
+	}, [searchQuery])
 
-	const handleChange = useCallback((language: LanguageProps) => {
+	const handleChange = (language: LanguageProps) => {
 		setSelectedLanguage(language)
-	}, [])
+	}
+
+	useEffect(() => {
+		if (filteredLanguages.length === 1) {
+			setSelectedLanguage(filteredLanguages[0])
+		}
+	}, [filteredLanguages])
 
 	const handleClick = useCallback(() => {
 		if (selectedLanguage) {
 			const { title: meta, extension } = selectedLanguage
-			const filename = `index${extension}`
+			const title = `index${extension}`
 			try {
 				addTab({
-					title: filename,
+					title,
 					meta,
 					content: '',
 					config: {
 						maxContentSize: 10 * 500,
-						maxTabs: 10,
+						maxTabs: 5,
 					},
 				})
 			} catch (error) {
@@ -194,15 +203,19 @@ const Sidebar: FC = () => {
 			}
 			setIsOpen(false)
 		}
-	}, [selectedLanguage, addTab])
+	}, [addTab, selectedLanguage])
 
-	const handleModal = useCallback(() => {
+	const handleModal = () => {
 		setIsOpen(true)
-	}, [])
+	}
 
 	useKeyPress({
 		targetKey: 't',
-		callback: handleModal,
+		callback: () => {
+			if (pathname === '/') {
+				handleModal()
+			}
+		},
 		modifier: 'ctrlKey',
 	})
 
@@ -210,85 +223,62 @@ const Sidebar: FC = () => {
 		<>
 			{isOpen && (
 				<Modal title="Choose A Language" onClose={() => setIsOpen(false)}>
-					<div className="grid grid-cols-1 gap-y-4">
+					<div className="grid grid-cols-1 place-content-between gap-y-2 lg:gap-y-4 xl:gap-y-4">
 						<Input
 							id="inputarea"
 							type="text"
 							value={searchQuery}
-							onChange={(event) => setSearchQuery(event.target.value)}
+							onChange={(e) => setSearchQuery(e.target.value)}
 							placeholder="Search language..."
-							className="rounded-sm py-6 placeholder:tracking-wide focus-visible:ring-2 focus-visible:ring-offset-0"
+							className="rounded-sm placeholder:tracking-wide focus-visible:ring-2 focus-visible:ring-offset-0"
 							aria-label="search language"
 						/>
 
-						<div className="flex flex-row items-center justify-between">
-							<button
-								onClick={() => setCurrentView(currentView - 1)}
-								disabled={currentView === 0}
-								aria-label="previous"
-								className="disabled:text-muted-foreground disabled:dark:text-[#FFFFFF66]"
-							>
-								<MdNavigateBefore size={50} />
-							</button>
-
+						<div dir="ltr">
 							<RadioGroup
-								className="grid w-full grid-cols-3 lg:gap-4 xl:gap-4"
-								onKeyDown={function (event) {
-									if (event.key === 'Enter') {
-										event.preventDefault()
-										event.stopPropagation()
+								className="custom-scrollbar grid snap-y snap-mandatory grid-flow-row grid-cols-3 overflow-y-auto lg:snap-x lg:auto-cols-max lg:grid-flow-col lg:grid-cols-none lg:gap-4 lg:overflow-x-scroll xl:snap-x xl:auto-cols-max xl:grid-flow-col xl:grid-cols-none xl:gap-4 xl:overflow-x-scroll"
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
 										handleClick()
 									}
 								}}
 							>
-								{languageProps
-									.filter((language) =>
-										language.title
-											.toLowerCase()
-											.includes(searchQuery.toLowerCase().trim())
-									)
-									.slice(
-										currentView * itemsPerView,
-										(currentView + 1) * itemsPerView
-									)
-									.map((language, idx) => (
-										<div key={idx}>
+								{filteredLanguages.length > 0 ? (
+									filteredLanguages.map((language, idx) => (
+										<div key={idx} className="snap-start scroll-ms-6">
 											<RadioGroupItem
 												value={language.title}
 												id={language.title}
 												className="peer sr-only"
-												onFocus={() => handleChange(language)}
+												onFocus={(e) => {
+													e.preventDefault()
+													handleChange(language)
+												}}
 											/>
 											<Label
 												htmlFor={language.title}
-												className="flex flex-col items-center justify-between gap-y-3 rounded-md border-2 border-muted bg-popover p-4 hover:border-primary hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+												className={cn(
+													'grid size-auto grid-cols-1 place-content-between place-items-center gap-y-3 rounded-md border-2 border-muted bg-popover p-4 hover:border-primary peer-data-[state=checked]:border-primary lg:size-24 lg:scale-90 lg:hover:scale-100 xl:size-24 xl:scale-90 xl:hover:scale-100 [&:has([data-state=checked])]:border-primary',
+													{
+														'border-primary': filteredLanguages.length === 1,
+													}
+												)}
 											>
 												<language.iconProps.icon
 													size={language.iconProps.size}
 													className={language.iconProps.className}
 												/>
-												<span className="text-xs lg:text-base xl:text-base">
-													{language.title}
-												</span>
+												<span>{language.title}</span>
 											</Label>
 										</div>
-									))}
+									))
+								) : (
+									<p className="text-nowrap text-center">Runtime not found.</p>
+								)}
 							</RadioGroup>
-
-							<button
-								onClick={() => setCurrentView(currentView + 1)}
-								disabled={
-									(currentView + 1) * itemsPerView >= languageProps.length
-								}
-								aria-label="next"
-								className="disabled:text-muted-foreground disabled:dark:text-[#FFFFFF66]"
-							>
-								<MdNavigateNext size={50} />
-							</button>
 						</div>
-
 						<Button
-							onClick={function (e) {
+							onClick={(e) => {
 								e.preventDefault()
 								handleClick()
 							}}

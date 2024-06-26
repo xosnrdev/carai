@@ -1,5 +1,5 @@
 import type { TabId } from '@/sdk/tabkit/store'
-import { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import type { IconType } from 'react-icons'
 
 declare global {
@@ -56,4 +56,6 @@ declare global {
 			id: TabId
 		) => void
 	}
+
+	interface EditorDivProps extends HTMLAttributes<HTMLDivElement> {}
 }

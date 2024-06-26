@@ -145,7 +145,7 @@ const tabSlice = createSlice({
 			validatePayload(payload, config, state)
 
 			const newTab: Tab = {
-				id: nanoid(32),
+				id: nanoid(16),
 				title: payload.title,
 				content: payload.content.slice(
 					0,

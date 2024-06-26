@@ -111,7 +111,7 @@ export class RCEFormatter implements CodeResponseFormatter {
 			.filter(Boolean)
 			.join('\n')
 
-		const displayOutput = combinedOutput || 'No response!'
+		const displayOutput = combinedOutput || 'null.'
 
 		return { combinedOutput, combinedError, displayOutput }
 	}

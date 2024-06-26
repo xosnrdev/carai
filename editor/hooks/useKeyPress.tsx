@@ -16,13 +16,13 @@ const useKeyPress = ({ targetKey, callback, modifier }: UseKeyPressOptions) => {
 	}, [callback])
 
 	useEffect(() => {
-		const handleKeyPress = (event: KeyboardEvent) => {
-			const isModifierPressed = modifier ? event[modifier] : true
+		const handleKeyPress = (e: KeyboardEvent) => {
+			const isModifierPressed = modifier ? e[modifier] : true
 
-			if (isModifierPressed && event.key === targetKey) {
-				event.preventDefault()
-				event.stopPropagation()
-				callbackRef.current(event)
+			if (isModifierPressed && e.key === targetKey) {
+				e.preventDefault()
+				e.stopPropagation()
+				callbackRef.current(e)
 			}
 		}
 

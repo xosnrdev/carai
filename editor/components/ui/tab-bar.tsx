@@ -7,6 +7,7 @@ import { useCallback, useState, type FC, type MouseEvent } from 'react'
 import toast from 'react-hot-toast'
 import { Button } from './button'
 import Tab from './tab'
+import type { TabId } from '@/global/tab/slice'
 
 const rceHandler = new RCEHandler()
 
@@ -23,14 +24,15 @@ const TabBar: FC = () => {
 		setActiveTab,
 		isTabViewEditor,
 		setCodeResponse,
+		activeTabId,
 	} = useTabContext()
 
 	const handleCloseTab = (
 		e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
-		tabId: string
+		id: TabId
 	) => {
-		removeTab(tabId)
 		e.stopPropagation()
+		removeTab(id)
 	}
 
 	const handleOnResizeVisible = useCallback(() => {
@@ -56,7 +58,7 @@ const TabBar: FC = () => {
 
 	const handleCodeExecution = useCallback(() => {
 		return new Promise<CodeResponse>((resolve, reject) => {
-			if (!activeTab) return
+			if (!activeTab) return 
 			const { id, meta: language, content: code } = activeTab
 
 			if (!code.trim()) {
@@ -139,17 +141,16 @@ const TabBar: FC = () => {
 					aria-label="tab bar area"
 					id="tab-bar-container"
 				>
-					{activeTab &&
-						tabs.map(({ id, title }) => (
-							<Tab
-								key={id}
-								id={id}
-								title={title}
-								activeTabId={activeTab.id}
-								setActiveTab={setActiveTab}
-								closeTab={handleCloseTab}
-							/>
-						))}
+					{tabs.map(({ id, title }) => (
+						<Tab
+							key={id}
+							id={id}
+							title={title}
+							activeTabId={activeTabId}
+							setActiveTab={setActiveTab}
+							closeTab={handleCloseTab}
+						/>
+					))}
 				</div>
 			</div>
 
