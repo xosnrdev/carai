@@ -4,6 +4,9 @@
 ![Open Source Love](https://img.shields.io/badge/open%20source-%E2%9D%A4-red)
 ![License](https://img.shields.io/github/license/xosnrdev/carai)
 ![Contributors](https://img.shields.io/github/contributors/xosnrdev/carai)
+[![Web App](https://img.shields.io/badge/web%20app-cexaengine.com-blue)](http://cexaengine.com)
+
+![preview](https://github.com/xosnrdev/carai/assets/106241330/d1a3f138-4bd7-488b-9055-51b98346df70)
 
 ## 📖 Table of Contents
 
@@ -11,7 +14,6 @@
 - [Features](#-features)
 - [Getting Started](#-getting-started)
 - [Installation](#-installation)
-- [Usage](#-usage)
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Contact](#-contact)
@@ -54,7 +56,7 @@ Clone the repository and follow the installation instructions to start contribut
 
 ## 🤝 Contributing
 
-Carai is free open-source, and contributions are welcome. Check out the [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Carai is free open-source, and contributions are welcome. Check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
 
 ## 📜 License
 
