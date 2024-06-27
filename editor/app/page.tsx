@@ -151,7 +151,7 @@ const Home: FC = () => {
 								<div
 									tabIndex={0}
 									id="playground-right-container"
-									className="custom-scrollbar flex-1 overflow-scroll font-mono"
+									className="custom-scrollbar flex-1 overflow-x-scroll font-mono"
 									role="tabpanel"
 									key={activeTabId}
 								>

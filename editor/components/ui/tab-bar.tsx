@@ -5,6 +5,7 @@ import { tabBarProps } from '@/lib/constants/ui'
 import { type CodeResponse, type ErrorResponse } from '@/lib/types/response'
 import { cn } from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-client'
+import { usePathname } from 'next/navigation'
 import { useCallback, useState, type FC, type MouseEvent } from 'react'
 import toast from 'react-hot-toast'
 import { Button } from './button'
@@ -14,6 +15,7 @@ const rceHandler = new RCEHandler()
 
 const TabBar: FC = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const pathname = usePathname()
 	const {
 		tabs,
 		onResize,
@@ -28,7 +30,6 @@ const TabBar: FC = () => {
 		setActiveTab,
 		isTabViewEditor,
 		setCodeResponse,
-		switchTabByIndex,
 	} = useTabContext()
 
 	const handleCloseTab = (
@@ -100,22 +101,31 @@ const TabBar: FC = () => {
 	}, [setCodeResponse, activeTab])
 
 	useKeyPress({
-		targetKey: 'q',
+		targetKey: 'D',
 		callback: () => {
-			if (activeTab) {
+			if (activeTab && pathname === '/') {
 				closeAllTabs()
 			}
 		},
-		modifier: 'ctrlKey',
+		modifier: ['ctrlKey', 'shiftKey'],
 	})
 	useKeyPress({
-		targetKey: 'Tab',
+		targetKey: 'ArrowRight',
 		callback: () => {
-			if (tabs) {
-				switchTab(switchTabByIndex === tabs.length ? 'previous' : 'next')
+			if (activeTab && pathname === '/') {
+				switchTab('next')
 			}
 		},
-		modifier: 'altKey',
+		modifier: ['ctrlKey', 'shiftKey'],
+	})
+	useKeyPress({
+		targetKey: 'ArrowLeft',
+		callback: () => {
+			if (activeTab && pathname === '/') {
+				switchTab('previous')
+			}
+		},
+		modifier: ['ctrlKey', 'shiftKey'],
 	})
 
 	return (

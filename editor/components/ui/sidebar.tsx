@@ -158,7 +158,7 @@ const languageProps: LanguageProps[] = [
 ]
 
 const Sidebar: FC = () => {
-	const { addTab, isMobileView, isTabViewEditor, tabs } = useTabContext()
+	const { addTab, isMobileView } = useTabContext()
 	const { isOpen, setIsOpen } = useAppContext()
 	const [selectedLanguage, setSelectedLanguage] =
 		useState<LanguageProps | null>(null)
@@ -211,13 +211,13 @@ const Sidebar: FC = () => {
 	}
 
 	useKeyPress({
-		targetKey: 't',
+		targetKey: 'T',
 		callback: () => {
 			if (pathname === '/') {
 				handleModal()
 			}
 		},
-		modifier: 'ctrlKey',
+		modifier: ['ctrlKey', 'shiftKey'],
 	})
 
 	return (

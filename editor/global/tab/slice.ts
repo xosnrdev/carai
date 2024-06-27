@@ -216,22 +216,12 @@ const tabSlice = createSlice({
 			if (currentIndex !== -1) {
 				const length = ids.length
 				const increment = direction === 'next' ? 1 : -1
-				const newIndex = currentIndex + increment
 
-				// Check if the new index is valid
-				// Update the activeTabId if a valid tab was found
-				// If switching next and already at the last tab, do nothing
-				// If switching previous and already at the first tab, do nothing
-				if (
-					newIndex >= 0 &&
-					newIndex < length &&
-					state.entities[ids[newIndex]]
-				) {
+				// Calculate newIndex using modulo for cycling through tabs
+				const newIndex = (currentIndex + increment + length) % length
+
+				if (state.entities[ids[newIndex]]) {
 					state.activeTabId = ids[newIndex]
-				} else if (direction === 'next' && currentIndex === length - 1) {
-					return
-				} else if (direction === 'previous' && currentIndex === 0) {
-					return
 				}
 			}
 		},

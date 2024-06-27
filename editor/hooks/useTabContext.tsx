@@ -31,9 +31,7 @@ const useTabContext = () => {
 			? state.tabs.entities[activeTabId].editorViewState?.codeResponse
 			: null
 	)
-	const switchTabByIndex = useGlobalSelector((state) =>
-		activeTabId ? state.tabs.ids.indexOf(activeTabId) : null
-	)
+
 	const onResize = useGlobalSelector((state) =>
 		activeTabId
 			? state.tabs.entities[activeTabId].editorViewState?.onResize
@@ -71,7 +69,6 @@ const useTabContext = () => {
 		codeResponse,
 		...boundActions,
 		isTabViewEditor,
-		switchTabByIndex,
 		isTabViewOnboarding,
 	}
 }

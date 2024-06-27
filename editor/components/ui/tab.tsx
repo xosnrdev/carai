@@ -21,13 +21,13 @@ const Tab: FC<TabProps> = memo(
 		)
 
 		useKeyPress({
-			targetKey: 'w',
+			targetKey: 'W',
 			callback: (e) => {
 				if (id && pathname === '/') {
 					handleCloseTab(e)
 				}
 			},
-			modifier: 'ctrlKey',
+			modifier: ['ctrlKey', 'shiftKey'],
 		})
 
 		return (
