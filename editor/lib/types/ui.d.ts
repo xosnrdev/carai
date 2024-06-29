@@ -44,8 +44,6 @@ declare global {
 		texts: string[]
 	}
 
-	interface TabBarProps extends SidebarProps {}
-
 	interface TabProps {
 		id: string
 		title: string

@@ -1,8 +1,9 @@
 import type { MainLayoutProps } from '@/components/layouts/MainLayout'
+import GlobalProvider from '@/components/providers/GlobalProvider'
 import LoadingSpinner from '@/components/ui/loading-spinner'
 import nohemi from '@/lib/fonts/nohemi'
 import '@/styles/global.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import dynamic from 'next/dynamic'
 import { ReactNode } from 'react'
 
@@ -60,12 +61,19 @@ export const metadata: Metadata = {
 	},
 	formatDetection: { telephone: false },
 }
-
+export const viewport: Viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 1,
+	userScalable: false,
+}
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en">
 			<body className={nohemi.className}>
-				<MainLayout>{children}</MainLayout>
+				<GlobalProvider>
+					<MainLayout>{children}</MainLayout>
+				</GlobalProvider>
 			</body>
 		</html>
 	)

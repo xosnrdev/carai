@@ -1,13 +1,24 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
+export type IsOpenPayload = Partial<{
+	modal: boolean
+	sidebar: boolean
+}>
+
 const appSlice = createSlice({
 	name: 'app',
 	initialState: {
-		isOpen: false,
+		isOpen: {
+			modal: false,
+			sidebar: true,
+		} as IsOpenPayload,
 	},
 	reducers: {
-		onIsOpen: (state, action: PayloadAction<boolean>) => {
-			state.isOpen = action.payload
+		onIsOpen: (state, action: PayloadAction<IsOpenPayload>) => {
+			state.isOpen = {
+				...state.isOpen,
+				...action.payload,
+			}
 		},
 	},
 })

@@ -38,8 +38,6 @@ const useTabContext = () => {
 			: null
 	)
 
-	const isTabViewOnboarding = activeTab && activeTab.id === 'welcome_tabview'
-	const isTabViewEditor = activeTab && activeTab.id !== 'welcome_tabview'
 	const isMobileView = window.matchMedia('(max-width: 600px)').matches
 
 	const boundActions = useMemo(
@@ -68,8 +66,6 @@ const useTabContext = () => {
 		isMobileView,
 		codeResponse,
 		...boundActions,
-		isTabViewEditor,
-		isTabViewOnboarding,
 	}
 }
 

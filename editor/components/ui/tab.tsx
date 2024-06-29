@@ -1,23 +1,19 @@
-import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
-import { type FC, type MouseEvent, memo, useCallback } from 'react'
+import { memo, useCallback, type FC, type MouseEvent } from 'react'
+import CustomTooltip from './customTooltip'
 
 const Tab: FC<TabProps> = memo(
 	({ id, title, activeTabId, setActiveTab, closeTab }) => {
 		const pathname = usePathname()
-		const { tabs, isMobileView } = useTabContext()
-		const { setIsOpen, isOpen } = useAppContext()
+		const { isMobileView } = useTabContext()
 		const handleCloseTab = useCallback(
 			(e: MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
 				closeTab(e, id)
-				if (!isOpen && isMobileView && tabs.length - 1 === 0) {
-					setIsOpen(true)
-				}
 			},
-			[closeTab, id, tabs, setIsOpen, isOpen, isMobileView]
+			[closeTab, id]
 		)
 
 		useKeyPress({
@@ -32,29 +28,52 @@ const Tab: FC<TabProps> = memo(
 
 		return (
 			<div
-				id="tab-container"
-				tabIndex={0}
-				role="tab"
-				key={id}
-				onClick={() => setActiveTab(id)}
-				aria-label={`tab ${id}`}
 				className={cn(
-					'flex h-10 cursor-pointer flex-row items-center border-t-2 border-solid border-[#FFFFFF] bg-[#FFFFFF] px-1 transition-all delay-300 duration-150 ease-linear hover:border-primary dark:border-[#1E1E2A] dark:bg-[#1E1E2A] dark:hover:border-secondary-foreground lg:h-12 lg:px-2 xl:h-12 xl:px-2',
+					'flex h-11 cursor-pointer flex-row items-center gap-x-0.5 px-1 text-sm transition-all delay-300 duration-150 ease-linear hover:border-b hover:border-primary hover:dark:border-[#FFFFFF] lg:text-base xl:text-base',
 					{
-						'border-primary dark:border-secondary-foreground':
-							activeTabId === id,
+						'border-b border-primary dark:border-[#FFFFFF]': activeTabId === id,
 					}
 				)}
 			>
-				<span className="whitespace-nowrap">{title}</span>
+				<CustomTooltip
+					content={
+						isMobileView ? (
+							<p className="text-xs">Switch</p>
+						) : (
+							<p className="text-xs">
+								Switch &#40;ctrl&#43;shift&#43;arrowkey&#41;
+							</p>
+						)
+					}
+				>
+					<div
+						id="tab-container"
+						tabIndex={0}
+						role="tab"
+						key={id}
+						onClick={() => setActiveTab(id)}
+						aria-label={`tab ${id}`}
+					>
+						<span className="whitespace-nowrap">{title}</span>
+					</div>
+				</CustomTooltip>
 
-				<button
-					role="button"
-					onClick={handleCloseTab}
-					className={cn('ml-2 rounded-full bg-primary p-1 dark:bg-[#E0E0F5]', {
-						'animate-pulse': activeTabId === id,
-					})}
-				></button>
+				<CustomTooltip
+					content={
+						isMobileView ? (
+							<p className="text-xs">Close</p>
+						) : (
+							<p className="text-xs">Close &#40;ctrl&#43;shift&#43;w&#41;</p>
+						)
+					}
+				>
+					<button
+						onClick={handleCloseTab}
+						className="inline-flex size-0 items-center justify-center rounded p-2.5 hover:bg-slate-500/25"
+					>
+						x
+					</button>
+				</CustomTooltip>
 			</div>
 		)
 	}

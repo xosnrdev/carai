@@ -15,14 +15,7 @@ const MonacoEditor = dynamic<EditorProps>(
 )
 
 const Editor: FC<EditorDivProps> = ({ ...props }) => {
-	const {
-		updateTab,
-		activeTab,
-		codeResponse,
-		onResize,
-		isTabViewEditor,
-		activeTabId,
-	} = useTabContext()
+	const { updateTab, activeTab, codeResponse, onResize } = useTabContext()
 	const { theme } = useTheme()
 	const editorContainerRef = useRef<HTMLDivElement | null>(null)
 	const [editorInstance, setEditorInstance] =
@@ -30,7 +23,7 @@ const Editor: FC<EditorDivProps> = ({ ...props }) => {
 
 	const handleEditorChange = useCallback(
 		(content: string | undefined) => {
-			if (isTabViewEditor && editorInstance) {
+			if (activeTab && editorInstance) {
 				const defaultViewState = editorInstance.saveViewState()
 				if (defaultViewState) {
 					const extendedViewState = {
@@ -40,21 +33,14 @@ const Editor: FC<EditorDivProps> = ({ ...props }) => {
 					}
 					const editorViewState = JSON.parse(JSON.stringify(extendedViewState))
 					updateTab({
-						id: activeTabId!,
+						id: activeTab.id,
 						content,
 						editorViewState,
 					})
 				}
 			}
 		},
-		[
-			updateTab,
-			activeTabId,
-			editorInstance,
-			codeResponse,
-			onResize,
-			isTabViewEditor,
-		]
+		[updateTab, editorInstance, codeResponse, onResize, activeTab]
 	)
 
 	const handleEditorDidMount = useCallback(
@@ -93,7 +79,7 @@ const Editor: FC<EditorDivProps> = ({ ...props }) => {
 					<MonacoEditor
 						loading={<LoadingSpinner />}
 						theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
-						language={activeTab.meta!.toLowerCase()}
+						language={activeTab.meta?.toLowerCase()}
 						value={activeTab.content}
 						onChange={handleEditorChange}
 						onMount={handleEditorDidMount}

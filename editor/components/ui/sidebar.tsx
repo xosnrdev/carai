@@ -27,6 +27,7 @@ import { Label } from './label'
 import Modal from './modal'
 import { RadioGroup, RadioGroupItem } from './radio-group'
 import useAppContext from '@/hooks/useAppContext'
+import CustomTooltip from './customTooltip'
 
 const languageProps: LanguageProps[] = [
 	{
@@ -193,8 +194,8 @@ const Sidebar: FC = () => {
 					meta,
 					content: '',
 					config: {
-						maxContentSize: isMobileView ? 10 * 100 : 10 * 500,
-						maxTabs: isMobileView ? 2 : 5,
+						maxContentSize: isMobileView ? 10 * 300 : 10 * 700,
+						maxTabs: isMobileView ? 3 : 7,
 					},
 				})
 			} catch (error) {
@@ -202,12 +203,16 @@ const Sidebar: FC = () => {
 					toast.error(<p className="whitespace-nowrap">{error.message}</p>)
 				}
 			}
-			setIsOpen(false)
+			setIsOpen({
+				modal: false,
+			})
 		}
 	}, [addTab, selectedLanguage, isMobileView, setIsOpen])
 
 	const handleModal = () => {
-		setIsOpen(true)
+		setIsOpen({
+			modal: true,
+		})
 	}
 
 	useKeyPress({
@@ -222,14 +227,19 @@ const Sidebar: FC = () => {
 
 	return (
 		<>
-			{isOpen && (
+			{isOpen.modal && (
 				<Modal
 					title="Choose A Language"
-					onClose={() => setIsOpen(isMobileView ? true : false)}
+					onClose={() =>
+						setIsOpen({
+							modal: false,
+						})
+					}
 				>
-					<div className="grid grid-cols-1 place-content-between gap-y-2 lg:gap-y-4 xl:gap-y-4">
+					<form className="grid grid-cols-1 place-content-between gap-y-2 lg:gap-y-4 xl:gap-y-4">
 						<Input
 							id="inputarea"
+							role="searchbox"
 							type="text"
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
@@ -239,14 +249,7 @@ const Sidebar: FC = () => {
 						/>
 
 						<div dir="ltr">
-							<RadioGroup
-								className="custom-scrollbar grid snap-y snap-mandatory grid-flow-row grid-cols-3 overflow-y-auto lg:snap-x lg:auto-cols-max lg:grid-flow-col lg:grid-cols-none lg:gap-4 lg:overflow-x-scroll xl:snap-x xl:auto-cols-max xl:grid-flow-col xl:grid-cols-none xl:gap-4 xl:overflow-x-scroll"
-								onKeyDown={(e) => {
-									if (e.key === 'Enter') {
-										handleClick()
-									}
-								}}
-							>
+							<RadioGroup className="custom-scrollbar grid snap-y snap-mandatory grid-flow-row grid-cols-3 overflow-y-auto lg:snap-x lg:auto-cols-max lg:grid-flow-col lg:grid-cols-none lg:gap-4 lg:overflow-x-auto xl:snap-x xl:auto-cols-max xl:grid-flow-col xl:grid-cols-none xl:gap-4 xl:overflow-x-auto">
 								{filteredLanguages.length > 0 ? (
 									filteredLanguages.map((language, idx) => (
 										<div key={idx} className="snap-start scroll-ms-6">
@@ -288,49 +291,62 @@ const Sidebar: FC = () => {
 							}}
 							aria-label="start coding"
 							className="rounded-sm border border-solid border-primary bg-inherit text-black transition-all delay-300 duration-150 ease-linear hover:bg-primary hover:text-white dark:border-[#CDCDDA] dark:text-white dark:hover:bg-[#CDCDDA] dark:hover:text-black"
+							type="submit"
 						>
 							Start Coding
 						</Button>
-					</div>
+					</form>
 				</Modal>
 			)}
 
-			<aside className="sticky left-0 top-0 flex h-dvh w-12 flex-col border-r border-solid border-background/80 bg-secondary py-16 lg:w-16 xl:w-16">
-				{pathname === '/' &&
-					sidebarProps.map(({ label, ...val }, idx) => (
-						<div
-							key={idx}
-							className={cn(
-								'mx-auto my-4 flex flex-col items-center text-muted-foreground dark:text-secondary-foreground/30',
-								{
-									'text-primary dark:text-[#CDCDDA]': activeNav === idx,
-								}
-							)}
-						>
-							{idx === 0 ? (
-								<button
-									onClick={(e) => {
-										handleModal()
-										setActiveNav(idx)
-										e.preventDefault()
-									}}
-									aria-label={label}
-								>
-									<val.icon size={30} />
-								</button>
-							) : (
-								<Link href={'/'} aria-label="label">
-									<val.icon
-										size={30}
-										onClick={() => {
-											setActiveNav(idx)
-										}}
-									/>
-								</Link>
-							)}
-						</div>
-					))}
-			</aside>
+			{isOpen.sidebar && (
+				<aside className="sticky left-0 top-0 z-10 flex h-dvh w-12 flex-col border-r border-solid border-background/80 bg-secondary py-16">
+					{pathname === '/' &&
+						sidebarProps.map(({ label, ...val }, idx) => (
+							<div
+								key={idx}
+								className={cn(
+									'mx-auto my-4 flex flex-col items-center text-muted-foreground dark:text-secondary-foreground/30',
+									{
+										'text-primary dark:text-[#CDCDDA]': activeNav === idx,
+									}
+								)}
+							>
+								{idx === 0 ? (
+									<CustomTooltip
+										content={<p className="text-xs">Choose Language</p>}
+									>
+										<button
+											onClick={(e) => {
+												handleModal()
+												setActiveNav(idx)
+												e.preventDefault()
+											}}
+											aria-label={label}
+										>
+											<val.icon size={30} />
+										</button>
+									</CustomTooltip>
+								) : (
+									!isMobileView && (
+										<CustomTooltip
+											content={<p className="text-xs">Collaborate</p>}
+										>
+											<Link href={'/'} aria-label="label">
+												<val.icon
+													size={30}
+													onClick={() => {
+														setActiveNav(idx)
+													}}
+												/>
+											</Link>
+										</CustomTooltip>
+									)
+								)}
+							</div>
+						))}
+				</aside>
+			)}
 		</>
 	)
 }

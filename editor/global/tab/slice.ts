@@ -69,14 +69,6 @@ const defaultConfig: TabConfig = {
 
 export const tabAdapter = createEntityAdapter<Tab>()
 
-const defaultTab: Tab = {
-	id: 'welcome_tabview',
-	title: 'welcome',
-	content: '',
-	isDirty: false,
-	config: { closable: true },
-}
-
 const defaultEditorViewState: Tab['editorViewState'] = {
 	...(null as any),
 	codeResponse: null,
@@ -86,11 +78,8 @@ const defaultEditorViewState: Tab['editorViewState'] = {
 }
 
 const initialState = tabAdapter.getInitialState({
-	ids: [defaultTab.id],
-	entities: {
-		[defaultTab.id]: defaultTab,
-	},
-	activeTabId: defaultTab.id as TabId | null,
+	activeTabId: null as TabId | null,
+	recentlyUsedTabs: [] as TabId[],
 })
 
 function validatePayload(
@@ -168,38 +157,47 @@ const tabSlice = createSlice({
 		},
 
 		removeTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
-			if (
-				state.activeTabId === tabId &&
-				state.entities[tabId].config.closable
-			) {
-				const { ids } = state
+			const tab = state.entities[tabId]
+
+			if (tab && tab.config.closable) {
+				const { ids, recentlyUsedTabs } = state
 				const removedTabIndex = ids.indexOf(tabId)
+
 				tabAdapter.removeOne(state, tabId)
 
-				state.activeTabId = null
+				state.recentlyUsedTabs = state.recentlyUsedTabs.filter(
+					(id) => id !== tabId
+				)
 
-				const idsLength = ids.length
-				let nextIndex: number | null = null
+				state.ids = ids.filter((id) => id !== tabId)
 
-				for (let i = removedTabIndex + 1; i < idsLength; i++) {
-					const id = ids[i]
-					if (state.entities[id]) {
-						nextIndex = i
-						break
-					}
-				}
+				if (state.activeTabId === tabId) {
+					let newActiveTabId = null
 
-				if (nextIndex === null) {
-					for (let i = removedTabIndex - 1; i >= 0; i--) {
-						const id = ids[i]
-						if (state.entities[id]) {
-							nextIndex = i
+					for (const recentTabId of [...recentlyUsedTabs].reverse()) {
+						if (state.entities[recentTabId] && recentTabId !== tabId) {
+							newActiveTabId = recentTabId
 							break
 						}
 					}
-				}
 
-				state.activeTabId = nextIndex !== null ? ids[nextIndex] : null
+					if (!newActiveTabId) {
+						if (removedTabIndex > 0) {
+							newActiveTabId = state.ids[removedTabIndex - 1]
+						} else if (state.ids.length > 0) {
+							newActiveTabId = state.ids[0]
+						}
+					}
+
+					if (newActiveTabId) {
+						tabSlice.caseReducers.setActiveTab(state, {
+							payload: newActiveTabId,
+							type: 'setActiveTab',
+						})
+					} else {
+						state.activeTabId = null
+					}
+				}
 			}
 		},
 
@@ -217,7 +215,6 @@ const tabSlice = createSlice({
 				const length = ids.length
 				const increment = direction === 'next' ? 1 : -1
 
-				// Calculate newIndex using modulo for cycling through tabs
 				const newIndex = (currentIndex + increment + length) % length
 
 				if (state.entities[ids[newIndex]]) {
@@ -261,8 +258,17 @@ const tabSlice = createSlice({
 						editorViewState: editorViewState ?? tab.editorViewState,
 					},
 				})
+
+				if (isDirty) {
+					const recentIndex = state.recentlyUsedTabs.indexOf(id)
+					if (recentIndex > -1) {
+						state.recentlyUsedTabs.splice(recentIndex, 1)
+					}
+					state.recentlyUsedTabs.push(id)
+				}
 			}
 		},
+
 		setCodeResponse: (
 			state,
 			{ payload: { id, codeResponse } }: PayloadAction<CodeResponsePayload>
@@ -288,6 +294,7 @@ const tabSlice = createSlice({
 		},
 	},
 })
+
 export default tabSlice
 
 export const { selectAll: selectAllTabs, selectById: selectTabById } =

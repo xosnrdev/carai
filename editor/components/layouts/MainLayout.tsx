@@ -1,8 +1,9 @@
 'use client'
 
-import type { FC, ReactNode } from 'react'
+import useAppContext from '@/hooks/useAppContext'
+import { cn } from '@/lib/utils'
+import { type FC, type ReactNode } from 'react'
 import { Toaster } from 'react-hot-toast'
-import GlobalProvider from '../providers/GlobalProvider'
 import Header from '../ui/header'
 import Sidebar from '../ui/sidebar'
 import ThemeLayout from './ThemeLayout'
@@ -12,20 +13,28 @@ export interface MainLayoutProps {
 }
 
 const MainLayout: FC<MainLayoutProps> = ({ children }) => {
+	const { isOpen } = useAppContext()
+
 	return (
 		<ThemeLayout>
-			<GlobalProvider>
-				<div className="flex h-dvh flex-col overflow-hidden">
-					<Header />
-					<Toaster position="top-center" reverseOrder={true} />
-					<div className="flex flex-row overflow-hidden">
-						<Sidebar />
-						<div className="flex-1 bg-[#FFFFFF] dark:bg-[#1E1E2A]">
-							{children}
-						</div>
+			<div className="custom-scrollbar flex h-dvh flex-col overflow-hidden">
+				<Header />
+				<Toaster position="top-center" reverseOrder={true} />
+				<div
+					className={cn('flex h-dvh flex-col overflow-hidden', {
+						'flex-row': isOpen.sidebar,
+					})}
+				>
+					<Sidebar />
+					<div
+						className={cn('h-full bg-[#FFFFFF] dark:bg-[#1E1E2A]', {
+							'flex-1': isOpen.sidebar,
+						})}
+					>
+						{children}
 					</div>
 				</div>
-			</GlobalProvider>
+			</div>
 		</ThemeLayout>
 	)
 }

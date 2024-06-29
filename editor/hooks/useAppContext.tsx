@@ -1,4 +1,4 @@
-import { onIsOpen } from '@/global/app/slice'
+import { type IsOpenPayload, onIsOpen } from '@/global/app/slice'
 import {
 	useGlobalSelector,
 	type AppDispatch,
@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux'
 const useAppContext = () => {
 	const dispatch = useDispatch<AppDispatch>()
 	const isOpen = useGlobalSelector((state: RootState) => state.app.isOpen)
-	const setIsOpen = (payload: boolean) => dispatch(onIsOpen(payload))
+	const setIsOpen = (payload: IsOpenPayload) => dispatch(onIsOpen(payload))
 
 	return { isOpen, setIsOpen }
 }

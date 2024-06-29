@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import CustomTooltip from '@/components/ui/customTooltip'
 import Editor from '@/components/ui/editor'
 import Footer from '@/components/ui/footer'
 import Onboarding from '@/components/ui/onboarding'
@@ -27,7 +28,6 @@ const Home: FC = () => {
 		codeResponse,
 		isMobileView,
 		setOnResize,
-		isTabViewEditor,
 	} = useTabContext()
 	const [minSize, setMinSize] = useState(30)
 	const [defaultSize, setDefaultSize] = useState(70)
@@ -86,9 +86,7 @@ const Home: FC = () => {
 	let combinedError: string | undefined
 	let displayOutput: string | undefined
 
-	if (formattedResponse) {
-		;({ combinedError, displayOutput } = formattedResponse)
-	}
+	if (formattedResponse) ({ combinedError, displayOutput } = formattedResponse)
 
 	return (
 		<main className="relative size-full">
@@ -107,13 +105,13 @@ const Home: FC = () => {
 					<div className="flex size-full flex-col">
 						<TabBar />
 						<div
-							className={cn('custom-scrollbar flex-1 overflow-y-scroll', {
-								'overflow-hidden': isTabViewEditor,
+							className={cn('custom-scrollbar flex-1 overflow-y-auto', {
+								'overflow-hidden': activeTab,
 							})}
 						>
-							{isTabViewEditor ? (
+							{activeTab ? (
 								<Editor
-									className="z-50 size-full"
+									className="z-20 size-full"
 									id="playground-left-container"
 									role="tabpanel"
 									tabIndex={0}
@@ -121,12 +119,12 @@ const Home: FC = () => {
 									key={activeTabId}
 								/>
 							) : (
-								!isMobileView && <Onboarding />
+								<Onboarding />
 							)}
 						</div>
 						<div
 							className={cn('block', {
-								hidden: isTabViewEditor && isMobileView && onResize?.visible,
+								hidden: activeTab && isMobileView && onResize?.visible,
 							})}
 						>
 							<Footer />
@@ -134,10 +132,10 @@ const Home: FC = () => {
 					</div>
 				</ResizablePanel>
 
-				{isTabViewEditor && onResize?.visible && (
+				{activeTab && onResize?.visible && (
 					<>
 						<ResizableHandle
-							className="border-x border-solid border-primary dark:border-secondary-foreground"
+							className="border-x border-primary dark:border-secondary-foreground"
 							withHandle={isMobileView}
 						/>
 						<ResizablePanel
@@ -151,7 +149,7 @@ const Home: FC = () => {
 								<div
 									tabIndex={0}
 									id="playground-right-container"
-									className="custom-scrollbar flex-1 overflow-x-scroll font-mono"
+									className="custom-scrollbar flex-1 overflow-auto font-mono"
 									role="tabpanel"
 									key={activeTabId}
 								>
@@ -172,16 +170,26 @@ const Home: FC = () => {
 				)}
 			</ResizablePanelGroup>
 
-			{isMobileView && isTabViewEditor && !isOpen && (
-				<Button
-					variant={null}
-					size={'icon'}
-					role="button"
-					className="fixed right-0 top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] animate-bounce rounded-none text-2xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
-					onClick={handleOnResizeVisible}
+			{isMobileView && activeTab && !isOpen.modal && (
+				<CustomTooltip
+					content={
+						onResize?.visible ? (
+							<p className="text-xs">Close Panel</p>
+						) : (
+							<p className="text-xs">Open Panel</p>
+						)
+					}
 				>
-					{onResize?.visible ? '↓' : '↑'}
-				</Button>
+					<Button
+						variant={null}
+						size={'icon'}
+						role="button"
+						className="fixed right-0 top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] rounded-none text-xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
+						onClick={handleOnResizeVisible}
+					>
+						{onResize?.visible ? '↓' : '↑'}
+					</Button>
+				</CustomTooltip>
 			)}
 		</main>
 	)

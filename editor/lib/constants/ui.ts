@@ -1,10 +1,5 @@
 import { HiUsers } from 'react-icons/hi2'
-import {
-	IoIosArrowDropleftCircle,
-	IoIosArrowDroprightCircle,
-	IoIosCloseCircle,
-	IoIosInformationCircle,
-} from 'react-icons/io'
+import { IoIosCloseCircle, IoIosInformationCircle } from 'react-icons/io'
 import { MdAddBox } from 'react-icons/md'
 
 import { TbAlertTriangleFilled } from 'react-icons/tb'
@@ -62,14 +57,3 @@ export const onboardingProps: OnboardingProps = {
 		'Start collaborating today',
 	],
 }
-
-export const tabBarProps: TabBarProps[] = [
-	{
-		icon: IoIosArrowDropleftCircle,
-		label: 'previous_tab',
-	},
-	{
-		icon: IoIosArrowDroprightCircle,
-		label: 'next_tab',
-	},
-]

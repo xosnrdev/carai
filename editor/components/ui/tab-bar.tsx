@@ -1,15 +1,16 @@
 import type { TabId } from '@/global/tab/slice'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
-import { tabBarProps } from '@/lib/constants/ui'
-import { type CodeResponse, type ErrorResponse } from '@/lib/types/response'
-import { cn } from '@/lib/utils'
+import type { CodeResponse, ErrorResponse } from '@/lib/types/response'
 import { RCEHandler } from '@/network/rce-client'
 import { usePathname } from 'next/navigation'
 import { useCallback, useState, type FC, type MouseEvent } from 'react'
 import toast from 'react-hot-toast'
 import { Button } from './button'
 import Tab from './tab'
+import useAppContext from '@/hooks/useAppContext'
+import { cn } from '@/lib/utils'
+import CustomTooltip from './customTooltip'
 
 const rceHandler = new RCEHandler()
 
@@ -26,11 +27,10 @@ const TabBar: FC = () => {
 		activeTabId,
 		isMobileView,
 		closeAllTabs,
-		codeResponse,
 		setActiveTab,
-		isTabViewEditor,
 		setCodeResponse,
 	} = useTabContext()
+	const { isOpen, setIsOpen } = useAppContext()
 
 	const handleCloseTab = (
 		e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
@@ -44,18 +44,18 @@ const TabBar: FC = () => {
 		if (!activeTab) return
 		const { id } = activeTab
 
-		if (onResize?.visible) {
+		if (!onResize?.visible) {
 			setOnResize({
 				id,
 				onResize: {
-					visible: false,
+					visible: true,
 				},
 			})
 		} else {
 			setOnResize({
 				id,
 				onResize: {
-					visible: true,
+					visible: false,
 				},
 			})
 		}
@@ -75,17 +75,11 @@ const TabBar: FC = () => {
 				setIsLoading(true)
 				rceHandler
 					.execute({
-						language: language,
+						language,
 						version: 'latest',
 						code,
 					})
 					.then((codeResponse) => {
-						if (!codeResponse.runtime.output.trim()) {
-							reject(
-								new Error('No response exit ' + codeResponse.runtime.exitCode)
-							)
-						}
-
 						setCodeResponse({ id, codeResponse })
 						resolve(codeResponse)
 					})
@@ -129,70 +123,67 @@ const TabBar: FC = () => {
 	})
 
 	return (
-		<div className="sticky top-0 z-10 flex w-full flex-row items-center justify-between bg-secondary lg:px-8 xl:px-8">
-			<div className="flex flex-row items-center">
-				{activeTab &&
-					tabs.length > 1 &&
-					tabBarProps.map((prop, index) => {
-						const isDisabled =
-							(index === 0 &&
-								tabs.findIndex((tab) => tab.id === activeTabId) === 0) ||
-							(index === 1 &&
-								tabs.findIndex((tab) => tab.id === activeTabId) ===
-									tabs.length - 1)
-
-						return (
-							<div
-								key={index}
-								className={cn(
-									'mx-auto flex flex-row items-center px-2 text-muted-foreground dark:text-[#FFFFFF66]',
-									{
-										'text-primary dark:text-white': !isDisabled,
-									}
-								)}
-							>
-								<button
-									id="tab-navigation-button"
-									tabIndex={0}
-									role="button"
-									onClick={() => switchTab(index === 0 ? 'previous' : 'next')}
-									aria-label={`Switch to ${index === 0 ? 'previous' : 'next'} tab`}
-									aria-disabled={
-										index === 0
-											? activeTabId === tabs[0]?.id
-											: activeTabId === tabs[tabs.length - 1]?.id
-									}
-									disabled={isDisabled}
-								>
-									<prop.icon size={22} />
-								</button>
-							</div>
+		<div
+			className={cn(
+				'sticky top-0 z-20 flex w-full flex-row items-center justify-between bg-secondary px-1 lg:px-8 xl:px-8',
+				{
+					'!pl-12': !isOpen.sidebar,
+				}
+			)}
+		>
+			<div
+				className="flex flex-row items-center overflow-hidden"
+				role="tablist"
+				tabIndex={0}
+				aria-label="tab bar area"
+				id="tab-bar-container"
+			>
+				<CustomTooltip
+					content={
+						isOpen.sidebar ? (
+							<p className="text-xs">Close Sidebar</p>
+						) : (
+							<p className="text-xs">Open Sidebar</p>
 						)
-					})}
-				<div
-					className="flex flex-row"
-					role="tablist"
-					tabIndex={0}
-					aria-label="tab bar area"
-					id="tab-bar-container"
+					}
 				>
-					{tabs.map(({ id, title }) => (
-						<Tab
-							key={id}
-							id={id}
-							title={title}
-							activeTabId={activeTabId}
-							setActiveTab={setActiveTab}
-							closeTab={handleCloseTab}
-						/>
-					))}
-				</div>
+					<Button
+						variant={null}
+						size={'icon'}
+						role="button"
+						className="fixed left-1 top-12 rounded-none text-2xl"
+						onClick={(e) => {
+							e.preventDefault()
+							if (!isOpen.sidebar) {
+								setIsOpen({
+									sidebar: true,
+								})
+							} else {
+								setIsOpen({
+									sidebar: false,
+								})
+							}
+						}}
+					>
+						{isOpen.sidebar ? '⇤' : '⇥'}
+					</Button>
+				</CustomTooltip>
+				{tabs.map(({ id, title }) => (
+					<Tab
+						key={id}
+						id={id}
+						title={title}
+						activeTabId={activeTabId}
+						setActiveTab={setActiveTab}
+						closeTab={handleCloseTab}
+					/>
+				))}
 			</div>
 
-			{isTabViewEditor && (
+			{activeTab && (
 				<div className="inline-flex flex-row items-center justify-center space-x-3">
 					<Button
-						className="inline-flex items-center gap-x-2 bg-[#1B501D] p-2 text-base text-white"
+						className="inline-flex items-center gap-x-2 bg-[#1B501D] p-2 text-white"
 						variant={null}
 						onClick={(e) => {
 							e.preventDefault()
@@ -201,7 +192,6 @@ const TabBar: FC = () => {
 								success: 'Process exit 0',
 								error: (err: Error) => <>{err.message}</>,
 							})
-							if (!codeResponse) return
 							if (activeTab && !onResize?.visible) {
 								const { id } = activeTab
 								setOnResize({
@@ -237,18 +227,28 @@ const TabBar: FC = () => {
 								</clipPath>
 							</defs>
 						</svg>
-						{isLoading ? 'Running' : 'Run'}
+						{isLoading ? 'Running...' : 'Run'}
 					</Button>
 					{!isMobileView && (
-						<Button
-							variant={null}
-							size={'icon'}
-							role="button"
-							className="rounded-none text-2xl hover:bg-[#FFFFFF] hover:dark:bg-[#1E1E2A]"
-							onClick={handleOnResizeVisible}
+						<CustomTooltip
+							content={
+								onResize?.visible ? (
+									<p className="text-xs">Close Panel</p>
+								) : (
+									<p className="text-xs">Open Panel</p>
+								)
+							}
 						>
-							{onResize?.visible ? '⇥' : '⇤'}
-						</Button>
+							<Button
+								variant={null}
+								size={'icon'}
+								role="button"
+								className="rounded-none text-2xl"
+								onClick={handleOnResizeVisible}
+							>
+								{onResize?.visible ? '⇥' : '⇤'}
+							</Button>
+						</CustomTooltip>
 					)}
 				</div>
 			)}
