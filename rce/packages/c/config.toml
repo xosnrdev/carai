@@ -1,0 +1,31 @@
+language = "c"
+version = "12.2.0"
+compiled = true
+extension = "c"
+build_command = [
+    "gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O2",
+    "-std=c99",
+    "-pedantic",
+    "-lm",
+    "-o",
+    "code",
+    "{file}"
+]
+environment = [
+  "PATH=/opt/gcc/12.2.0/bin:/usr/bin",
+  "LD_LIBRARY_PATH=/opt/gcc/12.2.0/lib64:$LD_LIBRARY_PATH",
+  "CC=/opt/gcc/12.2.0/bin/gcc",
+  "CXX=/opt/gcc/12.2.0/bin/g++",
+  "FC=/opt/gcc/12.2.0/bin/gfortran",
+]
+run_command = [ "./code" ]
+test_file = "test.c"
+aliases = ["c"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256
+allowed_entrypoints = 1

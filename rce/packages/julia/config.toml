@@ -1,0 +1,13 @@
+language = "julia"
+version = "1.9.4"
+compiled = false
+extension = "jl"
+environment = [ "PATH=/opt/julia/1.9/bin" ]
+build_command = []
+run_command = [ "/opt/julia/1.9/bin/julia", "{file}" ]
+test_file = "test.jl"
+aliases = ["jl"]
+should_limit_memory = false
+memory_limit = 0
+process_limit = 256
+allowed_entrypoints = 1
