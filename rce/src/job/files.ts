@@ -12,7 +12,7 @@ export class Files {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.fileName === "") {
-        this.files.push({ fileName: `index${i}.${extension}`, code: file.code, entrypoint: true });
+        this.files.push({ fileName: `code${i}.${extension}`, code: file.code, entrypoint: true });
       } else {
         this.files.push(file);
       }
