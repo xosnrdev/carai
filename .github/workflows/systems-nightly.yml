@@ -1,4 +1,4 @@
-name: Main System
+name: Systems Nightly
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_DSN: ${{secrets.EDITOR_SENTRY_DSN}}
+      SENTRY_DSN: ${{ secrets.EDITOR_SENTRY_DSN }}
     container: node:20.12
     timeout-minutes: 30
     defaults:
@@ -50,7 +50,7 @@ jobs:
     container: node:20.12
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_DSN: ${{secrets.RCE_SENTRY_DSN}}
+      SENTRY_DSN: ${{ secrets.RCE_SENTRY_DSN }}
     timeout-minutes: 30
     defaults:
       run:
@@ -99,8 +99,8 @@ jobs:
     name: Build Editor
     runs-on: ubuntu-latest
     env:
-      SENTRY_AUTH_TOKEN: ${{ secrets.EDITOR_SENTRY_AUTH_TOKEN }}
-      SENTRY_DSN: ${{secrets.EDITOR_SENTRY_DSN}}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{ secrets.EDITOR_SENTRY_DSN }}
     timeout-minutes: 30
     needs:
       - editor
@@ -147,8 +147,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 720
     env:
-      SENTRY_DSN: ${{secrets.RCE_SENTRY_DSN}}
-      SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+      SENTRY_DSN: ${{ secrets.RCE_SENTRY_DSN  }}
+      SENTRY_AUTH_TOKEN: ${{  secrets.SENTRY_AUTH_TOKEN }}
     needs:
       - rce
     permissions:
@@ -168,7 +168,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.ACCESS_TOKEN_GITHUB }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
