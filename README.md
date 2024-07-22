@@ -5,13 +5,11 @@
 [![codecov](https://codecov.io/gh/xosnrdev/carai/branch/master/graph/badge.svg?token=cCbIHBZ3KG)](https://codecov.io/gh/xosnrdev/carai)
 ![License](https://img.shields.io/github/license/xosnrdev/carai)
 ![Contributors](https://img.shields.io/github/contributors/xosnrdev/carai)
-[![Web App](https://img.shields.io/badge/web%20app-cexaengine.com-blue)](https://cexaengine.com)
+[![URL](https://img.shields.io/badge/url-cexaengine.com-green)](https://cexaengine.com)
 
-![preview](https://github.com/xosnrdev/carai/assets/106241330/d1a3f138-4bd7-488b-9055-51b98346df70)
+### Table of Contents
 
-## 📖 Table of Contents
-
-- [Introduction](#-introduction)
+- [Overview](#-overview)
 - [Features](#-features)
 - [Getting Started](#-getting-started)
 - [Installation](#-installation)
@@ -19,24 +17,21 @@
 - [License](#-license)
 - [Contact](#-contact)
 
-## 🚀 Introduction
+## Overview
 
-Carai is an open-source, web-based code playground that supports multiple programming languages. **Note: This project is currently a work in progress (WIP).**
+A web application code playground with multi-language support. users can edit and run their code remotely without hassle
 
-Carai allows users to run and learn programming languages without installing them locally, thus conserving local system resources.
-
-## 🌟 Features
+### Features
 
 - **Multi-Language Support**: Supports a wide range of programming languages.
-- **Remote Code Execution (RCE)**: Execute code remotely to save local system resources.
-- **Collaboration**: Real-time live coding sessions with audio and video support.
-- **Learning Platform**: Learn new languages and share knowledge within the community.
+- **Remote Code Execution (RCE)**: Execute code remotely and securely.
+- **Collaboration(WIP)**: Real-time live coding sessions with audio and video support.
 
-## 📝 Getting Started
+### Getting Started
 
 Clone the repository and follow the installation instructions to start contributing to Carai.
 
-## 🔧 Installation
+### Installation
 
 1. Clone the repository:
    ```sh
@@ -55,14 +50,14 @@ Clone the repository and follow the installation instructions to start contribut
    pnpm dev
    ```
 
-## 🤝 Contributing
+### Contributing
 
-Carai is free open-source, and contributions are welcome. Check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
+Check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
 
-## 📜 License
+### License
 
-Carai is licensed under [MIT license](./LICENSE).
+[MIT licensed](./LICENSE).
 
-## 📞 Contact
+### Contact
 
-For questions, issues, or suggestions, please open an issue on GitHub or contact the maintainers.
+For questions, issues, or suggestions, please open an issue on GitHub or contact the maintainer [hello@xosnrdev.tech](mailto:hello@xosnrdev.tech).
