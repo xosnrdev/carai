@@ -39,11 +39,6 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          flags: editor
-
   rce:
     name: RCE
     runs-on: ubuntu-latest
@@ -121,7 +116,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -135,7 +130,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:editor"
           push: true
@@ -168,7 +163,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
