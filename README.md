@@ -1,22 +1,19 @@
 # Carai
 
 ![Project Status](https://img.shields.io/badge/status-WIP-orange)
-[![codecov](https://codecov.io/gh/xosnrdev/carai/branch/master/graph/badge.svg?token=cCbIHBZ3KG)](https://codecov.io/gh/xosnrdev/carai)
 [![Systems Nightly](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml)
 [![Systems Release](https://github.com/xosnrdev/carai/actions/workflows/systems-release.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-release.yml)
-[![URL](https://img.shields.io/badge/URL-cexaengine.com-grey)](https://cexaengine.com)
-![License](https://img.shields.io/github/license/xosnrdev/carai)
-![Contributors](https://img.shields.io/github/contributors/xosnrdev/carai)
+[![URL](https://img.shields.io/badge/URL-cexaengine.com-blue)](https://cexaengine.com)
 
 ### Table of Contents
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Getting Started](#-getting-started)
-- [Installation](#-installation)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
+- [Overview](#overview)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
 ## Overview
 
