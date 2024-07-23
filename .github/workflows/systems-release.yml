@@ -1,9 +1,10 @@
 name: Systems Release
 
 on:
-  release:
+  registry_package: 
     types:
       - published
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io

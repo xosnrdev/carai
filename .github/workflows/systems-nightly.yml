@@ -10,9 +10,30 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  paths-filter:
+    runs-on: ubuntu-latest
+    outputs:
+      editor: ${{ steps.filter.outputs.editor }}
+      rce: ${{ steps.filter.outputs.rce }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes in paths
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            editor:
+              - 'editor/**'
+            rce:
+              - 'rce/**'
+
   editor:
     name: Editor
     runs-on: ubuntu-latest
+    needs: paths-filter
+    if: needs.paths-filter.outputs.editor == 'true'
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       SENTRY_DSN: ${{ secrets.EDITOR_SENTRY_DSN }}
@@ -42,6 +63,8 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
+    needs: paths-filter
+    if: needs.paths-filter.outputs.rce == 'true'
     container: node:20.12
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -71,7 +94,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npx eslint --ext .ts,.js,.cjs .
+        run: npm run lint
 
       - name: Build
         run: npm run build
@@ -86,7 +109,7 @@ jobs:
           LANGUAGE_SQLITE: true
 
       - name: Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: rce
 
