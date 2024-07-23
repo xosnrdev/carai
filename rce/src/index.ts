@@ -22,7 +22,7 @@ Sentry.init({
 		if (samplingContext.transactionContext.name === "GET /healthz") {
 			return 0;
 		}
-		return 0.4;
+		return 0.5;
 	},
 	integrations: [
 		nodeProfilingIntegration(),
@@ -31,12 +31,10 @@ Sentry.init({
 			transactionNamingScheme: "handler",
 		}),
 	],
-
-	// Performance Monitoring
-	//tracesSampleRate: 1.0, //  Capture 100% of the transactions
+	release: 'carai-rce',
 
 	// Set sampling rate for profiling - this is relative to tracesSampleRate
-	//profilesSampleRate: 1.0,
+	profilesSampleRate: 0.5,
 });
 
 
