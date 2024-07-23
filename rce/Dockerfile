@@ -15,7 +15,7 @@ RUN apt-get update && \
   # Prohibits network access
   make -C ./nosocket/ all && make -C ./nosocket/ install && \
   # We install packages here
-  npm install -g npm@latest && npm ci && \
+  npm install -g npm@latest && npm ci && npm run lint && \
   node ./scripts/install.cjs && \
   # Remove installed build steps via apt just to lessen the image size more \
   apt-get remove -y bzip2 make cmake zip unzip flex clang gcc g++ apt-utils \

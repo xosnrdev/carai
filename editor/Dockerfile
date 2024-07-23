@@ -7,6 +7,7 @@ ADD . ./
 RUN npm i -g pnpm@latest && \
 	pnpm fetch && \
 	pnpm install -r --offline && \
+	pnpm fmt:write && \
 	pnpm build
 
 FROM node:20.12-alpine3.18 AS production
