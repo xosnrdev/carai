@@ -8,9 +8,6 @@ import polka from "polka";
 import { z } from "zod";
 import { ClientError, ServerError } from "./Error";
 import type { CodeRequest, CodeRequest_File } from "./stub/rce";
-import {config} from 'dotenv'
-
-config()
 
 const PORT = process.env?.PORT || "50051";
 
