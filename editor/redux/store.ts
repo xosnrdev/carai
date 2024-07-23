@@ -30,7 +30,7 @@ const createNoopStorage = (): WebStorage => {
         app: apps_slice.reducer,
     })
 
-export type RootState = {
+type RootState = {
     tabs: ReturnType<typeof tabs_slice.reducer>
     app: ReturnType<typeof apps_slice.reducer>
 }
@@ -52,9 +52,15 @@ const persistConfig: PersistConfig<RootState> = {
         devTools: process.env.NODE_ENV !== 'production',
     })
 
-export default store
-
-export const persistor = persistStore(store),
+const persistor = persistStore(store),
     useGlobalSelector = <T>(selector: (state: RootState) => T) =>
         useSelector<RootState, T>(selector)
-export type AppDispatch = typeof store.dispatch
+type AppDispatch = typeof store.dispatch
+
+export {
+    persistor,
+    useGlobalSelector,
+    type AppDispatch,
+    type RootState,
+    store as default,
+}
