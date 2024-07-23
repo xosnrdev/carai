@@ -12,6 +12,7 @@ env:
 
 jobs:
   paths-filter:
+    name: Paths Filter
     runs-on: ubuntu-latest
     outputs:
       editor: ${{ steps.changes.outputs.editor }}
@@ -113,6 +114,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           flags: rce
+          token: ${{secrets.CODECOV_TOKEN}}
 
   build-editor:
     name: Build Editor
@@ -203,13 +205,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Create Sentry release
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: carai-rce
-        with:
-          environment: production
-          ignore_empty: true

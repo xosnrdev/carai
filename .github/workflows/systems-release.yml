@@ -1,7 +1,7 @@
 name: Systems Release
 
 on:
-  registry_package: 
+  registry_package:
     types:
       - published
   workflow_dispatch:
@@ -43,7 +43,8 @@ jobs:
           flavor: |
             latest=true
           tags: |
-            type=semver,pattern={{version}}
+            type=edge
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -85,7 +86,8 @@ jobs:
           flavor: |
             latest=true
           tags: |
-            type=semver,pattern={{version}}
+            type=edge
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
