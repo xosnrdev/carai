@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -13,8 +14,8 @@ jobs:
   paths-filter:
     runs-on: ubuntu-latest
     outputs:
-      editor: ${{ steps.filter.outputs.editor }}
-      rce: ${{ steps.filter.outputs.rce }}
+      editor: ${{ steps.changes.outputs.editor }}
+      rce: ${{ steps.changes.outputs.rce }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
