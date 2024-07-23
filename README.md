@@ -1,6 +1,7 @@
 # Carai
 
 ![Project Status](https://img.shields.io/badge/status-WIP-orange)
+[![codecov](https://codecov.io/gh/xosnrdev/carai/graph/badge.svg?token=cMsd6eQNq5)](https://codecov.io/gh/xosnrdev/carai)
 [![Systems Nightly](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml)
 [![Systems Release](https://github.com/xosnrdev/carai/actions/workflows/systems-release.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-release.yml)
 [![URL](https://img.shields.io/badge/URL-cexaengine.com-blue)](https://cexaengine.com)
