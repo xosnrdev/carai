@@ -6,23 +6,22 @@ export type IsOpenPayload = Partial<{
 }>
 
 const apps_slice = createSlice({
-    name: 'app',
-    initialState: {
-        isOpen: {
-            modal: false,
-            sidebar: true,
-        } as IsOpenPayload,
-    },
-    reducers: {
-        onIsOpen: (state, action: PayloadAction<IsOpenPayload>) => {
-            state.isOpen = {
-                ...state.isOpen,
-                ...action.payload,
-            }
+        name: 'app',
+        initialState: {
+            isOpen: {
+                modal: false,
+                sidebar: true,
+            } as IsOpenPayload,
         },
-    },
-})
+        reducers: {
+            onIsOpen: (state, action: PayloadAction<IsOpenPayload>) => {
+                state.isOpen = {
+                    ...state.isOpen,
+                    ...action.payload,
+                }
+            },
+        },
+    }),
+    { onIsOpen } = apps_slice.actions
 
-export const { onIsOpen } = apps_slice.actions
-
-export default apps_slice
+export { onIsOpen, apps_slice as default }

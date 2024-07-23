@@ -21,17 +21,17 @@ import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
 
 import { SafeJson } from '@/lib/utils'
 import {
-    AddTabPayload,
-    CodeResponsePayload,
+    type AddTabPayload,
+    type CodeResponsePayload,
     EditorViewState,
-    IParsedAceVS,
-    IParsedMonacoVS,
-    ITab,
-    ITabConfig,
-    IVSDefaults,
-    ResizePanePayload,
-    TabId,
-    UpdateTabPayload,
+    type IParsedAceVS,
+    type IParsedMonacoVS,
+    type ITab,
+    type ITabConfig,
+    type IVSDefaults,
+    type ResizePanePayload,
+    type TabId,
+    type UpdateTabPayload,
 } from '@/types'
 import { TabError } from '@/lib/error'
 
@@ -156,11 +156,9 @@ const defaultConfig: ITabConfig = {
             default:
                 throw new TabError(`Unsupported VS type ${tab.viewState.type}`)
         }
-    }
-
-export const tabAdapter = createEntityAdapter<ITab>()
-
-const initialState = tabAdapter.getInitialState({
+    },
+    tabAdapter = createEntityAdapter<ITab>(),
+    initialState = tabAdapter.getInitialState({
         activeTabId: null as TabId | null,
         recentlyUsedTabs: new Array<TabId>(),
     }),
@@ -347,11 +345,8 @@ const initialState = tabAdapter.getInitialState({
                 resoleVS(tab, { resizePane })
             },
         },
-    })
-
-export default tabs_slice
-
-export const { selectAll: selectAllTabs, selectById: selectTabById } =
+    }),
+    { selectAll: selectAllTabs, selectById: selectTabById } =
         tabAdapter.getSelectors<RootState>((state) => state.tabs),
     {
         addTab,
@@ -363,3 +358,18 @@ export const { selectAll: selectAllTabs, selectById: selectTabById } =
         setCodeResponse,
         setResizePane,
     } = tabs_slice.actions
+
+export {
+    selectAllTabs,
+    selectTabById,
+    addTab,
+    setActiveTab,
+    removeTab,
+    switchTab,
+    closeAllTabs,
+    updateTab,
+    setCodeResponse,
+    setResizePane,
+    tabAdapter,
+    tabs_slice as default,
+}
