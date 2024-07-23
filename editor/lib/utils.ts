@@ -89,7 +89,7 @@ export const ACE_MODES = new Set(languageProps.map((lang) => lang.mode)),
             })
 
         await Promise.all(importPromises)
-        const { default: ReactAce } = await import('react-ace')
+        const { default: ace } = await import('react-ace')
 
-        return ReactAce
+        return ace
     }
