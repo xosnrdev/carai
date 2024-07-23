@@ -13,7 +13,6 @@ const PORT = process.env?.PORT || "50051";
 
 Sentry.init({
 	dsn: process.env.SENTRY_DSN ?? "",
-	autoSessionTracking: true,
 	environment: process.env.NODE_ENV ?? "development",
 	debug: process.env.NODE_ENV !== "production",
 	sampleRate: 0.75,
@@ -26,12 +25,7 @@ Sentry.init({
 	},
 	integrations: [
 		nodeProfilingIntegration(),
-		Sentry.requestDataIntegration({
-			include: { ip: true, data: true, user: true },
-			transactionNamingScheme: "handler",
-		}),
 	],
-	release: 'carai-rce',
 
 	// Set sampling rate for profiling - this is relative to tracesSampleRate
 	profilesSampleRate: 0.5,

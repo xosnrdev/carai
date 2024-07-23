@@ -1,27 +1,27 @@
 import { sentryEsbuildPlugin } from "@sentry/esbuild-plugin";
 import { build } from "esbuild";
-import {config} from 'dotenv'
+import { config } from "dotenv";
 
-config()
+config();
 
 build({
 	bundle: true,
-	entryPoints: ['src/index.ts'],
-	external: ['@sentry/node', '@sentry/profiling-node', 'polka'],
-	format: 'esm',
+	entryPoints: ["src/index.ts"],
+	external: ["@sentry/node", "@sentry/profiling-node", "polka"],
+	format: "esm",
 	minify: true,
-	outdir: './dist',
-	platform: 'node',
+	outdir: "./dist",
+	platform: "node",
+	sourcemap: true,
 	plugins: [
 		sentryEsbuildPlugin({
 			authToken: process.env.SENTRY_AUTH_TOKEN,
-			org: 'xosnrdev',
-			project: 'carai-rce',
+			org: "xosnrdev",
+			project: "carai-rce",
 		}),
 	],
-	sourcemap: true,
-	target: ['esnext', 'node14'],
-	tsconfig: 'tsconfig.json',
+	target: ["esnext", "node14"],
+	tsconfig: "tsconfig.json",
 }).catch((e) => {
 	/* eslint-disable-next-line */
 	console.error(e);
