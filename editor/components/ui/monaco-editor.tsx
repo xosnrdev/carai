@@ -10,17 +10,10 @@ import { EditorViewState, IParsedMonacoVS } from '@/types'
 
 import LoadingSpinner from './loading-spinner'
 
-const _Editor = dynamic(
-        async () => {
-            const mod = await import('@monaco-editor/react')
-
-            return mod.default
-        },
-        {
-            loading: () => <LoadingSpinner />,
-            ssr: false,
-        }
-    ),
+const _Editor = dynamic(() => import('@monaco-editor/react'), {
+        loading: () => <LoadingSpinner />,
+        ssr: false,
+    }),
     MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
         const {
                 updateTab,
