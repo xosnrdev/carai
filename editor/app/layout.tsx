@@ -72,11 +72,11 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
         width: 'device-width',
         initialScale: 1,
         maximumScale: 1,
-        // colorScheme: 'dark light',
-        // themeColor: [
-        //     { media: '(prefers-color-scheme: dark)', color: '#2f2f3a' },
-        //     { media: '(prefers-color-scheme: light)', color: '#f1f5f9' },
-        // ],
+        colorScheme: 'normal',
+        themeColor: [
+            { media: '(prefers-color-scheme: dark)', color: '#2f2f3a' },
+            { media: '(prefers-color-scheme: light)', color: '#f1f5f9' },
+        ],
     },
     RootLayout = ({ children }: { children: ReactNode }) => {
         return (
