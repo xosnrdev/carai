@@ -14,16 +14,21 @@ export default function manifest(): MetadataRoute.Manifest {
                 type: 'image/png',
             },
             {
+                src: '/apple-touch-icon.png',
+                sizes: '180x180',
+                type: 'image/png',
+            },
+            {
                 src: '/android-chrome-512x512.png',
                 sizes: '512x512',
                 type: 'image/png',
             },
         ],
         lang: 'en',
-        name: siteConfig.title,
+        name: siteConfig.name,
         orientation: 'portrait-primary',
         scope: '/',
-        short_name: siteConfig.name,
         start_url: '/',
+        id: '_carai_pwa_manifest_id',
     }
 }
