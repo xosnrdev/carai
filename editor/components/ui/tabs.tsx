@@ -27,7 +27,6 @@ const Tabs: FC = () => {
         tabs,
         resizePane,
         getActiveTab,
-        getActiveTabId,
         removeTab,
         switchTab,
         setResizePane,

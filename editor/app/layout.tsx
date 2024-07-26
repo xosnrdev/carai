@@ -91,8 +91,8 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
                         disableTransitionOnChange
                         enableColorScheme
                         enableSystem
-                        defaultTheme="system"
                         attribute="class"
+                        defaultTheme="system"
                         nonce="carai"
                         storageKey="theme"
                     >
