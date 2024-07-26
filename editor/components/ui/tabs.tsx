@@ -135,17 +135,14 @@ const Tabs: FC = () => {
             <div
                 aria-label="tabs"
                 className={cn(
-                    'sticky top-0 z-10 flex h-8 flex-row justify-between bg-background px-2 lg:px-6 xl:px-6',
-                    {
-                        hidden: getActiveTabId === null,
-                    },
+                    'sticky top-0 z-10 flex flex-row justify-between bg-background',
                     {
                         '!pl-10': isOpen.sidebar === false,
                     }
                 )}
                 role="tablist"
             >
-                <div className="flex flex-row">
+                <div className="flex flex-wrap">
                     {tabs.map(({ id, title }) => (
                         <Tab
                             key={id}
@@ -160,7 +157,7 @@ const Tabs: FC = () => {
 
                 <div className="flex flex-row gap-x-4">
                     <Button
-                        className="bg-[#1B501D] text-base text-white"
+                        className="h-8 bg-[#1B501D] text-base text-white"
                         disabled={isLoading}
                         endContent={<span>{isLoading || 'Run'}</span>}
                         isLoading={isLoading}
@@ -197,7 +194,7 @@ const Tabs: FC = () => {
                         >
                             <Button
                                 isIconOnly
-                                className="text-2xl"
+                                className="h-8 text-2xl"
                                 radius="none"
                                 size={'sm'}
                                 startContent={
