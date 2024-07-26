@@ -10,7 +10,7 @@ import { onboardingProps } from '@/lib/constants/ui'
 
 const Onboarding: FC = () => {
     const router = useRouter()
-    const { theme } = useTheme()
+    const { resolvedTheme } = useTheme()
 
     return (
         <div className="relative flex place-content-center place-items-center pt-4 lg:flex-row lg:justify-between lg:px-12 xl:flex-row xl:justify-between xl:px-12">
@@ -35,7 +35,9 @@ const Onboarding: FC = () => {
                     {onboardingProps.links.map(({ id, path, label }) => (
                         <Button
                             key={id}
-                            color={theme === 'dark' ? 'default' : 'primary'}
+                            color={
+                                resolvedTheme === 'dark' ? 'default' : 'primary'
+                            }
                             radius="none"
                             size={'md'}
                             startContent={<span>{label}</span>}

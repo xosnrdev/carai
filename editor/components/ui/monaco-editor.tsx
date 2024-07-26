@@ -8,7 +8,7 @@ import { useCallback, useState, type FC } from 'react'
 import useTabContext from '@/hooks/useTabContext'
 import { EditorViewState, IParsedMonacoVS } from '@/types'
 
-import LoadingSpinner from './loading-spinner'
+import { LoadingSpinner } from './icons'
 
 const _Editor = dynamic(() => import('@monaco-editor/react'), {
         loading: () => <LoadingSpinner />,
@@ -24,12 +24,13 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                 getViewState,
                 getParsedVS,
             } = useTabContext(),
-            { theme } = useTheme(),
+            { resolvedTheme } = useTheme(),
             [editorView, setEditorView] =
                 useState<editor.IStandaloneCodeEditor | null>(null),
             handleEditorChange: OnChange = useCallback(
                 (value) => {
-                    if (getActiveTab && editorView) {
+                    if (editorView) {
+                        const id = getActiveTab.id
                         const originVS = editorView.saveViewState()
 
                         if (originVS) {
@@ -42,7 +43,7 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                                 getStringifiedVS<IParsedMonacoVS>(parsedVS)
 
                             updateTab({
-                                id: getActiveTab.id,
+                                id,
                                 value,
                                 viewState: {
                                     type: EditorViewState.Monaco,
@@ -52,7 +53,14 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                         }
                     }
                 },
-                [updateTab, editorView, codeResponse, resizePane, getActiveTab]
+                [
+                    updateTab,
+                    editorView,
+                    codeResponse,
+                    resizePane,
+                    getActiveTab,
+                    getStringifiedVS,
+                ]
             ),
             handleEditorOnMount: OnMount = useCallback(
                 (editor) => {
@@ -72,7 +80,7 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                         editor.dispose()
                     }
                 },
-                [getActiveTab]
+                [getViewState, getParsedVS]
             ),
             editorConfigOptions: editor.IStandaloneEditorConstructionOptions = {
                 wordWrap: 'on',
@@ -93,7 +101,7 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                 language={getActiveTab.metadata._runtime.toLowerCase()}
                 loading={<LoadingSpinner />}
                 options={editorConfigOptions}
-                theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
+                theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
                 value={getActiveTab.value}
                 onChange={handleEditorChange}
                 onMount={handleEditorOnMount}

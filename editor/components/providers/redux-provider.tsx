@@ -7,7 +7,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 
 import store, { persistor } from '@/redux/store'
 
-import LoadingSpinner from '../ui/loading-spinner'
+import { LoadingSpinner } from '../ui/icons'
 
 export interface ReduxProviderProps {
     children: ReactNode
@@ -16,7 +16,10 @@ export interface ReduxProviderProps {
 const ReduxProvider: FC<ReduxProviderProps> = ({ children }) => {
     return (
         <Provider store={store}>
-            <PersistGate loading={<LoadingSpinner />} persistor={persistor}>
+            <PersistGate
+                loading={<LoadingSpinner size={75} />}
+                persistor={persistor}
+            >
                 {children}
             </PersistGate>
         </Provider>

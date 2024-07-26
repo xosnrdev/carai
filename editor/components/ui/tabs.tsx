@@ -1,5 +1,5 @@
-import type { CodeResponse, ErrorResponse } from '@/types/response'
 import type { TabId } from '@/types'
+import type { CodeResponse, ErrorResponse } from '@/types/response'
 
 import { Button } from '@nextui-org/button'
 import { usePathname } from 'next/navigation'
@@ -12,11 +12,11 @@ import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-client'
 
+import AceEditor from './ace-editor'
 import CustomTooltip from './custom-tooltip'
 import { ComputerFilledIcon } from './icons'
 import MonacoEditor from './monaco-editor'
 import Tab from './tab'
-import AceEditor from './ace-editor'
 
 const rceHandler = new RCEHandler()
 
@@ -27,7 +27,6 @@ const Tabs: FC = () => {
         tabs,
         resizePane,
         getActiveTab,
-        getActiveTabId,
         removeTab,
         switchTab,
         setResizePane,
@@ -135,17 +134,14 @@ const Tabs: FC = () => {
             <div
                 aria-label="tabs"
                 className={cn(
-                    'sticky top-0 z-10 flex h-8 flex-row justify-between bg-background px-2 lg:px-6 xl:px-6',
-                    {
-                        hidden: getActiveTabId === null,
-                    },
+                    'sticky top-0 z-10 flex flex-row justify-between bg-background',
                     {
                         '!pl-10': isOpen.sidebar === false,
                     }
                 )}
                 role="tablist"
             >
-                <div className="flex flex-row">
+                <div className="flex flex-wrap">
                     {tabs.map(({ id, title }) => (
                         <Tab
                             key={id}
@@ -160,7 +156,7 @@ const Tabs: FC = () => {
 
                 <div className="flex flex-row gap-x-4">
                     <Button
-                        className="bg-[#1B501D] text-base text-white"
+                        className="h-8 bg-[#1B501D] text-base text-white"
                         disabled={isLoading}
                         endContent={<span>{isLoading || 'Run'}</span>}
                         isLoading={isLoading}
@@ -197,7 +193,7 @@ const Tabs: FC = () => {
                         >
                             <Button
                                 isIconOnly
-                                className="text-2xl"
+                                className="h-8 text-2xl"
                                 radius="none"
                                 size={'sm'}
                                 startContent={
@@ -210,6 +206,7 @@ const Tabs: FC = () => {
                     }
                 </div>
             </div>
+            {/* <Suspense fallback={<LoadingSpinner />}> */}
             {isMobileView ? (
                 <AceEditor
                     key={getActiveTab.id}
@@ -223,6 +220,7 @@ const Tabs: FC = () => {
                     className="flex-1 overflow-hidden"
                 />
             )}
+            {/* </Suspense> */}
         </div>
     )
 }

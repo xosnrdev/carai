@@ -55,6 +55,7 @@ const persistConfig: PersistConfig<RootState> = {
 const persistor = persistStore(store),
     useGlobalSelector = <T>(selector: (state: RootState) => T) =>
         useSelector<RootState, T>(selector)
+
 type AppDispatch = typeof store.dispatch
 
 export {

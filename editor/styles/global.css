@@ -51,16 +51,19 @@
 
 @layer base {
     body {
+        --tw-bg-opacity: 1;
         scrollbar-width: thin;
-        scrollbar-color: var(--background) var(--foreground);
+        scrollbar-color: hsl(
+            var(--nextui-default) /
+                var(--nextui-default-opacity, var(--tw-bg-opacity))
+        );
 
         ::-webkit-scrollbar {
-            width: 0rem;
-            height: 0rem;
+            @apply w-3;
         }
 
         ::-webkit-scrollbar-thumb {
-            @apply bg-black bg-opacity-30 dark:bg-white/30;
+            @apply bg-default;
         }
     }
 }
