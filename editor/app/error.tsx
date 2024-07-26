@@ -24,7 +24,7 @@ export default function Error({
                         color="primary"
                         size={'sm'}
                         startContent={<span>Try again</span>}
-                        variant="flat"
+                        variant="ghost"
                         onPress={() => reset()}
                     />
                 </div>

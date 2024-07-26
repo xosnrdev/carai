@@ -32,7 +32,7 @@ const NotFound: FC = () => {
                         />
                     </svg>
                 }
-                variant="flat"
+                variant="ghost"
                 onClick={(e) => {
                     e.preventDefault()
                     router.back()
