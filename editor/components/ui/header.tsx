@@ -18,7 +18,7 @@ import { ThemeSwitch } from './theme-switch'
 
 const Header: FC = () => {
     const { getActiveTab } = useTabContext(),
-        { theme } = useTheme(),
+        { resolvedTheme } = useTheme(),
         router = useRouter()
 
     return (
@@ -35,7 +35,9 @@ const Header: FC = () => {
                                 <Button
                                     key={id}
                                     color={
-                                        theme === 'dark' ? 'default' : 'primary'
+                                        resolvedTheme === 'dark'
+                                            ? 'default'
+                                            : 'primary'
                                     }
                                     radius="none"
                                     size="sm"

@@ -9,7 +9,7 @@ import TermsOfService from './terms-of-service'
 
 const Footer: FC = () => {
     const { getActiveTab, isMobileView } = useTabContext(),
-        { theme } = useTheme(),
+        { resolvedTheme } = useTheme(),
         [isOpen, setIsOpen] = useState({
             close: true,
             disclaimer: false,
@@ -24,13 +24,17 @@ const Footer: FC = () => {
     return (
         <>
             {getActiveTab && isOpen.close && (
-                <div className="border-t border-t-default bg-background px-2">
+                <div className="h-8 border-t border-t-default bg-background">
                     <ButtonGroup>
                         {navProps.map((prop, idx) => (
                             <Button
                                 key={idx}
                                 isIconOnly
-                                color={theme === 'dark' ? 'default' : 'primary'}
+                                color={
+                                    resolvedTheme === 'dark'
+                                        ? 'default'
+                                        : 'primary'
+                                }
                                 radius="none"
                                 size="sm"
                                 startContent={

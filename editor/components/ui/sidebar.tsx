@@ -17,11 +17,11 @@ import { TabError } from '@/lib/error'
 import { cn } from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-client'
 
-import { DialogFooter } from './dialog'
-import { RadioGroup, RadioGroupItem } from './radio-group'
-import Modal from './modal'
-import { Label } from './label'
 import CustomTooltip from './custom-tooltip'
+import { DialogFooter } from './dialog'
+import { Label } from './label'
+import Modal from './modal'
+import { RadioGroup, RadioGroupItem } from './radio-group'
 
 const rceHandler = new RCEHandler()
 
@@ -34,7 +34,7 @@ const Sidebar: FC = () => {
     const pathname = usePathname()
     const [activeNav, setActiveNav] = useState<number | null>(null)
     const router = useRouter()
-    const { theme } = useTheme()
+    const { resolvedTheme } = useTheme()
     const filteredLanguages = useMemo(() => {
         const lowerCaseSearchQuery = searchQuery.toLowerCase().trim()
 
@@ -154,10 +154,10 @@ const Sidebar: FC = () => {
                         },
                         config: {
                             maxValueSize: {
-                                value: isMobileView ? 50 : 100,
+                                value: isMobileView ? 100 : 500,
                                 units: 'lines',
                             },
-                            maxTabs: isMobileView ? 2 : 5,
+                            maxTabs: 10,
                             isClosable: true,
                         },
                     })
@@ -228,10 +228,11 @@ const Sidebar: FC = () => {
                         }}
                     >
                         <Input
-                            // eslint-disable-next-line jsx-a11y/no-autofocus
                             autoFocus
                             aria-label="search runtime"
-                            color={theme === 'dark' ? 'default' : 'primary'}
+                            color={
+                                resolvedTheme === 'dark' ? 'default' : 'primary'
+                            }
                             id="inputarea"
                             label="Search Runtime"
                             radius="md"
@@ -303,7 +304,11 @@ const Sidebar: FC = () => {
                             <Button
                                 fullWidth
                                 aria-label="code"
-                                color={theme === 'dark' ? 'default' : 'primary'}
+                                color={
+                                    resolvedTheme === 'dark'
+                                        ? 'default'
+                                        : 'primary'
+                                }
                                 radius="md"
                                 startContent={<span>Code</span>}
                                 type="submit"

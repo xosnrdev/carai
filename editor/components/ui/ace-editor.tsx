@@ -13,7 +13,7 @@ import { EditorViewState, type IParsedAceVS } from '@/types'
 
 import LoadingSpinner from './loading-spinner'
 
-const Editor = dynamic(loadAceModules, {
+const Editor = dynamic(() => loadAceModules(), {
         loading: () => <LoadingSpinner />,
         ssr: false,
     }),
@@ -27,7 +27,7 @@ const Editor = dynamic(loadAceModules, {
                 getParsedVS,
                 getStringifiedVS,
             } = useTabContext(),
-            { theme } = useTheme(),
+            { resolvedTheme } = useTheme(),
             [editorView, setEditorView] = useState<IAceEditor | null>(null),
             mode = useMemo(() => getActiveTab.metadata.mode, [getActiveTab]),
             handleOnChange = useCallback(
@@ -160,7 +160,7 @@ const Editor = dynamic(loadAceModules, {
                     wrap: true,
                     useSoftTabs: true,
                 }}
-                theme={theme === 'dark' ? 'tomorrow_night' : 'tomorrow'}
+                theme={resolvedTheme === 'dark' ? 'tomorrow_night' : 'tomorrow'}
                 value={getActiveTab.value}
                 width="100%"
                 onChange={handleOnChange}

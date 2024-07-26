@@ -24,7 +24,7 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                 getViewState,
                 getParsedVS,
             } = useTabContext(),
-            { theme } = useTheme(),
+            { resolvedTheme } = useTheme(),
             [editorView, setEditorView] =
                 useState<editor.IStandaloneCodeEditor | null>(null),
             handleEditorChange: OnChange = useCallback(
@@ -93,7 +93,7 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
                 language={getActiveTab.metadata._runtime.toLowerCase()}
                 loading={<LoadingSpinner />}
                 options={editorConfigOptions}
-                theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
+                theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
                 value={getActiveTab.value}
                 onChange={handleEditorChange}
                 onMount={handleEditorOnMount}
