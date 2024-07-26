@@ -6,13 +6,13 @@ import dynamic from 'next/dynamic'
 
 import ReduxProvider from '@/components/providers/redux-provider'
 import ThemeProvider from '@/components/providers/theme-provider'
-import LoadingSpinner from '@/components/ui/loading-spinner'
+import { LoadingSpinner } from '@/components/ui/icons'
 import nohemi from '@/config/fonts'
 import siteConfig from '@/config/site'
 import '@/styles/global.css'
 
 const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
-        loading: () => <LoadingSpinner />,
+        loading: () => <LoadingSpinner size={75} />,
         ssr: false,
     }),
     metadata: Metadata = {

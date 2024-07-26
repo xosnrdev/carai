@@ -1,5 +1,5 @@
-import type { CodeResponse, ErrorResponse } from '@/types/response'
 import type { TabId } from '@/types'
+import type { CodeResponse, ErrorResponse } from '@/types/response'
 
 import { Button } from '@nextui-org/button'
 import { usePathname } from 'next/navigation'
@@ -12,11 +12,11 @@ import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-client'
 
+import AceEditor from './ace-editor'
 import CustomTooltip from './custom-tooltip'
 import { ComputerFilledIcon } from './icons'
 import MonacoEditor from './monaco-editor'
 import Tab from './tab'
-import AceEditor from './ace-editor'
 
 const rceHandler = new RCEHandler()
 
@@ -206,6 +206,7 @@ const Tabs: FC = () => {
                     }
                 </div>
             </div>
+            {/* <Suspense fallback={<LoadingSpinner />}> */}
             {isMobileView ? (
                 <AceEditor
                     key={getActiveTab.id}
@@ -219,6 +220,7 @@ const Tabs: FC = () => {
                     className="flex-1 overflow-hidden"
                 />
             )}
+            {/* </Suspense> */}
         </div>
     )
 }
