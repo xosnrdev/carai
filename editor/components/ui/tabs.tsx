@@ -193,7 +193,7 @@ const Tabs: FC = () => {
                         >
                             <Button
                                 isIconOnly
-                                className="h-8 text-2xl"
+                                className="h-8 lg:text-2xl xl:text-2xl text-3xl"
                                 radius="none"
                                 size={'sm'}
                                 startContent={
@@ -206,7 +206,6 @@ const Tabs: FC = () => {
                     }
                 </div>
             </div>
-            {/* <Suspense fallback={<LoadingSpinner />}> */}
             {isMobileView ? (
                 <AceEditor
                     key={getActiveTab.id}
@@ -220,7 +219,6 @@ const Tabs: FC = () => {
                     className="flex-1 overflow-hidden"
                 />
             )}
-            {/* </Suspense> */}
         </div>
     )
 }
