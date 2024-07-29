@@ -12,10 +12,9 @@ import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-client'
 
-import AceEditor from './ace-editor'
+import CodeMirror from './code-mirror'
 import CustomTooltip from './custom-tooltip'
 import { ComputerFilledIcon } from './icons'
-import MonacoEditor from './monaco-editor'
 import Tab from './tab'
 
 const rceHandler = new RCEHandler()
@@ -33,7 +32,6 @@ const Tabs: FC = () => {
         closeAllTabs,
         setActiveTab,
         setCodeResponse,
-        isMobileView,
     } = useTabContext()
 
     const { isOpen } = useAppContext()
@@ -74,11 +72,11 @@ const Tabs: FC = () => {
                 return
             }
 
-            if (metadata._runtime && value) {
+            if (metadata.name && value) {
                 setIsLoading(true)
                 rceHandler
                     .execute({
-                        language: metadata._runtime,
+                        language: metadata.name,
                         version: 'latest',
                         code: value,
                     })
@@ -95,7 +93,7 @@ const Tabs: FC = () => {
                     })
             }
         })
-    }, [setCodeResponse, getActiveTab])
+    }, [getActiveTab, setCodeResponse])
 
     useKeyPress({
         targetKey: 'D',
@@ -193,7 +191,7 @@ const Tabs: FC = () => {
                         >
                             <Button
                                 isIconOnly
-                                className="h-8 text-2xl"
+                                className="h-8 text-3xl lg:text-2xl xl:text-2xl"
                                 radius="none"
                                 size={'sm'}
                                 startContent={
@@ -206,21 +204,11 @@ const Tabs: FC = () => {
                     }
                 </div>
             </div>
-            {/* <Suspense fallback={<LoadingSpinner />}> */}
-            {isMobileView ? (
-                <AceEditor
-                    key={getActiveTab.id}
-                    aria-label={`playground for ${getActiveTab.metadata._runtime || 'unknown language'}`}
-                    className="flex-1 overflow-hidden"
-                />
-            ) : (
-                <MonacoEditor
-                    key={getActiveTab.id}
-                    aria-label={`playground for ${getActiveTab.metadata._runtime || 'unknown language'}`}
-                    className="flex-1 overflow-hidden"
-                />
-            )}
-            {/* </Suspense> */}
+            <CodeMirror
+                key={getActiveTab.id}
+                aria-label={`playground for ${getActiveTab.metadata.name || 'unknown language'}`}
+                className="flex-1 overflow-hidden"
+            />
         </div>
     )
 }

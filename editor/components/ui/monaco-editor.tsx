@@ -6,108 +6,113 @@ import dynamic from 'next/dynamic'
 import { useCallback, useState, type FC } from 'react'
 
 import useTabContext from '@/hooks/useTabContext'
-import { EditorViewState, IParsedMonacoVS } from '@/types'
+import { EditorViewType, IMonacoViewState } from '@/types'
 
 import { LoadingSpinner } from './icons'
 
 const _Editor = dynamic(() => import('@monaco-editor/react'), {
-        loading: () => <LoadingSpinner />,
-        ssr: false,
-    }),
-    MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
-        const {
-                updateTab,
-                getActiveTab,
-                codeResponse,
-                resizePane,
-                getStringifiedVS,
-                getViewState,
-                getParsedVS,
-            } = useTabContext(),
-            { resolvedTheme } = useTheme(),
-            [editorView, setEditorView] =
-                useState<editor.IStandaloneCodeEditor | null>(null),
-            handleEditorChange: OnChange = useCallback(
-                (value) => {
-                    if (editorView) {
-                        const id = getActiveTab.id
-                        const originVS = editorView.saveViewState()
+    loading: () => <LoadingSpinner />,
+    ssr: false,
+})
 
-                        if (originVS) {
-                            const parsedVS = {
-                                ...originVS,
+const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
+    const {
+        updateTab,
+        getActiveTab,
+        codeResponse,
+        resizePane,
+        getSerializedViewState,
+        getDeserializedViewState,
+    } = useTabContext()
+
+    const { resolvedTheme } = useTheme()
+    const [editorView, setEditorView] =
+        useState<editor.IStandaloneCodeEditor | null>(null)
+
+    const handleEditorChange: OnChange = useCallback(
+        (value) => {
+            if (editorView) {
+                const editorState = editorView.saveViewState()
+
+                if (editorState) {
+                    const deserializedViewState: IMonacoViewState = {
+                            state: editorState,
+                            stateFields: {
                                 codeResponse,
                                 resizePane,
-                            }
-                            const val =
-                                getStringifiedVS<IParsedMonacoVS>(parsedVS)
+                            },
+                        },
+                        serializedViewState =
+                            getSerializedViewState<IMonacoViewState>(
+                                deserializedViewState
+                            )
 
-                            updateTab({
-                                id,
-                                value,
-                                viewState: {
-                                    type: EditorViewState.Monaco,
-                                    value: val,
-                                },
-                            })
-                        }
-                    }
-                },
-                [
-                    updateTab,
-                    editorView,
-                    codeResponse,
-                    resizePane,
-                    getActiveTab,
-                    getStringifiedVS,
-                ]
-            ),
-            handleEditorOnMount: OnMount = useCallback(
-                (editor) => {
-                    const vs = getViewState.value
+                    updateTab({
+                        id: getActiveTab.id,
+                        value,
+                        viewState: {
+                            type: EditorViewType.Monaco,
+                            value: serializedViewState,
+                        },
+                    })
+                }
+            }
+        },
+        [
+            updateTab,
+            editorView,
+            codeResponse,
+            resizePane,
+            getActiveTab.id,
+            getSerializedViewState,
+        ]
+    )
 
-                    if (vs) {
-                        const parsedVS = getParsedVS<IParsedMonacoVS>()
+    const handleEditorOnMount: OnMount = useCallback(
+        (editor) => {
+            const state = getDeserializedViewState<IMonacoViewState>().state
 
-                        editor.restoreViewState(parsedVS)
-                    }
-
-                    editor.focus()
-
-                    setEditorView(editor)
-
-                    return () => {
-                        editor.dispose()
-                    }
-                },
-                [getViewState, getParsedVS]
-            ),
-            editorConfigOptions: editor.IStandaloneEditorConstructionOptions = {
-                wordWrap: 'on',
-                minimap: {
-                    enabled: false,
-                },
-                fontSize: 14,
-                tabSize: 2,
-                lineHeight: 19,
-                showDeprecated: true,
-                fixedOverflowWidgets: true,
-                automaticLayout: true,
+            if (editor && state) {
+                editor.restoreViewState(state)
             }
 
-        return (
-            <_Editor
-                className={className}
-                language={getActiveTab.metadata._runtime.toLowerCase()}
-                loading={<LoadingSpinner />}
-                options={editorConfigOptions}
-                theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
-                value={getActiveTab.value}
-                onChange={handleEditorChange}
-                onMount={handleEditorOnMount}
-                {...props}
-            />
-        )
+            editor.focus()
+
+            setEditorView(editor)
+
+            return () => {
+                editor.dispose()
+            }
+        },
+        [getDeserializedViewState]
+    )
+
+    const editorConfigOptions: editor.IStandaloneEditorConstructionOptions = {
+        wordWrap: 'on',
+        minimap: {
+            enabled: false,
+        },
+        fontSize: 14,
+        tabSize: 2,
+        lineHeight: 19,
+        showDeprecated: true,
+        fixedOverflowWidgets: true,
+        automaticLayout: true,
     }
+
+    return (
+        <_Editor
+            className={className}
+            language={getActiveTab.metadata.name}
+            loading={<LoadingSpinner />}
+            options={editorConfigOptions}
+            theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
+            value={getActiveTab.value}
+            onChange={handleEditorChange}
+            onMount={handleEditorOnMount}
+            {...props}
+        />
+    )
+}
 
 export default MonacoEditor

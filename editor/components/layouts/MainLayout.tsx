@@ -45,7 +45,7 @@ const MainLayout: FC<IMainLayoutProps> = ({ children }) => {
             >
                 <Button
                     isIconOnly
-                    className="absolute left-2 top-0 z-10 mt-9 text-2xl"
+                    className="absolute left-2 top-0 z-10 mt-9 text-3xl lg:text-2xl xl:text-2xl"
                     radius="none"
                     size={'sm'}
                     startContent={

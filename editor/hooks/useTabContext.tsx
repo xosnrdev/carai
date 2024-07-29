@@ -1,8 +1,8 @@
 import type {
     AddTabPayload,
     CodeResponsePayload,
-    IParsedAceVS,
-    IParsedMonacoVS,
+    ICodeMirrorViewState,
+    IMonacoViewState,
     ResizePanePayload,
     TabId,
     UpdateTabPayload,
@@ -36,19 +36,24 @@ const useTabContext = () => {
             selectTabById(state, getActiveTabId)
         ),
         getViewState = getActiveTab?.viewState,
-        getParsedVS = <T extends IParsedAceVS | IParsedMonacoVS>() => {
+        getDeserializedViewState = <
+            T extends IMonacoViewState | ICodeMirrorViewState,
+        >() => {
             return SafeJson.parse<T>(getViewState.value)
         },
-        getStringifiedVS = <T extends IParsedAceVS | IParsedMonacoVS>(
+        getSerializedViewState = <
+            T extends IMonacoViewState | ICodeMirrorViewState,
+        >(
             value: T
         ) => {
             return SafeJson.stringify<T>(value)
         },
-        parsedVS = SafeJson.parse<IParsedAceVS | IParsedMonacoVS>(
-            getViewState?.value
-        ),
-        codeResponse = parsedVS?.codeResponse ?? undefined,
-        resizePane = parsedVS?.resizePane ?? false,
+        deserializedViewState = SafeJson.parse<
+            IMonacoViewState | ICodeMirrorViewState
+        >(getViewState?.value),
+        codeResponse =
+            deserializedViewState?.stateFields.codeResponse ?? undefined,
+        resizePane = deserializedViewState?.stateFields.resizePane ?? false,
         isMobileView = window.matchMedia('(max-width: 600px)').matches,
         boundActions = useMemo(
             () => ({
@@ -73,8 +78,8 @@ const useTabContext = () => {
         tabs,
         resizePane,
         getActiveTab,
-        getParsedVS,
-        getStringifiedVS,
+        getDeserializedViewState,
+        getSerializedViewState,
         getViewState,
         getActiveTabId,
         isMobileView,
