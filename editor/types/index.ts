@@ -1,8 +1,9 @@
-import type { Ace } from 'ace-builds'
+import type { EditorStateConfig } from '@uiw/react-codemirror'
 import type { editor } from 'monaco-editor'
 import type { HTMLAttributes, MouseEvent, SVGProps } from 'react'
 import type { IconType } from 'react-icons'
 import type { CodeResponse } from './response'
+import type { LanguageName } from '@uiw/codemirror-extensions-langs'
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
     size?: number
@@ -26,29 +27,24 @@ export interface ITabConfig {
     }
 }
 
-export interface IVSDefaults {
-    codeResponse?: CodeResponsePayload['codeResponse']
-    resizePane?: ResizePanePayload['resizePane']
+export type ViewStateField = Partial<{
+    codeResponse: CodeResponsePayload['codeResponse']
+    resizePane: ResizePanePayload['resizePane']
+}>
+
+export interface IMonacoViewState {
+    state: editor.ICodeEditorViewState | null
+    stateFields: ViewStateField
 }
 
-export interface IParsedMonacoVS
-    extends editor.ICodeEditorViewState,
-        IVSDefaults {}
-
-export interface IParsedAceVS extends IVSDefaults {
-    cursorPosition?: Ace.Point
-    scrollTop?: number
-    scrollLeft?: number
-    selection?: {
-        start: Ace.Point
-        end: Ace.Point
-    }
-    folds?: Ace.Fold[]
+export interface ICodeMirrorViewState {
+    state?: EditorStateConfig
+    stateFields: ViewStateField
 }
 
-export enum EditorViewState {
+export enum EditorViewType {
     Monaco,
-    Ace,
+    CodeMirror,
 }
 
 export interface ITab {
@@ -76,7 +72,7 @@ export interface ITab {
      * Editor view state of a tab
      */
     viewState: {
-        type: EditorViewState
+        type: EditorViewType
         value: string
     }
     /*
@@ -124,11 +120,11 @@ export interface RouteProps {
     path: string
 }
 
-export interface LanguageProps {
-    runtime: string
+export interface RuntimeProps {
     extension: string
     src: string
-    mode: string
+    alias: LanguageName
+    name: string
 }
 
 export interface OnboardingProps {

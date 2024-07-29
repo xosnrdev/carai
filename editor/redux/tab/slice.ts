@@ -23,12 +23,12 @@ import { SafeJson } from '@/lib/utils'
 import {
     type AddTabPayload,
     type CodeResponsePayload,
-    EditorViewState,
-    type IParsedAceVS,
-    type IParsedMonacoVS,
+    EditorViewType,
+    type ICodeMirrorViewState,
+    type IMonacoViewState,
     type ITab,
     type ITabConfig,
-    type IVSDefaults,
+    type ViewStateField,
     type ResizePanePayload,
     type TabId,
     type UpdateTabPayload,
@@ -43,34 +43,26 @@ const defaultConfig: ITabConfig = {
             units: 'characters',
         },
     },
-    defaultMonacoVS = SafeJson.stringify<IParsedMonacoVS>({
-        cursorState: [],
-        viewState: {
-            scrollLeft: 0,
-            firstPosition: {
-                lineNumber: 1,
-                column: 1,
-            },
-            firstPositionDeltaTop: 0,
+    defaultMonacoVS = SafeJson.stringify<IMonacoViewState>({
+        state: null,
+        stateFields: {
+            codeResponse: undefined,
+            resizePane: true,
         },
-        contributionsState: {},
-        codeResponse: undefined,
-        resizePane: true,
     }),
-    defaultAceVS = SafeJson.stringify<IParsedAceVS>({
-        codeResponse: undefined,
-        resizePane: true,
-    }),
-    defaultViewState = EditorViewState.Monaco
-        ? {
-              type: EditorViewState.Monaco,
-              value: defaultMonacoVS,
-          }
-        : {
-              type: EditorViewState.Ace,
-              value: defaultAceVS,
-          },
-    getByteLength = (str: string) => new TextEncoder().encode(str).length,
+    defaultCodeMirrorVS = SafeJson.stringify<ICodeMirrorViewState>({
+        stateFields: {
+            codeResponse: undefined,
+            resizePane: true,
+        },
+    })
+
+const defaultViewState = {
+    type: EditorViewType.CodeMirror,
+    value: defaultCodeMirrorVS,
+}
+
+const getByteLength = (str: string) => new TextEncoder().encode(str).byteLength,
     validateValueSize = (
         value: string,
         maxValueSize: ITabConfig['maxValueSize']
@@ -104,12 +96,10 @@ const defaultConfig: ITabConfig = {
             errors.push('Title must be a non-empty string!')
         }
 
-        if (maxValueSize) {
-            if (validateValueSize(value, maxValueSize)) {
-                errors.push(
-                    `Value exceeds ${maxValueSize.value} ${maxValueSize.units}!`
-                )
-            }
+        if (maxValueSize && validateValueSize(value, maxValueSize)) {
+            errors.push(
+                `Value exceeds ${maxValueSize.value} ${maxValueSize.units}!`
+            )
         }
 
         if (errors.length > 0) {
@@ -139,225 +129,236 @@ const defaultConfig: ITabConfig = {
                 throw new TabError(`Unsupported unit: ${maxValueSize.units}`)
         }
     },
-    resoleVS = (tab: ITab, payload: IVSDefaults) => {
+    resolveViewState = (tab: ITab, payload: ViewStateField) => {
         switch (tab && tab.viewState.type) {
-            case EditorViewState.Monaco:
-                tab.viewState.value = SafeJson.stringify<IParsedMonacoVS>({
-                    ...SafeJson.parse<IParsedMonacoVS>(tab.viewState.value),
-                    ...payload,
+            case EditorViewType.Monaco:
+                tab.viewState.value = SafeJson.stringify<IMonacoViewState>({
+                    ...SafeJson.parse<IMonacoViewState>(tab.viewState.value),
+                    stateFields: {
+                        ...SafeJson.parse<IMonacoViewState>(tab.viewState.value)
+                            .stateFields,
+                        ...payload,
+                    },
                 })
                 break
-            case EditorViewState.Ace:
-                tab.viewState.value = SafeJson.stringify<IParsedAceVS>({
-                    ...SafeJson.parse<IParsedMonacoVS>(tab.viewState.value),
-                    ...payload,
+            case EditorViewType.CodeMirror:
+                tab.viewState.value = SafeJson.stringify<ICodeMirrorViewState>({
+                    ...SafeJson.parse<ICodeMirrorViewState>(
+                        tab.viewState.value
+                    ),
+                    stateFields: {
+                        ...SafeJson.parse<ICodeMirrorViewState>(
+                            tab.viewState.value
+                        ).stateFields,
+                        ...payload,
+                    },
                 })
                 break
             default:
                 throw new TabError(`Unsupported VS type ${tab.viewState.type}`)
         }
-    },
-    tabAdapter = createEntityAdapter<ITab>(),
+    }
+
+const tabAdapter = createEntityAdapter<ITab>(),
     initialState = tabAdapter.getInitialState({
         activeTabId: null as TabId | null,
         recentlyUsedTabs: new Array<TabId>(),
-    }),
-    tabs_slice = createSlice({
-        name: 'tabs',
-        initialState,
-        reducers: {
-            addTab: (state, { payload }: PayloadAction<AddTabPayload>) => {
-                const { config } = payload
+    })
 
-                validatePayload(payload, config, state)
+const tabs_slice = createSlice({
+    name: 'tabs',
+    initialState,
+    reducers: {
+        addTab: (state, { payload }: PayloadAction<AddTabPayload>) => {
+            const { config } = payload
 
-                const maxValueSize =
-                        config.maxValueSize ?? defaultConfig.maxValueSize,
-                    slicedValue = sliceValue(payload.value, maxValueSize),
-                    newTab: ITab = {
-                        id: nanoid(),
-                        title: payload.title,
-                        value: slicedValue,
-                        isDirty: !!payload.value,
-                        metadata: payload.metadata,
-                        viewState: defaultViewState,
-                        config: {
-                            ...defaultConfig,
-                            ...config,
-                        },
-                    }
+            validatePayload(payload, config, state)
 
-                tabAdapter.addOne(state, newTab)
-                state.activeTabId = newTab.id
-            },
-
-            setActiveTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
-                if (state.entities[tabId]) {
-                    state.activeTabId = tabId
+            const maxValueSize =
+                    config.maxValueSize ?? defaultConfig.maxValueSize,
+                slicedValue = sliceValue(payload.value, maxValueSize),
+                newTab: ITab = {
+                    id: nanoid(),
+                    title: payload.title,
+                    value: slicedValue,
+                    isDirty: !!payload.value,
+                    metadata: payload.metadata,
+                    viewState: defaultViewState,
+                    config: {
+                        ...defaultConfig,
+                        ...config,
+                    },
                 }
-            },
 
-            removeTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
-                /**
-                 * This function was carefully thought through to ensure that the following edge cases are handled:
-                 * @summary Edge Cases:
-                 * 1. Removing a tab that's isClosable
-                 * 2. Removing a tab that is not isClosable
-                 * 3. Ensuring the active tab is correctly updated after removal
-                 * 4. Handling cases where the tab to be removed is the only tab
-                 * 5. Handling cases with multiple tabs and ensuring the correct tab becomes active
-                 */
-                const tab = state.entities[tabId]
-
-                if (tab && tab.config.isClosable) {
-                    const { ids, recentlyUsedTabs } = state,
-                        removedTabIndex = ids.indexOf(tabId)
-
-                    tabAdapter.removeOne(state, tabId)
-
-                    state.recentlyUsedTabs = recentlyUsedTabs.filter(
-                        (id) => id !== tabId
-                    )
-
-                    state.ids = ids.filter((id) => id !== tabId)
-
-                    if (state.activeTabId === tabId) {
-                        let newActiveTabId = null
-
-                        for (const recentTabId of [
-                            ...recentlyUsedTabs,
-                        ].reverse()) {
-                            if (
-                                state.entities[recentTabId] &&
-                                recentTabId !== tabId
-                            ) {
-                                newActiveTabId = recentTabId
-                                break
-                            }
-                        }
-
-                        if (!newActiveTabId) {
-                            if (removedTabIndex > 0) {
-                                newActiveTabId = state.ids[removedTabIndex - 1]
-                            } else if (state.ids.length > 0) {
-                                newActiveTabId = state.ids[0]
-                            }
-                        }
-
-                        if (newActiveTabId) {
-                            tabs_slice.caseReducers.setActiveTab(state, {
-                                payload: newActiveTabId,
-                                type: 'setActiveTab',
-                            })
-                        } else {
-                            state.activeTabId = null
-                        }
-                    }
-                }
-            },
-
-            switchTab: (
-                state,
-                { payload: direction }: PayloadAction<'next' | 'previous'>
-            ) => {
-                const { activeTabId, ids } = state
-
-                if (!activeTabId) return
-
-                const currentIndex = ids.indexOf(activeTabId)
-
-                if (currentIndex !== -1) {
-                    const length = ids.length,
-                        increment = direction === 'next' ? 1 : -1,
-                        newIndex = (currentIndex + increment + length) % length
-
-                    if (state.entities[ids[newIndex]]) {
-                        state.activeTabId = ids[newIndex]
-                    }
-                }
-            },
-
-            closeAllTabs: (state) => {
-                tabAdapter.removeAll(state)
-                state.activeTabId = null
-            },
-
-            updateTab: (
-                state,
-                {
-                    payload: { id, value, config, viewState },
-                }: PayloadAction<UpdateTabPayload>
-            ) => {
-                const tab = state.entities[id]
-
-                if (tab) {
-                    const maxValueSize =
-                        config?.maxValueSize ??
-                        tab.config.maxValueSize ??
-                        defaultConfig.maxValueSize
-
-                    let updatedValue = value ?? tab.value,
-                        isDirty = tab.isDirty
-
-                    if (value) {
-                        isDirty = value !== tab.value
-                        updatedValue = sliceValue(value, maxValueSize)
-                    }
-
-                    tabAdapter.updateOne(state, {
-                        id,
-                        changes: {
-                            value: updatedValue,
-                            isDirty,
-                            viewState: viewState ?? tab.viewState,
-                        },
-                    })
-
-                    if (isDirty) {
-                        const recentIndex = state.recentlyUsedTabs.indexOf(id)
-
-                        if (recentIndex > -1) {
-                            state.recentlyUsedTabs.splice(recentIndex, 1)
-                        }
-                        state.recentlyUsedTabs.push(id)
-                    }
-                }
-            },
-
-            setCodeResponse: (
-                state,
-                {
-                    payload: { id, codeResponse },
-                }: PayloadAction<CodeResponsePayload>
-            ) => {
-                const tab = state.entities[id]
-
-                resoleVS(tab, { codeResponse })
-            },
-            setResizePane: (
-                state,
-                {
-                    payload: { id, resizePane },
-                }: PayloadAction<ResizePanePayload>
-            ) => {
-                const tab = state.entities[id]
-
-                resoleVS(tab, { resizePane })
-            },
+            tabAdapter.addOne(state, newTab)
+            state.activeTabId = newTab.id
         },
-    }),
-    { selectAll: selectAllTabs, selectById: selectTabById } =
-        tabAdapter.getSelectors<RootState>((state) => state.tabs),
-    {
-        addTab,
-        setActiveTab,
-        removeTab,
-        switchTab,
-        closeAllTabs,
-        updateTab,
-        setCodeResponse,
-        setResizePane,
-    } = tabs_slice.actions
+
+        setActiveTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
+            if (state.entities[tabId]) {
+                state.activeTabId = tabId
+            }
+        },
+
+        removeTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
+            /**
+             * This function was carefully thought through to ensure that the following edge cases are handled:
+             * @summary Edge Cases:
+             * 1. Removing a tab that's isClosable
+             * 2. Removing a tab that is not isClosable
+             * 3. Ensuring the active tab is correctly updated after removal
+             * 4. Handling cases where the tab to be removed is the only tab
+             * 5. Handling cases with multiple tabs and ensuring the correct tab becomes active
+             */
+            const tab = state.entities[tabId]
+
+            if (tab && tab.config.isClosable) {
+                const { ids, recentlyUsedTabs } = state,
+                    removedTabIndex = ids.indexOf(tabId)
+
+                tabAdapter.removeOne(state, tabId)
+
+                state.recentlyUsedTabs = recentlyUsedTabs.filter(
+                    (id) => id !== tabId
+                )
+
+                state.ids = ids.filter((id) => id !== tabId)
+
+                if (state.activeTabId === tabId) {
+                    let newActiveTabId = null
+
+                    for (const recentTabId of [...recentlyUsedTabs].reverse()) {
+                        if (
+                            state.entities[recentTabId] &&
+                            recentTabId !== tabId
+                        ) {
+                            newActiveTabId = recentTabId
+                            break
+                        }
+                    }
+
+                    if (!newActiveTabId) {
+                        if (removedTabIndex > 0) {
+                            newActiveTabId = state.ids[removedTabIndex - 1]
+                        } else if (state.ids.length > 0) {
+                            newActiveTabId = state.ids[0]
+                        }
+                    }
+
+                    if (newActiveTabId) {
+                        tabs_slice.caseReducers.setActiveTab(state, {
+                            payload: newActiveTabId,
+                            type: 'setActiveTab',
+                        })
+                    } else {
+                        state.activeTabId = null
+                    }
+                }
+            }
+        },
+
+        switchTab: (
+            state,
+            { payload: direction }: PayloadAction<'next' | 'previous'>
+        ) => {
+            const { activeTabId, ids } = state
+
+            if (!activeTabId) return
+
+            const currentIndex = ids.indexOf(activeTabId)
+
+            if (currentIndex !== -1) {
+                const length = ids.length,
+                    increment = direction === 'next' ? 1 : -1,
+                    newIndex = (currentIndex + increment + length) % length
+
+                if (state.entities[ids[newIndex]]) {
+                    state.activeTabId = ids[newIndex]
+                }
+            }
+        },
+
+        closeAllTabs: (state) => {
+            tabAdapter.removeAll(state)
+            state.activeTabId = null
+        },
+
+        updateTab: (
+            state,
+            {
+                payload: { id, value, config, viewState },
+            }: PayloadAction<UpdateTabPayload>
+        ) => {
+            const tab = state.entities[id]
+
+            if (tab) {
+                const maxValueSize =
+                    config?.maxValueSize ??
+                    tab.config.maxValueSize ??
+                    defaultConfig.maxValueSize
+
+                let updatedValue = value ?? tab.value,
+                    isDirty = tab.isDirty
+
+                if (value) {
+                    isDirty = value !== tab.value
+                    updatedValue = sliceValue(value, maxValueSize)
+                }
+
+                tabAdapter.updateOne(state, {
+                    id,
+                    changes: {
+                        value: updatedValue,
+                        isDirty,
+                        viewState: viewState ?? tab.viewState,
+                    },
+                })
+
+                if (isDirty) {
+                    const recentIndex = state.recentlyUsedTabs.indexOf(id)
+
+                    if (recentIndex > -1) {
+                        state.recentlyUsedTabs.splice(recentIndex, 1)
+                    }
+                    state.recentlyUsedTabs.push(id)
+                }
+            }
+        },
+
+        setCodeResponse: (
+            state,
+            {
+                payload: { id, codeResponse },
+            }: PayloadAction<CodeResponsePayload>
+        ) => {
+            const tab = state.entities[id]
+
+            resolveViewState(tab, { codeResponse })
+        },
+        setResizePane: (
+            state,
+            { payload: { id, resizePane } }: PayloadAction<ResizePanePayload>
+        ) => {
+            const tab = state.entities[id]
+
+            resolveViewState(tab, { resizePane })
+        },
+    },
+})
+
+const { selectAll: selectAllTabs, selectById: selectTabById } =
+    tabAdapter.getSelectors<RootState>((state) => state.tabs)
+
+const {
+    addTab,
+    setActiveTab,
+    removeTab,
+    switchTab,
+    closeAllTabs,
+    updateTab,
+    setCodeResponse,
+    setResizePane,
+} = tabs_slice.actions
 
 export {
     selectAllTabs,
