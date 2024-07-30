@@ -115,10 +115,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
 
     return (
         <Editor
-            basicSetup={{
-                allowMultipleSelections: true,
-            }}
-            extensions={[langs[languageName]()]}
+            extensions={[langs[languageName](), EditorView.lineWrapping]}
             height="100%"
             theme={resolvedTheme === 'dark' ? vscodeDark : vscodeLight}
             value={getActiveTab.value}
