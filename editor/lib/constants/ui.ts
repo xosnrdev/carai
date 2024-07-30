@@ -173,7 +173,7 @@ export const sidebarProps: SidebarProps[] = [
         {
             extension: '.tengo',
             src: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg',
-            alias: 'textile',
+            alias: 'go',
             name: 'tengo',
         },
         {
