@@ -43,13 +43,13 @@ const defaultConfig: ITabConfig = {
             units: 'characters',
         },
     },
-    defaultMonacoVS = SafeJson.stringify<IMonacoViewState>({
-        state: null,
-        stateFields: {
-            codeResponse: undefined,
-            resizePane: true,
-        },
-    }),
+    // defaultMonacoVS = SafeJson.stringify<IMonacoViewState>({
+    //     state: null,
+    //     stateFields: {
+    //         codeResponse: undefined,
+    //         resizePane: true,
+    //     },
+    // }),
     defaultCodeMirrorVS = SafeJson.stringify<ICodeMirrorViewState>({
         stateFields: {
             codeResponse: undefined,

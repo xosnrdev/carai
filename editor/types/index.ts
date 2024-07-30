@@ -1,6 +1,6 @@
 import type { EditorStateConfig } from '@uiw/react-codemirror'
 import type { editor } from 'monaco-editor'
-import type { HTMLAttributes, MouseEvent, SVGProps } from 'react'
+import type { MouseEvent, SVGProps } from 'react'
 import type { IconType } from 'react-icons'
 import type { CodeResponse } from './response'
 import type { LanguageName } from '@uiw/codemirror-extensions-langs'
@@ -142,5 +142,3 @@ export interface TabProps {
         id: TabId
     ) => void
 }
-
-export interface EditorDivProps extends HTMLAttributes<HTMLDivElement> {}
