@@ -43,7 +43,7 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
         generator: siteConfig.publisher,
         creator: siteConfig.author,
         publisher: siteConfig.publisher,
-        robots: { index: true, follow: true },
+        robots: 'index, follow',
         keywords: siteConfig.keywords,
         category: '',
         referrer: 'origin',
