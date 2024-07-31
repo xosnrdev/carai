@@ -15,7 +15,7 @@ const Onboarding: FC = () => {
     return (
         <div className="relative flex place-content-center place-items-center pt-4 lg:flex-row lg:justify-between lg:px-12 xl:flex-row xl:justify-between xl:px-12">
             <div className="flex h-[calc(100dvh-25dvh)] flex-col space-y-12">
-                <h1 className="text-2xl font-extrabold text-primary dark:text-default-foreground lg:text-6xl xl:text-6xl">
+                <h1 className="text-3xl font-extrabold text-primary dark:text-default-foreground lg:text-5xl xl:text-5xl">
                     Get Started with Carai
                 </h1>
 
@@ -23,7 +23,7 @@ const Onboarding: FC = () => {
                     {onboardingProps.texts.map((text, idx) => (
                         <li
                             key={idx}
-                            className="flex flex-row items-center gap-x-1.5 gap-y-2 text-nowrap text-base text-default-400 transition-opacity duration-300 hover:cursor-pointer hover:opacity-75 lg:text-xl xl:text-xl"
+                            className="flex flex-row items-center gap-x-1.5 gap-y-2 text-nowrap text-base text-[#757582] transition-opacity duration-300 hover:cursor-pointer hover:opacity-75 dark:text-[#85858d] lg:text-xl xl:text-xl"
                         >
                             <BiSolidRightArrow />
                             <p>{text}</p>
