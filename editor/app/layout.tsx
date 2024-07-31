@@ -67,11 +67,11 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
             images: siteConfig.OGImage,
         },
         formatDetection: { telephone: false },
+        alternates: { canonical: siteConfig.links.url },
     },
     viewport: Viewport = {
         width: 'device-width',
         initialScale: 1,
-        maximumScale: 1,
         colorScheme: 'normal',
         themeColor: [
             { media: '(prefers-color-scheme: dark)', color: '#2f2f3a' },
