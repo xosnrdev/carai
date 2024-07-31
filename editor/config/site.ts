@@ -5,7 +5,8 @@ const siteConfig = {
     type: 'website',
     title: 'Carai - Code Playground',
     author: 'Success Kingsley',
-    description: 'Your online coding playground.',
+    description:
+        'Carai is an online coding playground for coding, testing, and learning.',
     language: 'en',
     themeColor: {
         dark: '#2f2f3a',
