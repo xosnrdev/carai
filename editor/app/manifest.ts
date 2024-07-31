@@ -29,6 +29,5 @@ export default function manifest(): MetadataRoute.Manifest {
         orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',
-        id: '_carai_pwa_manifest_id',
     }
 }
