@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 
-import clsx from 'clsx'
 import dynamic from 'next/dynamic'
 
 import ReduxProvider from '@/components/providers/redux-provider'
