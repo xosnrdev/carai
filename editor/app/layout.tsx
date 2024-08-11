@@ -82,10 +82,7 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
         return (
             <html suppressHydrationWarning lang="en">
                 <body
-                    className={clsx(
-                        'min-h-dvh overflow-hidden scroll-smooth bg-background antialiased',
-                        nohemi.className
-                    )}
+                    className={nohemi.className}
                 >
                     <ThemeProvider
                         disableTransitionOnChange
