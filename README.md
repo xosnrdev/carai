@@ -3,9 +3,9 @@
 ![Project Status](https://img.shields.io/badge/status-WIP-orange)
 [![codecov](https://codecov.io/gh/xosnrdev/carai/graph/badge.svg?token=cMsd6eQNq5)](https://codecov.io/gh/xosnrdev/carai)
 [![Systems Nightly](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml)
-[![URL](https://img.shields.io/badge/URL-cexaengine.com-blue)](https://cexaengine.com)
+[![Carai](https://img.shields.io/badge/Carai-cexaengine.com-blue)](https://cexaengine.com)
 
-### Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -50,7 +50,7 @@ Clone the repository and follow the installation instructions to start contribut
 
 ### Contributing
 
-Check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
+Yes check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
 
 ### License
 
