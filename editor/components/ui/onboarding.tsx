@@ -13,7 +13,7 @@ const Onboarding: FC = () => {
     const { resolvedTheme } = useTheme()
 
     return (
-        <div className="relative flex place-content-center place-items-center pt-4 lg:flex-row lg:justify-between lg:px-12 xl:flex-row xl:justify-between xl:px-12">
+        <div className="relative flex place-items-center pt-4 lg:flex-row lg:justify-between lg:px-12 xl:flex-row xl:justify-between xl:px-12">
             <div className="flex h-[calc(100dvh-25dvh)] flex-col space-y-12">
                 <h1 className="text-3xl font-extrabold text-primary dark:text-default-foreground lg:text-5xl xl:text-5xl">
                     Get Started with Carai
