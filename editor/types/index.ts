@@ -47,6 +47,12 @@ export enum EditorViewType {
     CodeMirror,
 }
 
+export type Metadata = {
+    imageName: string
+    monacoEditorLanguageSupportName: string
+    codeMirrorLanguageSupportName: string
+}
+
 export interface ITab {
     /*
      * Unique identifier for a tab
@@ -67,7 +73,7 @@ export interface ITab {
     /*
      * Metadata for a tab
      */
-    metadata: Record<string, string>
+    metadata: Metadata
     /*
      * Editor view state of a tab
      */
@@ -125,10 +131,11 @@ export interface RouteProps {
 }
 
 export interface RuntimeProps {
-    extension: string
-    alias: LanguageName
-    name: string
-    language: string
+    fileExtension: string
+    codeMirrorLanguageSupportName: LanguageName
+    monacoEditorLanguageSupportName: string
+    imageName: string
+    languageName: string
 }
 
 export interface OnboardingProps {
