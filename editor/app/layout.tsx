@@ -1,20 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 
-import dynamic from 'next/dynamic'
-
 import ReduxProvider from '@/components/providers/redux-provider'
 import ThemeProvider from '@/components/providers/theme-provider'
-import { LoadingSpinner } from '@/components/ui/icons'
 import nohemi from '@/config/fonts'
 import siteConfig from '@/config/site'
 import '@/styles/global.css'
 
-const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
-        loading: () => <LoadingSpinner size={75} />,
-        ssr: false,
-    }),
-    metadata: Metadata = {
+const metadata: Metadata = {
         metadataBase: new URL(siteConfig.links.url),
         title: {
             default: siteConfig.title,
@@ -80,9 +73,7 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
     RootLayout = ({ children }: { children: ReactNode }) => {
         return (
             <html suppressHydrationWarning lang="en">
-                <body
-                    className={nohemi.className}
-                >
+                <body className={nohemi.className}>
                     <ThemeProvider
                         disableTransitionOnChange
                         enableColorScheme
@@ -92,9 +83,7 @@ const MainLayout = dynamic(() => import('@/components/layouts/MainLayout'), {
                         nonce="carai"
                         storageKey="theme"
                     >
-                        <ReduxProvider>
-                            <MainLayout>{children}</MainLayout>
-                        </ReduxProvider>
+                        <ReduxProvider>{children}</ReduxProvider>
                     </ThemeProvider>
                 </body>
             </html>

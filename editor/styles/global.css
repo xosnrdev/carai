@@ -50,6 +50,10 @@
 }
 
 @layer base {
+    * {
+        @apply m-0 box-border p-0;
+    }
+
     body {
         --tw-bg-opacity: 1;
         scrollbar-width: thin;
@@ -65,5 +69,7 @@
         ::-webkit-scrollbar-thumb {
             @apply bg-default;
         }
+
+        @apply min-h-dvh overflow-hidden scroll-smooth bg-background antialiased;
     }
 }
