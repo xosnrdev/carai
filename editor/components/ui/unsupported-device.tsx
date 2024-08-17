@@ -1,10 +1,5 @@
 import type { FC } from 'react'
 
-export const metadata = {
-    title: 'Unsupported Device',
-    description: 'Device not supported redirect page',
-}
-
 const UnsupportedDevice: FC = () => {
     return (
         <div className="flex min-h-dvh items-center justify-center bg-gray-100 p-5">
