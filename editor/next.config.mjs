@@ -10,9 +10,6 @@ const nextConfig = {
             instrumentationHook: true,
             //typedRoutes: true,
         },
-        images: {
-            domains: ['upload.wikimedia.org'],
-        },
         output: 'standalone',
         poweredByHeader: false,
         reactStrictMode: true,
