@@ -58,7 +58,7 @@ const MainLayout: FC<IMainLayoutProps> = ({ children }) => {
     return (
         <div
             ref={containerRef}
-            className="custom-scrollbar relative flex h-dvh flex-col overflow-hidden"
+            className="custom-scrollbar relative flex h-dvh flex-col overflow-hidden bg-background"
         >
             <Header />
             <Toaster position="top-center" reverseOrder={true} />
