@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
 import ReduxProvider from '@/components/providers/redux-provider'
@@ -37,7 +37,7 @@ const metadata: Metadata = {
     publisher: siteConfig.publisher,
     robots: 'index, follow',
     keywords: siteConfig.keywords,
-    category: '',
+    category: 'Coding Playground',
     referrer: 'origin',
     description: siteConfig.description,
     openGraph: {
@@ -62,16 +62,6 @@ const metadata: Metadata = {
     alternates: { canonical: siteConfig.links.url },
 }
 
-const viewport: Viewport = {
-    width: 'device-width',
-    initialScale: 1,
-    colorScheme: 'normal',
-    themeColor: [
-        { media: '(prefers-color-scheme: dark)', color: '#2f2f3a' },
-        { media: '(prefers-color-scheme: light)', color: '#f1f5f9' },
-    ],
-}
-
 const RootLayout = ({ children }: { children: ReactNode }) => {
     return (
         <html suppressHydrationWarning lang="en">
@@ -92,4 +82,4 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
     )
 }
 
-export { RootLayout as default, metadata, viewport }
+export { RootLayout as default, metadata }
