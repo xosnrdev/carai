@@ -11,7 +11,7 @@ const metadata: Metadata = {
         metadataBase: new URL(siteConfig.links.url),
         title: {
             default: siteConfig.title,
-            template: `%s | ${siteConfig.title}`,
+            template: `%s | ${siteConfig.name}`,
         },
         icons: [
             {
