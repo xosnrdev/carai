@@ -29,15 +29,15 @@ const Editor = dynamic(() => import('@uiw/react-codemirror'), {
 
 const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
     const {
-        getActiveTab,
+        activeTab,
         codeResponse,
-        resizePane,
+        resizePanel,
         getSerializedViewState,
         updateTab,
         getDeserializedViewState,
     } = useTabContext()
 
-    const languageName = getActiveTab.metadata.alias as LanguageName
+    const languageName = activeTab.metadata.alias as LanguageName
     const [editorView, setEditorView] = useState<EditorView | null>(null)
     const { resolvedTheme } = useTheme()
 
@@ -48,7 +48,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
                         state: viewUpdate.state,
                         stateFields: {
                             codeResponse,
-                            resizePane,
+                            resizePanel,
                         },
                     },
                     serializedViewState =
@@ -57,7 +57,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
                         )
 
                 updateTab({
-                    id: getActiveTab.id,
+                    id: activeTab.id,
                     value,
                     viewState: {
                         type: EditorViewType.CodeMirror,
@@ -69,10 +69,10 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
         [
             updateTab,
             editorView,
-            getActiveTab.id,
+            activeTab.id,
             getSerializedViewState,
             codeResponse,
-            resizePane,
+            resizePanel,
         ]
     )
 
@@ -118,7 +118,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
             extensions={[langs[languageName](), EditorView.lineWrapping]}
             height="100%"
             theme={resolvedTheme === 'dark' ? vscodeDark : vscodeLight}
-            value={getActiveTab.value}
+            value={activeTab.value}
             width="100%"
             onChange={handleOnChange}
             onCreateEditor={handleCreateEditor}

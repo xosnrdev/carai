@@ -1,5 +1,5 @@
 import type { TabId } from '@/types'
-import type { CodeResponse, ErrorResponse } from '@/types/response'
+import type { CodeResponse } from '@/types/response'
 
 import { Button } from '@nextui-org/button'
 import { usePathname } from 'next/navigation'
@@ -9,8 +9,9 @@ import toast from 'react-hot-toast'
 import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
+import { CustomError } from '@/lib/error'
 import { cn } from '@/lib/utils'
-import { RCEHandler } from '@/network/rce-client'
+import { RCEHandler } from '@/network/rce-handler'
 
 import CodeMirror from './code-mirror'
 import CustomTooltip from './custom-tooltip'
@@ -20,18 +21,18 @@ import Tab from './tab'
 const rceHandler = new RCEHandler()
 
 const Tabs: FC = () => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState(false)
     const pathname = usePathname()
     const {
         tabs,
-        resizePane,
-        getActiveTab,
+        activeTab,
         removeTab,
         switchTab,
-        setResizePane,
+        setResizePanel,
         closeAllTabs,
         setActiveTab,
         setCodeResponse,
+        resizePanel,
     } = useTabContext()
 
     const { isOpen } = useAppContext()
@@ -44,27 +45,27 @@ const Tabs: FC = () => {
         removeTab(id)
     }
 
-    const handleOnResizeVisible = useCallback(() => {
-        if (!getActiveTab) return
-        const { id } = getActiveTab
-
-        if (!resizePane) {
-            setResizePane({
-                id,
-                resizePane: true,
+    const handleResizePanelState = useCallback(() => {
+        if (!resizePanel.visible) {
+            setResizePanel({
+                id: activeTab.id,
+                resizePanel: {
+                    visible: true,
+                },
             })
         } else {
-            setResizePane({
-                id,
-                resizePane: false,
+            setResizePanel({
+                id: activeTab.id,
+                resizePanel: {
+                    visible: false,
+                },
             })
         }
-    }, [resizePane, setResizePane, getActiveTab])
+    }, [resizePanel, setResizePanel, activeTab])
 
     const handleCodeExecution = useCallback(() => {
         return new Promise<CodeResponse>((resolve, reject) => {
-            if (!getActiveTab) return
-            const { id, metadata, value } = getActiveTab
+            const { id, metadata, value, title } = activeTab
 
             if (value.trim().length === 0) {
                 reject(new Error('no payload'))
@@ -76,16 +77,23 @@ const Tabs: FC = () => {
                 setIsLoading(true)
                 rceHandler
                     .execute({
-                        language: metadata.name,
-                        version: 'latest',
-                        code: value,
+                        image: `ghcr.io/toolkithub/rce-images-${metadata.language}:edge`,
+                        payload: {
+                            language: metadata.name,
+                            files: [
+                                {
+                                    name: title,
+                                    content: value,
+                                },
+                            ],
+                        },
                     })
                     .then((codeResponse) => {
                         setCodeResponse({ id, codeResponse })
                         resolve(codeResponse)
                     })
-                    .catch((error: ErrorResponse) => {
-                        reject(error)
+                    .catch((error) => {
+                        reject(new CustomError(error.message))
                         throw error
                     })
                     .finally(() => {
@@ -93,12 +101,12 @@ const Tabs: FC = () => {
                     })
             }
         })
-    }, [getActiveTab, setCodeResponse])
+    }, [activeTab, setCodeResponse])
 
     useKeyPress({
         targetKey: 'D',
         callback: () => {
-            if (getActiveTab && pathname === '/') {
+            if (activeTab && pathname === '/') {
                 closeAllTabs()
             }
         },
@@ -107,7 +115,7 @@ const Tabs: FC = () => {
     useKeyPress({
         targetKey: 'ArrowRight',
         callback: () => {
-            if (getActiveTab && pathname === '/') {
+            if (activeTab && pathname === '/') {
                 switchTab('next')
             }
         },
@@ -116,7 +124,7 @@ const Tabs: FC = () => {
     useKeyPress({
         targetKey: 'ArrowLeft',
         callback: () => {
-            if (getActiveTab && pathname === '/') {
+            if (activeTab && pathname === '/') {
                 switchTab('previous')
             }
         },
@@ -134,16 +142,16 @@ const Tabs: FC = () => {
                 className={cn(
                     'sticky top-0 z-10 flex flex-row justify-between bg-background',
                     {
-                        '!pl-10': isOpen.sidebar === false,
+                        '!pl-8': !isOpen.sidebar,
                     }
                 )}
                 role="tablist"
             >
-                <div className="flex flex-wrap">
+                <div className="flex flex-row">
                     {tabs.map(({ id, title }) => (
                         <Tab
                             key={id}
-                            activeTabId={getActiveTab.id}
+                            activeTabId={activeTab.id}
                             closeTab={handleCloseTab}
                             id={id}
                             setActiveTab={setActiveTab}
@@ -167,16 +175,14 @@ const Tabs: FC = () => {
                             toast.promise(handleCodeExecution(), {
                                 loading: 'processing...',
                                 success: 'success',
-                                error: (err: ErrorResponse) => (
-                                    <>{err.message}</>
-                                ),
+                                error: (err) => <span>{err.message}</span>,
                             })
-                            if (getActiveTab && !resizePane) {
-                                const { id } = getActiveTab
-
-                                setResizePane({
-                                    id,
-                                    resizePane: true,
+                            if (activeTab && !resizePanel.visible) {
+                                setResizePanel({
+                                    id: activeTab.id,
+                                    resizePanel: {
+                                        visible: true,
+                                    },
                                 })
                             }
                         }}
@@ -185,28 +191,31 @@ const Tabs: FC = () => {
                         <CustomTooltip
                             content={
                                 <span>
-                                    {resizePane ? 'Close Panel' : 'Open Panel'}
+                                    {resizePanel.visible
+                                        ? 'Close Panel'
+                                        : 'Open Panel'}
                                 </span>
                             }
                         >
                             <Button
                                 isIconOnly
-                                className="h-8 text-3xl lg:text-2xl xl:text-2xl"
+                                className={cn('h-8 text-2xl', {
+                                    'bg-default': resizePanel.visible === false,
+                                })}
                                 radius="none"
                                 size={'sm'}
-                                startContent={
-                                    <span>{resizePane ? '⇥' : '⇤'}</span>
-                                }
                                 variant={'light'}
-                                onClick={handleOnResizeVisible}
-                            />
+                                onClick={handleResizePanelState}
+                            >
+                                {resizePanel.visible ? '⇥' : '⇤'}
+                            </Button>
                         </CustomTooltip>
                     }
                 </div>
             </div>
             <CodeMirror
-                key={getActiveTab.id}
-                aria-label={`playground for ${getActiveTab.metadata.name || 'unknown language'}`}
+                key={activeTab.id}
+                aria-label={`playground for ${activeTab.metadata.name || 'unknown language'}`}
                 className="flex-1 overflow-hidden"
             />
         </div>

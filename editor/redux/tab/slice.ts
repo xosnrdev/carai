@@ -19,6 +19,7 @@ import type { RootState } from '../store'
 
 import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
 
+import { CustomError } from '@/lib/error'
 import { SafeJson } from '@/lib/utils'
 import {
     type AddTabPayload,
@@ -28,136 +29,147 @@ import {
     type IMonacoViewState,
     type ITab,
     type ITabConfig,
-    type ViewStateField,
-    type ResizePanePayload,
+    type ResizePanelPayload,
     type TabId,
     type UpdateTabPayload,
+    type ViewStateField,
 } from '@/types'
-import { TabError } from '@/lib/error'
 
 const defaultConfig: ITabConfig = {
-        isClosable: true,
-        maxTabs: 2,
-        maxValueSize: {
-            value: 1000,
-            units: 'characters',
+    isClosable: true,
+    maxTabs: 2,
+    maxValueSize: {
+        value: 1000,
+        units: 'characters',
+    },
+}
+// const defaultMonacoVS = SafeJson.stringify<IMonacoViewState>({
+//     state: null,
+//     stateFields: {
+//         codeResponse: undefined,
+//         resizePane: true,
+//     },
+// })
+
+const defaultCodeMirrorVS = SafeJson.stringify<ICodeMirrorViewState>({
+    stateFields: {
+        codeResponse: undefined,
+        resizePanel: {
+            visible: false,
         },
     },
-    // defaultMonacoVS = SafeJson.stringify<IMonacoViewState>({
-    //     state: null,
-    //     stateFields: {
-    //         codeResponse: undefined,
-    //         resizePane: true,
-    //     },
-    // }),
-    defaultCodeMirrorVS = SafeJson.stringify<ICodeMirrorViewState>({
-        stateFields: {
-            codeResponse: undefined,
-            resizePane: true,
-        },
-    })
+})
 
 const defaultViewState = {
     type: EditorViewType.CodeMirror,
     value: defaultCodeMirrorVS,
 }
 
-const getByteLength = (str: string) => new TextEncoder().encode(str).byteLength,
-    validateValueSize = (
-        value: string,
-        maxValueSize: ITabConfig['maxValueSize']
-    ) => {
-        switch (maxValueSize.units) {
-            case 'characters':
-                return value.length > maxValueSize.value
-            case 'bytes':
-                return getByteLength(value) > maxValueSize.value
-            case 'lines':
-                return value.split('\n').length > maxValueSize.value
-            default:
-                throw new TabError(`Unsupported unit: ${maxValueSize.units}`)
-        }
-    },
-    validatePayload = (
-        payload: AddTabPayload,
-        config: ITabConfig,
-        state: typeof initialState
-    ) => {
-        const { title, value } = payload,
-            maxTabs = config.maxTabs ?? defaultConfig.maxTabs,
-            maxValueSize = config.maxValueSize ?? defaultConfig.maxValueSize,
-            errors = new Array<string>()
+const getByteLength = (str: string) => new TextEncoder().encode(str).byteLength
 
-        if (maxTabs && state.ids.length >= maxTabs) {
-            errors.push(`Only ${maxTabs} tabs allowed!`)
-        }
+const validateValueSize = (
+    value: string,
+    maxValueSize: ITabConfig['maxValueSize']
+) => {
+    switch (maxValueSize.units) {
+        case 'characters':
+            return value.length > maxValueSize.value
+        case 'bytes':
+            return getByteLength(value) > maxValueSize.value
+        case 'lines':
+            return value.split('\n').length > maxValueSize.value
+        default:
+            throw new CustomError(`Unsupported unit: ${maxValueSize.units}`)
+    }
+}
 
-        if (!title || title.trim().length === 0) {
-            errors.push('Title must be a non-empty string!')
-        }
+const validatePayload = (
+    payload: AddTabPayload,
+    config: ITabConfig,
+    state: typeof initialState
+) => {
+    const { title, value } = payload
+    const maxTabs = config.maxTabs ?? defaultConfig.maxTabs
+    const maxValueSize = config.maxValueSize ?? defaultConfig.maxValueSize
+    const errors: string[] = []
 
-        if (maxValueSize && validateValueSize(value, maxValueSize)) {
-            errors.push(
-                `Value exceeds ${maxValueSize.value} ${maxValueSize.units}!`
-            )
-        }
+    if (maxTabs && state.ids.length >= maxTabs) {
+        errors.push(`Only ${maxTabs} tabs allowed!`)
+    }
 
-        if (errors.length > 0) {
-            throw new TabError(errors.join('. '))
-        }
-    },
-    sliceValue = (value: string, maxValueSize: ITabConfig['maxValueSize']) => {
-        switch (maxValueSize.units) {
-            case 'characters':
-                return value.slice(0, maxValueSize.value)
-            case 'bytes':
-                let slicedValue = '',
-                    byteLength = 0
+    if (!title || title.trim().length === 0) {
+        errors.push('Title must be a non-empty string!')
+    }
 
-                for (const char of value) {
-                    const charByteLength = getByteLength(char)
+    if (maxValueSize && validateValueSize(value, maxValueSize)) {
+        errors.push(
+            `Value exceeds ${maxValueSize.value} ${maxValueSize.units}!`
+        )
+    }
 
-                    if (byteLength + charByteLength > maxValueSize.value) break
-                    slicedValue += char
-                    byteLength += charByteLength
+    if (errors.length > 0) {
+        throw new CustomError(errors.join('. '))
+    }
+}
+
+const sliceValue = (
+    value: string,
+    maxValueSize: ITabConfig['maxValueSize']
+) => {
+    switch (maxValueSize.units) {
+        case 'characters':
+            return value.slice(0, maxValueSize.value)
+        case 'bytes':
+            let slicedValue = ''
+            let byteLength = 0
+
+            for (const char of value) {
+                const charByteLength = getByteLength(char)
+
+                if (byteLength + charByteLength > maxValueSize.value) {
+                    break
                 }
 
-                return slicedValue
-            case 'lines':
-                return value.split('\n').slice(0, maxValueSize.value).join('\n')
-            default:
-                throw new TabError(`Unsupported unit: ${maxValueSize.units}`)
-        }
-    },
-    resolveViewState = (tab: ITab, payload: ViewStateField) => {
-        switch (tab && tab.viewState.type) {
-            case EditorViewType.Monaco:
-                tab.viewState.value = SafeJson.stringify<IMonacoViewState>({
-                    ...SafeJson.parse<IMonacoViewState>(tab.viewState.value),
-                    stateFields: {
-                        ...SafeJson.parse<IMonacoViewState>(tab.viewState.value)
-                            .stateFields,
-                        ...payload,
-                    },
-                })
-                break
-            case EditorViewType.CodeMirror:
-                tab.viewState.value = SafeJson.stringify<ICodeMirrorViewState>({
-                    ...SafeJson.parse<ICodeMirrorViewState>(
-                        tab.viewState.value
-                    ),
-                    stateFields: {
-                        ...SafeJson.parse<ICodeMirrorViewState>(
-                            tab.viewState.value
-                        ).stateFields,
-                        ...payload,
-                    },
-                })
-                break
-            default:
-                throw new TabError(`Unsupported VS type ${tab.viewState.type}`)
-        }
+                slicedValue += char
+                byteLength += charByteLength
+            }
+
+            return slicedValue
+        case 'lines':
+            return value.split('\n').slice(0, maxValueSize.value).join('\n')
+        default:
+            throw new CustomError(`Unsupported unit: ${maxValueSize.units}`)
     }
+}
+
+const resolveViewState = (tab: ITab, payload: ViewStateField) => {
+    if (!tab || !tab.viewState) return
+
+    const { type, value } = tab.viewState
+
+    switch (type) {
+        case EditorViewType.Monaco:
+            tab.viewState.value = SafeJson.stringify<IMonacoViewState>({
+                ...SafeJson.parse<IMonacoViewState>(value),
+                stateFields: {
+                    ...SafeJson.parse<IMonacoViewState>(value).stateFields,
+                    ...payload,
+                },
+            })
+            break
+        case EditorViewType.CodeMirror:
+            tab.viewState.value = SafeJson.stringify<ICodeMirrorViewState>({
+                ...SafeJson.parse<ICodeMirrorViewState>(value),
+                stateFields: {
+                    ...SafeJson.parse<ICodeMirrorViewState>(value).stateFields,
+                    ...payload,
+                },
+            })
+            break
+        default:
+            throw new CustomError(`Unsupported VS type ${type}`)
+    }
+}
 
 const tabAdapter = createEntityAdapter<ITab>(),
     initialState = tabAdapter.getInitialState({
@@ -201,15 +213,6 @@ const tabs_slice = createSlice({
         },
 
         removeTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
-            /**
-             * This function was carefully thought through to ensure that the following edge cases are handled:
-             * @summary Edge Cases:
-             * 1. Removing a tab that's isClosable
-             * 2. Removing a tab that is not isClosable
-             * 3. Ensuring the active tab is correctly updated after removal
-             * 4. Handling cases where the tab to be removed is the only tab
-             * 5. Handling cases with multiple tabs and ensuring the correct tab becomes active
-             */
             const tab = state.entities[tabId]
 
             if (tab && tab.config.isClosable) {
@@ -333,15 +336,23 @@ const tabs_slice = createSlice({
         ) => {
             const tab = state.entities[id]
 
-            resolveViewState(tab, { codeResponse })
+            resolveViewState(tab, {
+                codeResponse: {
+                    ...codeResponse,
+                },
+            })
         },
-        setResizePane: (
+        setResizePanel: (
             state,
-            { payload: { id, resizePane } }: PayloadAction<ResizePanePayload>
+            { payload: { id, resizePanel } }: PayloadAction<ResizePanelPayload>
         ) => {
             const tab = state.entities[id]
 
-            resolveViewState(tab, { resizePane })
+            resolveViewState(tab, {
+                resizePanel: {
+                    ...resizePanel,
+                },
+            })
         },
     },
 })
@@ -357,20 +368,20 @@ const {
     closeAllTabs,
     updateTab,
     setCodeResponse,
-    setResizePane,
+    setResizePanel,
 } = tabs_slice.actions
 
 export {
+    addTab,
+    closeAllTabs,
+    tabs_slice as default,
+    removeTab,
     selectAllTabs,
     selectTabById,
-    addTab,
     setActiveTab,
-    removeTab,
-    switchTab,
-    closeAllTabs,
-    updateTab,
     setCodeResponse,
-    setResizePane,
+    setResizePanel,
+    switchTab,
     tabAdapter,
-    tabs_slice as default,
+    updateTab,
 }

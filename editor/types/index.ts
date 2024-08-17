@@ -28,8 +28,8 @@ export interface ITabConfig {
 }
 
 export type ViewStateField = Partial<{
-    codeResponse: CodeResponsePayload['codeResponse']
-    resizePane: ResizePanePayload['resizePane']
+    codeResponse: CodeResponse
+    resizePanel: ResizePanel
 }>
 
 export interface IMonacoViewState {
@@ -88,9 +88,13 @@ export type CodeResponsePayload = {
     codeResponse: CodeResponse
 }
 
-export type ResizePanePayload = {
+export type ResizePanel = {
+    visible: boolean
+}
+
+export type ResizePanelPayload = {
     id: TabId
-    resizePane: boolean
+    resizePanel: ResizePanel
 }
 
 export type AddTabPayload = Omit<ITab, 'id' | 'isDirty' | 'viewState'>
@@ -122,9 +126,9 @@ export interface RouteProps {
 
 export interface RuntimeProps {
     extension: string
-    src: string
     alias: LanguageName
     name: string
+    language: string
 }
 
 export interface OnboardingProps {

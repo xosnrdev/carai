@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+export { cn, SafeJson }
+
 const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
 
 class SafeJson {
@@ -19,5 +21,3 @@ class SafeJson {
         }
     }
 }
-
-export { cn, SafeJson }

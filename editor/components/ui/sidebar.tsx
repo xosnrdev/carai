@@ -1,5 +1,4 @@
 import type { RuntimeProps } from '@/types'
-import type { ErrorResponse } from '@/types/response'
 
 import { Button } from '@nextui-org/button'
 import { Input } from '@nextui-org/input'
@@ -13,9 +12,9 @@ import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
 import { runtimeProps, sidebarProps } from '@/lib/constants/ui'
-import { TabError } from '@/lib/error'
+import { CustomError } from '@/lib/error'
 import { cn } from '@/lib/utils'
-import { RCEHandler } from '@/network/rce-client'
+import { RCEHandler } from '@/network/rce-handler'
 
 import CustomTooltip from './custom-tooltip'
 import { DialogFooter } from './dialog'
@@ -114,33 +113,21 @@ const Sidebar: FC = () => {
     const handleClick = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
             if (!selectedRuntime) {
-                reject(new Error('no runtime selected'))
+                reject(new CustomError('no runtime selected'))
 
                 return
             }
 
             rceHandler
-                .listRuntimes()
-                .then(({ runtime }) => {
-                    if (!runtime || runtime.length === 0) {
-                        reject(new Error('no runtimes available'))
-
-                        return
-                    }
-                    const runtimeMap = new Map(
-                        runtime.map((rt) => [rt.language.toLowerCase(), rt])
-                    )
-                    const foundRuntime = runtimeMap.get(
-                        selectedRuntime.name.toLowerCase()
-                    )
-
-                    if (!foundRuntime) {
-                        reject(new Error('runtime under maintenance'))
+                .healthz()
+                .then((status) => {
+                    if (status !== 200) {
+                        reject(new CustomError('something went wrong!'))
 
                         return
                     }
 
-                    const { extension, alias, name } = selectedRuntime
+                    const { name, extension, language, alias } = selectedRuntime
 
                     const title = `${Array.from(new Set(['index', 'app', 'main', 'entry', 'source', 'code', 'script', 'program']))[Math.floor(Math.random() * 8)]}${extension}`
 
@@ -149,15 +136,16 @@ const Sidebar: FC = () => {
                         value: '',
 
                         metadata: {
-                            alias,
                             name,
+                            language,
+                            alias,
                         },
                         config: {
                             maxValueSize: {
                                 value: isMobileView ? 100 : 500,
                                 units: 'lines',
                             },
-                            maxTabs: 10,
+                            maxTabs: 15,
                             isClosable: true,
                         },
                     })
@@ -170,13 +158,9 @@ const Sidebar: FC = () => {
                     setSelectedRuntime(null)
                     setSearchQuery('')
                 })
-                .catch((error: ErrorResponse) => {
-                    if (error instanceof TabError) {
-                        reject(error)
-                    } else {
-                        reject(error)
-                        throw error
-                    }
+                .catch((error) => {
+                    reject(new CustomError(error.message))
+                    throw error
                 })
         })
     }, [addTab, selectedRuntime, isMobileView, setIsOpen])
@@ -217,11 +201,9 @@ const Sidebar: FC = () => {
                         onSubmit={(e) => {
                             e.preventDefault()
                             toast.promise(handleClick(), {
-                                loading: 'checking runtime...',
+                                loading: 'checking health status...',
                                 success: 'ready',
-                                error: (err: ErrorResponse) => (
-                                    <span>{err.message}</span>
-                                ),
+                                error: (err) => <span>{err.message}</span>,
                             })
                         }}
                     >
@@ -279,10 +261,10 @@ const Sidebar: FC = () => {
                                                 <Image
                                                     priority
                                                     alt={`
-													${runtime.name} icon`}
+													${runtime.language} icon`}
                                                     className="size-10"
                                                     height={100}
-                                                    src={runtime.src}
+                                                    src={`/assets/language/${runtime.language}.svg`}
                                                     width={100}
                                                 />
                                                 <span className="text-nowrap">
