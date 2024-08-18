@@ -37,7 +37,8 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
         getDeserializedViewState,
     } = useTabContext()
 
-    const languageName = activeTab.metadata.alias as LanguageName
+    const languageName = activeTab.metadata
+        .codeMirrorLanguageSupportName as LanguageName
     const [editorView, setEditorView] = useState<EditorView | null>(null)
     const { resolvedTheme } = useTheme()
 

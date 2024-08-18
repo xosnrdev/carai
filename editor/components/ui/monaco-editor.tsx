@@ -104,7 +104,7 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
     return (
         <_Editor
             className={className}
-            language={activeTab.metadata.name}
+            language={activeTab.metadata.monacoEditorLanguageSupportName}
             loading={<LoadingSpinner />}
             options={editorConfigOptions}
             theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
