@@ -6,7 +6,7 @@ import useTabContext from '@/hooks/useTabContext'
 import { navProps } from '@/lib/constants/ui'
 
 const Footer: FC = () => {
-    const { activeTab, isMobileView } = useTabContext()
+    const { activeTab } = useTabContext()
     const { resolvedTheme } = useTheme()
     const [isOpen, setIsOpen] = useState({
         close: true,
@@ -32,9 +32,7 @@ const Footer: FC = () => {
                                 }
                                 radius="none"
                                 size="sm"
-                                startContent={
-                                    <prop.icon size={isMobileView ? 18 : 20} />
-                                }
+                                startContent={<prop.icon size={24} />}
                                 variant="light"
                                 onClick={(e) => {
                                     idx === 0 ? handleClose() : null
