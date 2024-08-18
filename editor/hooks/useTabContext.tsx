@@ -64,7 +64,7 @@ const useTabContext = () => {
     const codeResponse = deserializedStateFields?.codeResponse as CodeResponse
     const resizePanel = deserializedStateFields?.resizePanel as ResizePanel
 
-    const isMobileView = window.matchMedia('(max-width: 600px)').matches
+    const isResizePanelVisible = !!resizePanel?.visible === true
 
     const boundActions = useMemo(
         () => ({
@@ -88,12 +88,12 @@ const useTabContext = () => {
     return {
         tabs,
         resizePanel,
+        isResizePanelVisible,
         activeTab,
         getDeserializedViewState,
         getSerializedViewState,
         viewState,
         activeTabId,
-        isMobileView,
         codeResponse,
         ...boundActions,
     }

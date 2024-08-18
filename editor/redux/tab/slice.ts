@@ -55,7 +55,7 @@ const defaultCodeMirrorVS = SafeJson.stringify<ICodeMirrorViewState>({
     stateFields: {
         codeResponse: undefined,
         resizePanel: {
-            visible: false,
+            visible: 0,
         },
     },
 })
@@ -88,7 +88,7 @@ const validatePayload = (
     config: ITabConfig,
     state: typeof initialState
 ) => {
-    const { title, value } = payload
+    const { filename, value } = payload
     const maxTabs = config.maxTabs ?? defaultConfig.maxTabs
     const maxValueSize = config.maxValueSize ?? defaultConfig.maxValueSize
     const errors: string[] = []
@@ -97,8 +97,8 @@ const validatePayload = (
         errors.push(`Only ${maxTabs} tabs allowed!`)
     }
 
-    if (!title || title.trim().length === 0) {
-        errors.push('Title must be a non-empty string!')
+    if (!filename || filename.trim().length === 0) {
+        errors.push('filename must be a non-empty string!')
     }
 
     if (maxValueSize && validateValueSize(value, maxValueSize)) {
@@ -191,7 +191,7 @@ const tabs_slice = createSlice({
                 slicedValue = sliceValue(payload.value, maxValueSize),
                 newTab: ITab = {
                     id: nanoid(),
-                    title: payload.title,
+                    filename: payload.filename,
                     value: slicedValue,
                     isDirty: !!payload.value,
                     metadata: payload.metadata,
@@ -289,12 +289,13 @@ const tabs_slice = createSlice({
         updateTab: (
             state,
             {
-                payload: { id, value, config, viewState },
+                payload: { id, filename, value, config, viewState },
             }: PayloadAction<UpdateTabPayload>
         ) => {
             const tab = state.entities[id]
 
             if (tab) {
+                const updatedFilename = filename ?? tab.filename
                 const maxValueSize =
                     config?.maxValueSize ??
                     tab.config.maxValueSize ??
@@ -311,6 +312,7 @@ const tabs_slice = createSlice({
                 tabAdapter.updateOne(state, {
                     id,
                     changes: {
+                        filename: updatedFilename,
                         value: updatedValue,
                         isDirty,
                         viewState: viewState ?? tab.viewState,
