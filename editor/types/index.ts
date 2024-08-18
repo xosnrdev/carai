@@ -1,6 +1,6 @@
 import type { EditorStateConfig } from '@uiw/react-codemirror'
 import type { editor } from 'monaco-editor'
-import type { MouseEvent, SVGProps } from 'react'
+import type { MouseEvent, RefObject, SVGProps } from 'react'
 import type { IconType } from 'react-icons'
 import type { CodeResponse } from './response'
 import type { LanguageName } from '@uiw/codemirror-extensions-langs'
@@ -59,9 +59,9 @@ export interface ITab {
      */
     id: string
     /*
-     * Title of a tab
+     * filename of a tab
      */
-    title: string
+    filename: string
     /*
      * Text value of a tab
      */
@@ -95,7 +95,7 @@ export type CodeResponsePayload = {
 }
 
 export type ResizePanel = {
-    visible: boolean
+    visible: number
 }
 
 export type ResizePanelPayload = {
@@ -136,6 +136,7 @@ export interface RuntimeProps {
     monacoEditorLanguageSupportName: string
     imageName: string
     languageName: string
+    snippet: string
 }
 
 export interface OnboardingProps {
@@ -145,8 +146,9 @@ export interface OnboardingProps {
 
 export interface TabProps {
     id: string
-    title: string
+    filename: string
     activeTabId: TabId
+    ref: RefObject<HTMLDivElement> | null
     setActiveTab: (id: TabId) => void
     closeTab: (
         e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
