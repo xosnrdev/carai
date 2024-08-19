@@ -29,15 +29,16 @@ const Editor = dynamic(() => import('@uiw/react-codemirror'), {
 
 const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
     const {
-        getActiveTab,
+        activeTab,
         codeResponse,
-        resizePane,
+        resizePanel,
         getSerializedViewState,
         updateTab,
         getDeserializedViewState,
     } = useTabContext()
 
-    const languageName = getActiveTab.metadata.alias as LanguageName
+    const languageName = activeTab.metadata
+        .codeMirrorLanguageSupportName as LanguageName
     const [editorView, setEditorView] = useState<EditorView | null>(null)
     const { resolvedTheme } = useTheme()
 
@@ -45,19 +46,19 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
         (value: string, viewUpdate: ViewUpdate) => {
             if (editorView && viewUpdate.state) {
                 const deserializedViewState: ICodeMirrorViewState = {
-                        state: viewUpdate.state,
-                        stateFields: {
-                            codeResponse,
-                            resizePane,
-                        },
+                    state: viewUpdate.state,
+                    stateFields: {
+                        codeResponse,
+                        resizePanel,
                     },
-                    serializedViewState =
-                        getSerializedViewState<ICodeMirrorViewState>(
-                            deserializedViewState
-                        )
+                }
+                const serializedViewState =
+                    getSerializedViewState<ICodeMirrorViewState>(
+                        deserializedViewState
+                    )
 
                 updateTab({
-                    id: getActiveTab.id,
+                    id: activeTab.id,
                     value,
                     viewState: {
                         type: EditorViewType.CodeMirror,
@@ -69,10 +70,10 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
         [
             updateTab,
             editorView,
-            getActiveTab.id,
+            activeTab,
             getSerializedViewState,
             codeResponse,
-            resizePane,
+            resizePanel,
         ]
     )
 
@@ -106,9 +107,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
             view.focus()
             setEditorView(view)
 
-            return () => {
-                view.destroy()
-            }
+            return (): void => view.destroy()
         },
         [getDeserializedViewState]
     )
@@ -118,7 +117,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
             extensions={[langs[languageName](), EditorView.lineWrapping]}
             height="100%"
             theme={resolvedTheme === 'dark' ? vscodeDark : vscodeLight}
-            value={getActiveTab.value}
+            value={activeTab.value}
             width="100%"
             onChange={handleOnChange}
             onCreateEditor={handleCreateEditor}

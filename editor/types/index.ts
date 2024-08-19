@@ -1,6 +1,6 @@
 import type { EditorStateConfig } from '@uiw/react-codemirror'
 import type { editor } from 'monaco-editor'
-import type { MouseEvent, SVGProps } from 'react'
+import type { MouseEvent, RefObject, SVGProps } from 'react'
 import type { IconType } from 'react-icons'
 import type { CodeResponse } from './response'
 import type { LanguageName } from '@uiw/codemirror-extensions-langs'
@@ -28,8 +28,8 @@ export interface ITabConfig {
 }
 
 export type ViewStateField = Partial<{
-    codeResponse: CodeResponsePayload['codeResponse']
-    resizePane: ResizePanePayload['resizePane']
+    codeResponse: CodeResponse
+    resizePanel: ResizePanel
 }>
 
 export interface IMonacoViewState {
@@ -47,15 +47,21 @@ export enum EditorViewType {
     CodeMirror,
 }
 
+export type Metadata = {
+    imageName: string
+    monacoEditorLanguageSupportName: string
+    codeMirrorLanguageSupportName: string
+}
+
 export interface ITab {
     /*
      * Unique identifier for a tab
      */
     id: string
     /*
-     * Title of a tab
+     * filename of a tab
      */
-    title: string
+    filename: string
     /*
      * Text value of a tab
      */
@@ -67,7 +73,7 @@ export interface ITab {
     /*
      * Metadata for a tab
      */
-    metadata: Record<string, string>
+    metadata: Metadata
     /*
      * Editor view state of a tab
      */
@@ -88,9 +94,12 @@ export type CodeResponsePayload = {
     codeResponse: CodeResponse
 }
 
-export type ResizePanePayload = {
+export type ResizePanel = Omit<ResizePanelPayload, 'id'>
+
+export type ResizePanelPayload = {
     id: TabId
-    resizePane: boolean
+    viewSize: number
+    viewSizeState?: number
 }
 
 export type AddTabPayload = Omit<ITab, 'id' | 'isDirty' | 'viewState'>
@@ -121,10 +130,12 @@ export interface RouteProps {
 }
 
 export interface RuntimeProps {
-    extension: string
-    src: string
-    alias: LanguageName
-    name: string
+    fileExtension: string
+    codeMirrorLanguageSupportName: LanguageName
+    monacoEditorLanguageSupportName: string
+    imageName: string
+    languageName: string
+    snippet: string
 }
 
 export interface OnboardingProps {
@@ -134,11 +145,18 @@ export interface OnboardingProps {
 
 export interface TabProps {
     id: string
-    title: string
+    filename: string
     activeTabId: TabId
+    ref: RefObject<HTMLDivElement> | null
     setActiveTab: (id: TabId) => void
     closeTab: (
         e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
         id: TabId
     ) => void
+}
+
+export interface ICodeResponseProps {
+    flag: string
+    response: string
+    flagClassname: string
 }

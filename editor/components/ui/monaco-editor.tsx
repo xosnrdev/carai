@@ -18,9 +18,9 @@ const _Editor = dynamic(() => import('@monaco-editor/react'), {
 const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
     const {
         updateTab,
-        getActiveTab,
+        activeTab,
         codeResponse,
-        resizePane,
+        resizePanel,
         getSerializedViewState,
         getDeserializedViewState,
     } = useTabContext()
@@ -36,19 +36,20 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
 
                 if (editorState) {
                     const deserializedViewState: IMonacoViewState = {
-                            state: editorState,
-                            stateFields: {
-                                codeResponse,
-                                resizePane,
-                            },
+                        state: editorState,
+                        stateFields: {
+                            codeResponse,
+                            resizePanel,
                         },
-                        serializedViewState =
-                            getSerializedViewState<IMonacoViewState>(
-                                deserializedViewState
-                            )
+                    }
+
+                    const serializedViewState =
+                        getSerializedViewState<IMonacoViewState>(
+                            deserializedViewState
+                        )
 
                     updateTab({
-                        id: getActiveTab.id,
+                        id: activeTab.id,
                         value,
                         viewState: {
                             type: EditorViewType.Monaco,
@@ -62,8 +63,8 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
             updateTab,
             editorView,
             codeResponse,
-            resizePane,
-            getActiveTab.id,
+            resizePanel,
+            activeTab.id,
             getSerializedViewState,
         ]
     )
@@ -103,11 +104,11 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
     return (
         <_Editor
             className={className}
-            language={getActiveTab.metadata.name}
+            language={activeTab.metadata.monacoEditorLanguageSupportName}
             loading={<LoadingSpinner />}
             options={editorConfigOptions}
             theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
-            value={getActiveTab.value}
+            value={activeTab.value}
             onChange={handleEditorChange}
             onMount={handleEditorOnMount}
             {...props}

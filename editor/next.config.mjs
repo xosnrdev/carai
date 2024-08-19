@@ -3,54 +3,53 @@
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig = {
-        compiler: {
-            removeConsole: process.env.NODE_ENV === 'production',
-        },
-        experimental: {
-            instrumentationHook: true,
-            //typedRoutes: true,
-        },
-        images: {
-            domains: ['upload.wikimedia.org'],
-        },
-        output: 'standalone',
-        poweredByHeader: false,
-        reactStrictMode: true,
-        swcMinify: true,
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production',
     },
-    config = withSentryConfig(nextConfig, {
-        // For all available options, see:
-        // https://github.com/getsentry/sentry-webpack-plugin#options
+    experimental: {
+        instrumentationHook: true,
+        //typedRoutes: true,
+    },
+    output: 'export',
+    poweredByHeader: false,
+    reactStrictMode: true,
+    swcMinify: true,
+    distDir: 'dist',
+}
 
-        automaticVercelMonitors: false,
-        disableLogger: true,
+const config = withSentryConfig(nextConfig, {
+    // For all available options, see:
+    // https://github.com/getsentry/sentry-webpack-plugin#options
 
-        // Only print logs for uploading source maps in CI
-        hideSourceMaps: true,
+    automaticVercelMonitors: false,
+    disableLogger: true,
 
-        // For all available options, see:
-        // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+    // Only print logs for uploading source maps in CI
+    hideSourceMaps: true,
 
-        // Upload a larger set of source maps for prettier stack traces (increases build time)
-        org: 'xosnrdev',
+    // For all available options, see:
+    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-        // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-        // This can increase your server load as well as your hosting bill.
-        // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-        // side errors will fail.
-        project: 'carai-editor',
+    // Upload a larger set of source maps for prettier stack traces (increases build time)
+    org: 'xosnrdev',
 
-        // Hides source maps from generated client bundles
-        silent: !process.env.CI,
+    // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
+    // This can increase your server load as well as your hosting bill.
+    // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
+    // side errors will fail.
+    project: 'carai-editor',
 
-        // Automatically tree-shake Sentry logger statements to reduce bundle size
-        tunnelRoute: '/monitoring',
+    // Hides source maps from generated client bundles
+    silent: !process.env.CI,
 
-        // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-        // See the following for more information:
-        // https://docs.sentry.io/product/crons/
-        // https://vercel.com/docs/cron-jobs
-        widenClientFileUpload: true,
-    })
+    // Automatically tree-shake Sentry logger statements to reduce bundle size
+    tunnelRoute: '/monitoring',
+
+    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
+    // See the following for more information:
+    // https://docs.sentry.io/product/crons/
+    // https://vercel.com/docs/cron-jobs
+    widenClientFileUpload: true,
+})
 
 export default config

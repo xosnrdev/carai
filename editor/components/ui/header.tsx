@@ -17,7 +17,7 @@ import useTabContext from '@/hooks/useTabContext'
 import { ThemeSwitch } from './theme-switch'
 
 const Header: FC = () => {
-    const { getActiveTab } = useTabContext(),
+    const { activeTab } = useTabContext(),
         { resolvedTheme } = useTheme(),
         router = useRouter()
 
@@ -29,7 +29,7 @@ const Header: FC = () => {
             <NavbarContent justify="end">
                 <NavbarItem className="flex flex-row gap-x-4">
                     <ThemeSwitch />
-                    {getActiveTab && (
+                    {activeTab && (
                         <ButtonGroup className="hidden lg:block xl:block">
                             {headerProps.map(({ id, path, label }) => (
                                 <Button

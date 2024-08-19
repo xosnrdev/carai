@@ -1,16 +1,18 @@
 import type { TabId } from '@/types'
-import type { CodeResponse, ErrorResponse } from '@/types/response'
 
 import { Button } from '@nextui-org/button'
 import { usePathname } from 'next/navigation'
-import { useCallback, useState, type FC, type MouseEvent } from 'react'
+import { useCallback, useRef, useState, type FC, type MouseEvent } from 'react'
 import toast from 'react-hot-toast'
+import * as Sentry from '@sentry/nextjs'
 
 import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
+import { CustomError } from '@/lib/error'
 import { cn } from '@/lib/utils'
-import { RCEHandler } from '@/network/rce-client'
+import { RCEHandler } from '@/network/rce-handler'
+import { CodeResponse } from '@/types/response'
 
 import CodeMirror from './code-mirror'
 import CustomTooltip from './custom-tooltip'
@@ -20,21 +22,34 @@ import Tab from './tab'
 const rceHandler = new RCEHandler()
 
 const Tabs: FC = () => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState(false)
     const pathname = usePathname()
     const {
         tabs,
-        resizePane,
-        getActiveTab,
+        activeTab,
         removeTab,
         switchTab,
-        setResizePane,
+        setResizePanel,
         closeAllTabs,
         setActiveTab,
         setCodeResponse,
+        resizePanel,
+        isResizePanelVisible,
     } = useTabContext()
 
     const { isOpen } = useAppContext()
+    const activeTabRef = useRef<HTMLDivElement | null>(null)
+
+    const scrollActiveTabIntoView = () => {
+        if (!activeTabRef.current) return
+        const activeTab = activeTabRef.current
+
+        activeTab.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center',
+        })
+    }
 
     const handleCloseTab = (
         e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
@@ -44,84 +59,114 @@ const Tabs: FC = () => {
         removeTab(id)
     }
 
-    const handleOnResizeVisible = useCallback(() => {
-        if (!getActiveTab) return
-        const { id } = getActiveTab
-
-        if (!resizePane) {
-            setResizePane({
-                id,
-                resizePane: true,
+    const handleResizePanelState = useCallback(() => {
+        if (!isResizePanelVisible) {
+            setResizePanel({
+                id: activeTab.id,
+                viewSize: resizePanel?.viewSizeState || 30,
             })
         } else {
-            setResizePane({
-                id,
-                resizePane: false,
+            setResizePanel({
+                id: activeTab.id,
+                viewSize: 0,
+                viewSizeState: resizePanel?.viewSizeState,
             })
         }
-    }, [resizePane, setResizePane, getActiveTab])
+    }, [isResizePanelVisible, setResizePanel, activeTab, resizePanel])
 
-    const handleCodeExecution = useCallback(() => {
+    const handleCodeExecution = useCallback((): Promise<CodeResponse> => {
+        const { id, metadata, value, filename } = activeTab
+
         return new Promise<CodeResponse>((resolve, reject) => {
-            if (!getActiveTab) return
-            const { id, metadata, value } = getActiveTab
-
             if (value.trim().length === 0) {
-                reject(new Error('no payload'))
+                reject(new CustomError('No payload found'))
 
                 return
             }
 
-            if (metadata.name && value) {
-                setIsLoading(true)
-                rceHandler
-                    .execute({
-                        language: metadata.name,
-                        version: 'latest',
-                        code: value,
-                    })
-                    .then((codeResponse) => {
-                        setCodeResponse({ id, codeResponse })
-                        resolve(codeResponse)
-                    })
-                    .catch((error: ErrorResponse) => {
-                        reject(error)
-                        throw error
-                    })
-                    .finally(() => {
-                        setIsLoading(false)
-                    })
+            if (!metadata.imageName) {
+                Sentry.captureMessage(`${metadata.imageName} not found`)
+
+                reject(new CustomError('Something went wrong'))
+
+                return
             }
+
+            setIsLoading(true)
+
+            rceHandler
+                .execute({
+                    image: `ghcr.io/toolkithub/rce-images-${metadata.imageName}:edge`,
+                    payload: {
+                        language: metadata.imageName,
+                        files: [
+                            {
+                                name: filename,
+                                content: value,
+                            },
+                        ],
+                    },
+                })
+                .then((codeResponse) => {
+                    resolve(codeResponse)
+                    setCodeResponse({ id, codeResponse })
+                })
+                .catch((error) => {
+                    Sentry.captureException(error)
+                    reject(new CustomError('Something went wrong'))
+                })
+                .finally(() => {
+                    setIsLoading(false)
+                })
         })
-    }, [getActiveTab, setCodeResponse])
+    }, [activeTab, setCodeResponse])
 
     useKeyPress({
         targetKey: 'D',
         callback: () => {
-            if (getActiveTab && pathname === '/') {
+            if (activeTab && pathname === '/') {
                 closeAllTabs()
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
+
     useKeyPress({
         targetKey: 'ArrowRight',
         callback: () => {
-            if (getActiveTab && pathname === '/') {
+            if (activeTab && pathname === '/') {
                 switchTab('next')
+                scrollActiveTabIntoView()
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
+
     useKeyPress({
         targetKey: 'ArrowLeft',
         callback: () => {
-            if (getActiveTab && pathname === '/') {
+            if (activeTab && pathname === '/') {
                 switchTab('previous')
+                scrollActiveTabIntoView()
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
+
+    const handleRunCode = async () => {
+        toast.promise(handleCodeExecution(), {
+            loading: 'Processing...',
+            success: 'Success',
+            error: (err) => <span>{err.message}</span>,
+        })
+
+        if (isResizePanelVisible) return
+
+        setResizePanel({
+            id: activeTab.id,
+            viewSize: resizePanel?.viewSizeState || 30,
+        })
+    }
 
     return (
         <div
@@ -134,20 +179,21 @@ const Tabs: FC = () => {
                 className={cn(
                     'sticky top-0 z-10 flex flex-row justify-between bg-background',
                     {
-                        '!pl-10': isOpen.sidebar === false,
+                        '!pl-8': !isOpen.sidebar,
                     }
                 )}
                 role="tablist"
             >
-                <div className="flex flex-wrap">
-                    {tabs.map(({ id, title }) => (
+                <div className="flex flex-row overflow-x-auto scrollbar-hide">
+                    {tabs.map(({ id, filename }) => (
                         <Tab
                             key={id}
-                            activeTabId={getActiveTab.id}
+                            ref={activeTabRef}
+                            activeTabId={activeTab.id}
                             closeTab={handleCloseTab}
+                            filename={filename}
                             id={id}
                             setActiveTab={setActiveTab}
-                            title={title}
                         />
                     ))}
                 </div>
@@ -164,49 +210,38 @@ const Tabs: FC = () => {
                         variant={'shadow'}
                         onClick={(e) => {
                             e.preventDefault()
-                            toast.promise(handleCodeExecution(), {
-                                loading: 'processing...',
-                                success: 'success',
-                                error: (err: ErrorResponse) => (
-                                    <>{err.message}</>
-                                ),
-                            })
-                            if (getActiveTab && !resizePane) {
-                                const { id } = getActiveTab
-
-                                setResizePane({
-                                    id,
-                                    resizePane: true,
-                                })
-                            }
+                            handleRunCode()
                         }}
                     />
                     {
                         <CustomTooltip
                             content={
                                 <span>
-                                    {resizePane ? 'Close Panel' : 'Open Panel'}
+                                    {isResizePanelVisible
+                                        ? 'Close Panel'
+                                        : 'Open Panel'}
                                 </span>
                             }
                         >
                             <Button
                                 isIconOnly
-                                className="h-8 text-3xl lg:text-2xl xl:text-2xl"
+                                className={cn('h-8 text-2xl', {
+                                    'bg-default': !isResizePanelVisible,
+                                })}
                                 radius="none"
                                 size={'sm'}
-                                startContent={
-                                    <span>{resizePane ? '⇥' : '⇤'}</span>
-                                }
                                 variant={'light'}
-                                onClick={handleOnResizeVisible}
-                            />
+                                onClick={handleResizePanelState}
+                            >
+                                {isResizePanelVisible ? '⇥' : '⇤'}
+                            </Button>
                         </CustomTooltip>
                     }
                 </div>
             </div>
             <CodeMirror
-                key={getActiveTab.id}
-                aria-label={`playground for ${getActiveTab.metadata.name || 'unknown language'}`}
+                key={activeTab.id}
+                aria-label={`playground for ${activeTab.metadata.imageName || 'unknown language'}`}
                 className="flex-1 overflow-hidden"
             />
         </div>

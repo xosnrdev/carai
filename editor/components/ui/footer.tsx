@@ -5,25 +5,20 @@ import { useTheme } from 'next-themes'
 import useTabContext from '@/hooks/useTabContext'
 import { navProps } from '@/lib/constants/ui'
 
-import TermsOfService from './terms-of-service'
-
 const Footer: FC = () => {
-    const { getActiveTab, isMobileView } = useTabContext(),
-        { resolvedTheme } = useTheme(),
-        [isOpen, setIsOpen] = useState({
-            close: true,
-            disclaimer: false,
-        }),
-        handleClose = () => {
-            setIsOpen((prev) => ({ ...prev, close: !prev.close }))
-        },
-        handleDisclaimer = () => {
-            setIsOpen((prev) => ({ ...prev, disclaimer: !prev.disclaimer }))
-        }
+    const { activeTab } = useTabContext()
+    const { resolvedTheme } = useTheme()
+    const [isOpen, setIsOpen] = useState({
+        close: true,
+    })
+
+    const handleClose = () => {
+        setIsOpen((prev) => ({ ...prev, close: !prev.close }))
+    }
 
     return (
         <>
-            {getActiveTab && isOpen.close && (
+            {activeTab && isOpen.close && (
                 <div className="h-8 border-t border-t-default bg-background">
                     <ButtonGroup>
                         {navProps.map((prop, idx) => (
@@ -37,25 +32,16 @@ const Footer: FC = () => {
                                 }
                                 radius="none"
                                 size="sm"
-                                startContent={
-                                    <prop.icon size={isMobileView ? 18 : 20} />
-                                }
+                                startContent={<prop.icon size={24} />}
                                 variant="light"
                                 onClick={(e) => {
-                                    idx === 0
-                                        ? handleClose()
-                                        : idx === 1
-                                          ? handleDisclaimer()
-                                          : null
+                                    idx === 0 ? handleClose() : null
                                     e.preventDefault()
                                 }}
                             />
                         ))}
                     </ButtonGroup>
                 </div>
-            )}
-            {isOpen.disclaimer && (
-                <TermsOfService handleClose={handleDisclaimer} />
             )}
         </>
     )

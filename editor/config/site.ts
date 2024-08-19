@@ -4,13 +4,10 @@ const siteConfig = {
     name: 'Carai',
     type: 'website',
     title: 'Carai - Code Playground',
-    author: 'Success Kingsley',
-    description: 'Your online coding playground.',
+    author: 'Success Kingsley <hello@xosnrdev.tech>',
+    description:
+        'An online coding playground for coding, testing, and learning.',
     language: 'en',
-    themeColor: {
-        dark: '#2f2f3a',
-        light: '#f1f5f9',
-    },
     OGImage: '/carai-og.png',
     email: 'hello@xosnrdev.tech',
     links: {
@@ -63,7 +60,7 @@ const siteConfig = {
         'Coding',
         'Programming',
     ],
-    publisher: 'Carai Team',
+    publisher: 'Success Kingsley <hello@xosnrdev.tech>',
 }
 
 export default siteConfig

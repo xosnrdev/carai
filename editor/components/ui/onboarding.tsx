@@ -13,17 +13,17 @@ const Onboarding: FC = () => {
     const { resolvedTheme } = useTheme()
 
     return (
-        <div className="relative flex place-content-center place-items-center pt-4 lg:flex-row lg:justify-between lg:px-12 xl:flex-row xl:justify-between xl:px-12">
-            <div className="flex h-[calc(100dvh-25dvh)] flex-col space-y-12">
-                <h1 className="text-2xl font-extrabold text-primary dark:text-default-foreground lg:text-6xl xl:text-6xl">
+        <div className="m-12 flex flex-col items-center lg:flex-row lg:justify-between xl:flex-row xl:justify-between">
+            <div className="flex flex-col space-y-12">
+                <h1 className="text-5xl font-black text-primary dark:text-default-foreground lg:text-5xl xl:text-5xl">
                     Get Started with Carai
                 </h1>
 
-                <ul className="flex h-full flex-col justify-between">
+                <ul className="">
                     {onboardingProps.texts.map((text, idx) => (
                         <li
                             key={idx}
-                            className="flex flex-row items-center gap-x-1.5 gap-y-2 text-nowrap text-base text-default-400 transition-opacity duration-300 hover:cursor-pointer hover:opacity-75 lg:text-xl xl:text-xl"
+                            className="<duration-300 mb-12 flex flex-row items-center gap-x-1.5 whitespace-nowrap text-2xl font-light text-[#757582] transition-opacity hover:scale-105 hover:cursor-pointer hover:opacity-75 dark:text-[#85858d]"
                         >
                             <BiSolidRightArrow />
                             <p>{text}</p>
@@ -31,10 +31,11 @@ const Onboarding: FC = () => {
                     ))}
                 </ul>
 
-                <div className="flex flex-col gap-y-4">
+                <div className="inline-flex flex-col gap-y-4">
                     {onboardingProps.links.map(({ id, path, label }) => (
                         <Button
                             key={id}
+                            fullWidth
                             color={
                                 resolvedTheme === 'dark' ? 'default' : 'primary'
                             }
@@ -50,7 +51,7 @@ const Onboarding: FC = () => {
                     ))}
                 </div>
             </div>
-            <div className="hidden md:block lg:block xl:block">
+            <div className="hidden lg:block xl:block">
                 <Image
                     priority
                     alt="coding illustration"

@@ -31,7 +31,7 @@ const Modal: FC<IModalProps> = ({
             <DialogOverlay>
                 <DialogContent
                     aria-describedby={undefined}
-                    className="max-w-sm border-default lg:max-w-lg xl:max-w-lg"
+                    className="max-w-sm border-default md:max-w-md lg:max-w-lg xl:max-w-lg"
                 >
                     <DialogHeader>
                         <DialogTitle>{title}</DialogTitle>
