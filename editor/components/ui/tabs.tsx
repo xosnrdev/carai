@@ -1,10 +1,10 @@
 import type { TabId } from '@/types'
-import type { CodeResponse } from '@/types/response'
 
 import { Button } from '@nextui-org/button'
 import { usePathname } from 'next/navigation'
-import { useCallback, useState, type FC, type MouseEvent } from 'react'
+import { useCallback, useRef, useState, type FC, type MouseEvent } from 'react'
 import toast from 'react-hot-toast'
+import * as Sentry from '@sentry/nextjs'
 
 import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
@@ -12,6 +12,7 @@ import useTabContext from '@/hooks/useTabContext'
 import { CustomError } from '@/lib/error'
 import { cn } from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-handler'
+import { CodeResponse } from '@/types/response'
 
 import CodeMirror from './code-mirror'
 import CustomTooltip from './custom-tooltip'
@@ -33,9 +34,22 @@ const Tabs: FC = () => {
         setActiveTab,
         setCodeResponse,
         resizePanel,
+        isResizePanelVisible,
     } = useTabContext()
 
     const { isOpen } = useAppContext()
+    const activeTabRef = useRef<HTMLDivElement | null>(null)
+
+    const scrollActiveTabIntoView = () => {
+        if (!activeTabRef.current) return
+        const activeTab = activeTabRef.current
+
+        activeTab.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center',
+        })
+    }
 
     const handleCloseTab = (
         e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
@@ -46,60 +60,64 @@ const Tabs: FC = () => {
     }
 
     const handleResizePanelState = useCallback(() => {
-        if (!resizePanel.visible) {
+        if (!isResizePanelVisible) {
             setResizePanel({
                 id: activeTab.id,
-                resizePanel: {
-                    visible: true,
-                },
+                viewSize: resizePanel?.viewSizeState || 30,
             })
         } else {
             setResizePanel({
                 id: activeTab.id,
-                resizePanel: {
-                    visible: false,
-                },
+                viewSize: 0,
+                viewSizeState: resizePanel?.viewSizeState,
             })
         }
-    }, [resizePanel, setResizePanel, activeTab])
+    }, [isResizePanelVisible, setResizePanel, activeTab, resizePanel])
 
-    const handleCodeExecution = useCallback(() => {
+    const handleCodeExecution = useCallback((): Promise<CodeResponse> => {
+        const { id, metadata, value, filename } = activeTab
+
         return new Promise<CodeResponse>((resolve, reject) => {
-            const { id, metadata, value, title } = activeTab
-
             if (value.trim().length === 0) {
-                reject(new Error('no payload'))
+                reject(new CustomError('No payload found'))
 
                 return
             }
 
-            if (metadata.name && value) {
-                setIsLoading(true)
-                rceHandler
-                    .execute({
-                        image: `ghcr.io/toolkithub/rce-images-${metadata.language}:edge`,
-                        payload: {
-                            language: metadata.name,
-                            files: [
-                                {
-                                    name: title,
-                                    content: value,
-                                },
-                            ],
-                        },
-                    })
-                    .then((codeResponse) => {
-                        setCodeResponse({ id, codeResponse })
-                        resolve(codeResponse)
-                    })
-                    .catch((error) => {
-                        reject(new CustomError(error.message))
-                        throw error
-                    })
-                    .finally(() => {
-                        setIsLoading(false)
-                    })
+            if (!metadata.imageName) {
+                Sentry.captureMessage(`${metadata.imageName} not found`)
+
+                reject(new CustomError('Something went wrong'))
+
+                return
             }
+
+            setIsLoading(true)
+
+            rceHandler
+                .execute({
+                    image: `ghcr.io/toolkithub/rce-images-${metadata.imageName}:edge`,
+                    payload: {
+                        language: metadata.imageName,
+                        files: [
+                            {
+                                name: filename,
+                                content: value,
+                            },
+                        ],
+                    },
+                })
+                .then((codeResponse) => {
+                    resolve(codeResponse)
+                    setCodeResponse({ id, codeResponse })
+                })
+                .catch((error) => {
+                    Sentry.captureException(error)
+                    reject(new CustomError('Something went wrong'))
+                })
+                .finally(() => {
+                    setIsLoading(false)
+                })
         })
     }, [activeTab, setCodeResponse])
 
@@ -112,24 +130,43 @@ const Tabs: FC = () => {
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
+
     useKeyPress({
         targetKey: 'ArrowRight',
         callback: () => {
             if (activeTab && pathname === '/') {
                 switchTab('next')
+                scrollActiveTabIntoView()
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
+
     useKeyPress({
         targetKey: 'ArrowLeft',
         callback: () => {
             if (activeTab && pathname === '/') {
                 switchTab('previous')
+                scrollActiveTabIntoView()
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
+
+    const handleRunCode = async () => {
+        toast.promise(handleCodeExecution(), {
+            loading: 'Processing...',
+            success: 'Success',
+            error: (err) => <span>{err.message}</span>,
+        })
+
+        if (isResizePanelVisible) return
+
+        setResizePanel({
+            id: activeTab.id,
+            viewSize: resizePanel?.viewSizeState || 30,
+        })
+    }
 
     return (
         <div
@@ -147,15 +184,16 @@ const Tabs: FC = () => {
                 )}
                 role="tablist"
             >
-                <div className="flex flex-row">
-                    {tabs.map(({ id, title }) => (
+                <div className="flex flex-row overflow-x-auto scrollbar-hide">
+                    {tabs.map(({ id, filename }) => (
                         <Tab
                             key={id}
+                            ref={activeTabRef}
                             activeTabId={activeTab.id}
                             closeTab={handleCloseTab}
+                            filename={filename}
                             id={id}
                             setActiveTab={setActiveTab}
-                            title={title}
                         />
                     ))}
                 </div>
@@ -172,26 +210,14 @@ const Tabs: FC = () => {
                         variant={'shadow'}
                         onClick={(e) => {
                             e.preventDefault()
-                            toast.promise(handleCodeExecution(), {
-                                loading: 'processing...',
-                                success: 'success',
-                                error: (err) => <span>{err.message}</span>,
-                            })
-                            if (activeTab && !resizePanel.visible) {
-                                setResizePanel({
-                                    id: activeTab.id,
-                                    resizePanel: {
-                                        visible: true,
-                                    },
-                                })
-                            }
+                            handleRunCode()
                         }}
                     />
                     {
                         <CustomTooltip
                             content={
                                 <span>
-                                    {resizePanel.visible
+                                    {isResizePanelVisible
                                         ? 'Close Panel'
                                         : 'Open Panel'}
                                 </span>
@@ -200,14 +226,14 @@ const Tabs: FC = () => {
                             <Button
                                 isIconOnly
                                 className={cn('h-8 text-2xl', {
-                                    'bg-default': resizePanel.visible === false,
+                                    'bg-default': !isResizePanelVisible,
                                 })}
                                 radius="none"
                                 size={'sm'}
                                 variant={'light'}
                                 onClick={handleResizePanelState}
                             >
-                                {resizePanel.visible ? '⇥' : '⇤'}
+                                {isResizePanelVisible ? '⇥' : '⇤'}
                             </Button>
                         </CustomTooltip>
                     }
@@ -215,7 +241,7 @@ const Tabs: FC = () => {
             </div>
             <CodeMirror
                 key={activeTab.id}
-                aria-label={`playground for ${activeTab.metadata.name || 'unknown language'}`}
+                aria-label={`playground for ${activeTab.metadata.imageName || 'unknown language'}`}
                 className="flex-1 overflow-hidden"
             />
         </div>
