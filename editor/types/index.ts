@@ -94,13 +94,12 @@ export type CodeResponsePayload = {
     codeResponse: CodeResponse
 }
 
-export type ResizePanel = {
-    visible: number
-}
+export type ResizePanel = Omit<ResizePanelPayload, 'id'>
 
 export type ResizePanelPayload = {
     id: TabId
-    resizePanel: ResizePanel
+    viewSize: number
+    viewSizeState?: number
 }
 
 export type AddTabPayload = Omit<ITab, 'id' | 'isDirty' | 'viewState'>
@@ -154,4 +153,10 @@ export interface TabProps {
         e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
         id: TabId
     ) => void
+}
+
+export interface ICodeResponseProps {
+    flag: string
+    response: string
+    flagClassname: string
 }

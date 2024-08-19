@@ -47,15 +47,21 @@ const defaultConfig: ITabConfig = {
 //     state: null,
 //     stateFields: {
 //         codeResponse: undefined,
-//         resizePane: true,
+//         resizePanel: {
+//             visible: false,
+//             defaultSize: 70,
+//         },
 //     },
 // })
 
 const defaultCodeMirrorVS = SafeJson.stringify<ICodeMirrorViewState>({
+    // state: {
+    //     doc: ''
+    // },
     stateFields: {
         codeResponse: undefined,
         resizePanel: {
-            visible: 0,
+            viewSize: 0,
         },
     },
 })
@@ -65,12 +71,13 @@ const defaultViewState = {
     value: defaultCodeMirrorVS,
 }
 
-const getByteLength = (str: string) => new TextEncoder().encode(str).byteLength
+const getByteLength = (str: string): number =>
+    new TextEncoder().encode(str).byteLength
 
 const validateValueSize = (
     value: string,
     maxValueSize: ITabConfig['maxValueSize']
-) => {
+): boolean => {
     switch (maxValueSize.units) {
         case 'characters':
             return value.length > maxValueSize.value
@@ -87,18 +94,18 @@ const validatePayload = (
     payload: AddTabPayload,
     config: ITabConfig,
     state: typeof initialState
-) => {
+): void => {
     const { filename, value } = payload
     const maxTabs = config.maxTabs ?? defaultConfig.maxTabs
     const maxValueSize = config.maxValueSize ?? defaultConfig.maxValueSize
     const errors: string[] = []
 
     if (maxTabs && state.ids.length >= maxTabs) {
-        errors.push(`Only ${maxTabs} tabs allowed!`)
+        errors.push(`Only ${maxTabs} tabs allowed`)
     }
 
     if (!filename || filename.trim().length === 0) {
-        errors.push('filename must be a non-empty string!')
+        errors.push('Filename must be a non-empty string')
     }
 
     if (maxValueSize && validateValueSize(value, maxValueSize)) {
@@ -115,7 +122,7 @@ const validatePayload = (
 const sliceValue = (
     value: string,
     maxValueSize: ITabConfig['maxValueSize']
-) => {
+): string => {
     switch (maxValueSize.units) {
         case 'characters':
             return value.slice(0, maxValueSize.value)
@@ -142,7 +149,7 @@ const sliceValue = (
     }
 }
 
-const resolveViewState = (tab: ITab, payload: ViewStateField) => {
+const resolveViewState = (tab: ITab, payload: ViewStateField): void => {
     if (!tab || !tab.viewState) return
 
     const { type, value } = tab.viewState
@@ -171,99 +178,102 @@ const resolveViewState = (tab: ITab, payload: ViewStateField) => {
     }
 }
 
-const tabAdapter = createEntityAdapter<ITab>(),
-    initialState = tabAdapter.getInitialState({
-        activeTabId: null as TabId | null,
-        recentlyUsedTabs: new Array<TabId>(),
-    })
+const tabAdapter = createEntityAdapter<ITab>()
+
+const initialState = tabAdapter.getInitialState({
+    activeTabId: null as TabId | null,
+    recentlyUsedTabs: new Array<TabId>(),
+})
 
 const tabs_slice = createSlice({
     name: 'tabs',
     initialState,
     reducers: {
-        addTab: (state, { payload }: PayloadAction<AddTabPayload>) => {
+        addTab: (state, { payload }: PayloadAction<AddTabPayload>): void => {
             const { config } = payload
 
             validatePayload(payload, config, state)
 
             const maxValueSize =
-                    config.maxValueSize ?? defaultConfig.maxValueSize,
-                slicedValue = sliceValue(payload.value, maxValueSize),
-                newTab: ITab = {
-                    id: nanoid(),
-                    filename: payload.filename,
-                    value: slicedValue,
-                    isDirty: !!payload.value,
-                    metadata: payload.metadata,
-                    viewState: defaultViewState,
-                    config: {
-                        ...defaultConfig,
-                        ...config,
-                    },
-                }
+                config.maxValueSize ?? defaultConfig.maxValueSize
+
+            const slicedValue = sliceValue(payload.value, maxValueSize)
+
+            const newTab: ITab = {
+                id: nanoid(),
+                filename: payload.filename,
+                value: slicedValue,
+                isDirty: !!payload.value,
+                metadata: payload.metadata,
+                viewState: defaultViewState,
+                config: {
+                    ...defaultConfig,
+                    ...config,
+                },
+            }
 
             tabAdapter.addOne(state, newTab)
             state.activeTabId = newTab.id
         },
 
-        setActiveTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
-            if (state.entities[tabId]) {
-                state.activeTabId = tabId
-            }
+        setActiveTab: (
+            state,
+            { payload: tabId }: PayloadAction<TabId>
+        ): void => {
+            if (!state.entities[tabId]) return
+            state.activeTabId = tabId
         },
 
-        removeTab: (state, { payload: tabId }: PayloadAction<TabId>) => {
+        removeTab: (state, { payload: tabId }: PayloadAction<TabId>): void => {
             const tab = state.entities[tabId]
 
-            if (tab && tab.config.isClosable) {
-                const { ids, recentlyUsedTabs } = state,
-                    removedTabIndex = ids.indexOf(tabId)
+            if (!tab || !tab.config.isClosable) return
 
-                tabAdapter.removeOne(state, tabId)
+            const { ids, recentlyUsedTabs } = state
 
-                state.recentlyUsedTabs = recentlyUsedTabs.filter(
-                    (id) => id !== tabId
-                )
+            const removedTabIndex = ids.indexOf(tabId)
 
-                state.ids = ids.filter((id) => id !== tabId)
+            tabAdapter.removeOne(state, tabId)
 
-                if (state.activeTabId === tabId) {
-                    let newActiveTabId = null
+            state.recentlyUsedTabs = recentlyUsedTabs.filter(
+                (id) => id !== tabId
+            )
 
-                    for (const recentTabId of [...recentlyUsedTabs].reverse()) {
-                        if (
-                            state.entities[recentTabId] &&
-                            recentTabId !== tabId
-                        ) {
-                            newActiveTabId = recentTabId
-                            break
-                        }
-                    }
+            state.ids = ids.filter((id) => id !== tabId)
 
-                    if (!newActiveTabId) {
-                        if (removedTabIndex > 0) {
-                            newActiveTabId = state.ids[removedTabIndex - 1]
-                        } else if (state.ids.length > 0) {
-                            newActiveTabId = state.ids[0]
-                        }
-                    }
+            if (state.activeTabId !== tabId) return
 
-                    if (newActiveTabId) {
-                        tabs_slice.caseReducers.setActiveTab(state, {
-                            payload: newActiveTabId,
-                            type: 'setActiveTab',
-                        })
-                    } else {
-                        state.activeTabId = null
-                    }
+            let newActiveTabId: TabId = ''
+
+            for (const recentTabId of [...recentlyUsedTabs].reverse()) {
+                if (!state.entities[recentTabId] && recentTabId === tabId)
+                    return
+                newActiveTabId = recentTabId
+                break
+            }
+
+            if (!newActiveTabId) {
+                if (removedTabIndex > 0) {
+                    newActiveTabId = state.ids[removedTabIndex - 1]
+                } else if (state.ids.length > 0) {
+                    newActiveTabId = state.ids[0]
+                } else {
+                    state.activeTabId = null
+
+                    return
                 }
             }
+
+            tabs_slice.caseReducers.setActiveTab(state, {
+                payload: newActiveTabId,
+                type: 'setActiveTab',
+            })
         },
 
         switchTab: (
             state,
             { payload: direction }: PayloadAction<'next' | 'previous'>
-        ) => {
+        ): void => {
             const { activeTabId, ids } = state
 
             if (!activeTabId) return
@@ -281,7 +291,7 @@ const tabs_slice = createSlice({
             }
         },
 
-        closeAllTabs: (state) => {
+        closeAllTabs: (state): void => {
             tabAdapter.removeAll(state)
             state.activeTabId = null
         },
@@ -291,43 +301,41 @@ const tabs_slice = createSlice({
             {
                 payload: { id, filename, value, config, viewState },
             }: PayloadAction<UpdateTabPayload>
-        ) => {
+        ): void => {
             const tab = state.entities[id]
 
-            if (tab) {
-                const updatedFilename = filename ?? tab.filename
-                const maxValueSize =
-                    config?.maxValueSize ??
-                    tab.config.maxValueSize ??
-                    defaultConfig.maxValueSize
+            if (!tab) return
+            const updatedFilename = filename ?? tab.filename
+            const maxValueSize =
+                config?.maxValueSize ??
+                tab.config.maxValueSize ??
+                defaultConfig.maxValueSize
 
-                let updatedValue = value ?? tab.value,
-                    isDirty = tab.isDirty
+            let updatedValue = value ?? tab.value
+            let isDirty = tab.isDirty
 
-                if (value) {
-                    isDirty = value !== tab.value
-                    updatedValue = sliceValue(value, maxValueSize)
-                }
-
-                tabAdapter.updateOne(state, {
-                    id,
-                    changes: {
-                        filename: updatedFilename,
-                        value: updatedValue,
-                        isDirty,
-                        viewState: viewState ?? tab.viewState,
-                    },
-                })
-
-                if (isDirty) {
-                    const recentIndex = state.recentlyUsedTabs.indexOf(id)
-
-                    if (recentIndex > -1) {
-                        state.recentlyUsedTabs.splice(recentIndex, 1)
-                    }
-                    state.recentlyUsedTabs.push(id)
-                }
+            if (value) {
+                isDirty = value !== tab.value
+                updatedValue = sliceValue(value, maxValueSize)
             }
+
+            tabAdapter.updateOne(state, {
+                id,
+                changes: {
+                    filename: updatedFilename,
+                    value: updatedValue,
+                    isDirty,
+                    viewState: viewState ?? tab.viewState,
+                },
+            })
+
+            if (!isDirty) return
+            const recentIndex = state.recentlyUsedTabs.indexOf(id)
+
+            if (recentIndex > -1) {
+                state.recentlyUsedTabs.splice(recentIndex, 1)
+            }
+            state.recentlyUsedTabs.push(id)
         },
 
         setCodeResponse: (
@@ -335,7 +343,7 @@ const tabs_slice = createSlice({
             {
                 payload: { id, codeResponse },
             }: PayloadAction<CodeResponsePayload>
-        ) => {
+        ): void => {
             const tab = state.entities[id]
 
             resolveViewState(tab, {
@@ -346,13 +354,16 @@ const tabs_slice = createSlice({
         },
         setResizePanel: (
             state,
-            { payload: { id, resizePanel } }: PayloadAction<ResizePanelPayload>
-        ) => {
+            {
+                payload: { id, viewSize, viewSizeState },
+            }: PayloadAction<ResizePanelPayload>
+        ): void => {
             const tab = state.entities[id]
 
             resolveViewState(tab, {
                 resizePanel: {
-                    ...resizePanel,
+                    viewSize,
+                    viewSizeState,
                 },
             })
         },

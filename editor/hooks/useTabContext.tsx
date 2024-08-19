@@ -64,7 +64,7 @@ const useTabContext = () => {
     const codeResponse = deserializedStateFields?.codeResponse as CodeResponse
     const resizePanel = deserializedStateFields?.resizePanel as ResizePanel
 
-    const isResizePanelVisible = !!resizePanel?.visible === true
+    const isResizePanelVisible = !!resizePanel?.viewSize === true
 
     const boundActions = useMemo(
         () => ({
@@ -88,10 +88,10 @@ const useTabContext = () => {
     return {
         tabs,
         resizePanel,
-        isResizePanelVisible,
         activeTab,
         getDeserializedViewState,
         getSerializedViewState,
+        isResizePanelVisible,
         viewState,
         activeTabId,
         codeResponse,
