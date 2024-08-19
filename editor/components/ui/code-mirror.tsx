@@ -46,16 +46,16 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
         (value: string, viewUpdate: ViewUpdate) => {
             if (editorView && viewUpdate.state) {
                 const deserializedViewState: ICodeMirrorViewState = {
-                        state: viewUpdate.state,
-                        stateFields: {
-                            codeResponse,
-                            resizePanel,
-                        },
+                    state: viewUpdate.state,
+                    stateFields: {
+                        codeResponse,
+                        resizePanel,
                     },
-                    serializedViewState =
-                        getSerializedViewState<ICodeMirrorViewState>(
-                            deserializedViewState
-                        )
+                }
+                const serializedViewState =
+                    getSerializedViewState<ICodeMirrorViewState>(
+                        deserializedViewState
+                    )
 
                 updateTab({
                     id: activeTab.id,
@@ -70,7 +70,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
         [
             updateTab,
             editorView,
-            activeTab.id,
+            activeTab,
             getSerializedViewState,
             codeResponse,
             resizePanel,
@@ -107,9 +107,7 @@ const CodeMirror: FC<IEditorProps> = ({ ...props }) => {
             view.focus()
             setEditorView(view)
 
-            return () => {
-                view.destroy()
-            }
+            return (): void => view.destroy()
         },
         [getDeserializedViewState]
     )
