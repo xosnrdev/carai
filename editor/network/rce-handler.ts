@@ -4,6 +4,8 @@ import type {
     ErrorResponse,
 } from '../types/response'
 
+import * as Sentry from '@sentry/nextjs'
+
 import { CustomError } from '../lib/error'
 
 const BASE_URL = process.env.NEXT_PUBLIC_RCE_ENGINE_API_URL as string
@@ -57,7 +59,7 @@ export class RCEHandler {
     private async processError(response: Response): Promise<void> {
         switch (response.status) {
             case 404:
-                throw new CustomError('uri not found')
+                throw new CustomError('URI not found')
 
             case 500: {
                 const body = (await response.json()) as ErrorResponse
@@ -80,9 +82,9 @@ export class RCEHandler {
 
         const body = await response.text()
 
-        throw new CustomError(
-            `Received ${response.status} with body
-             ${body}`
+        Sentry.captureException(
+            new CustomError(`Received ${response.status} with body
+            ${body}`)
         )
     }
 }
