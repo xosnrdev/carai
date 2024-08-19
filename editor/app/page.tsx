@@ -3,8 +3,9 @@
 import type { PanelOnResize } from 'react-resizable-panels'
 
 import dynamic from 'next/dynamic'
-import { type FC, useEffect, useState } from 'react'
+import { useCallback, type FC } from 'react'
 
+import CodeResponse from '@/components/ui/code-response'
 import Footer from '@/components/ui/footer'
 import { LoadingSpinner } from '@/components/ui/icons'
 import Onboarding from '@/components/ui/onboarding'
@@ -26,37 +27,105 @@ const EditorLayout = dynamic(
 )
 
 const Home: FC = () => {
-    const { tabs, activeTab, codeResponse, resizePanel } = useTabContext()
+    const {
+        activeTab,
+        codeResponse,
+        resizePanel,
+        setResizePanel,
+        isResizePanelVisible,
+    } = useTabContext()
 
-    const [minSize, setMinSize] = useState(50)
-    const [defaultSize, setDefaultSize] = useState(50)
+    let minSize = 30
 
-    useEffect(() => {
-        if (!activeTab && !resizePanel?.visible) return
+    const handlePanelOnResize: PanelOnResize = useCallback(
+        (newSize) => {
+            if (newSize <= 100 && newSize >= minSize) {
+                setResizePanel({
+                    id: activeTab.id,
+                    viewSize: newSize,
+                    viewSizeState: newSize,
+                })
+            } else if (newSize > 100) {
+                setResizePanel({
+                    id: activeTab.id,
+                    viewSize: 100,
+                    viewSizeState: 100,
+                })
+            } else if (newSize < minSize) {
+                setResizePanel({
+                    id: activeTab.id,
+                    viewSize: minSize,
+                    viewSizeState: minSize,
+                })
+            }
+        },
+        [minSize, activeTab, setResizePanel]
+    )
 
-        const tabLength = tabs.length
-        const newMinSize = Math.max(30, tabLength * 15)
+    const totalDefaultSize = resizePanel?.viewSize || 100
 
-        if (newMinSize < defaultSize && minSize !== newMinSize) {
-            setMinSize(newMinSize)
-        }
-    }, [activeTab, tabs, minSize, defaultSize, resizePanel])
+    const resolvedDefaultSize = Math.max(0, 100 - resizePanel?.viewSize) || 0
 
-    const handlePanelOnResize: PanelOnResize = (newSize) => {
-        if (newSize <= 100 && newSize >= minSize) {
-            setDefaultSize(newSize)
-        } else if (newSize > 100) {
-            setDefaultSize(100)
-        } else if (newSize < minSize) {
-            setDefaultSize(minSize)
-        }
+    const handleLeftPanel = (): JSX.Element => {
+        if (!activeTab && !isResizePanelVisible) return <></>
+
+        return (
+            <>
+                {isResizePanelVisible && (
+                    <>
+                        <ResizableHandle className="border-s border-primary active:!bg-default active:!ps-2 dark:border-default-foreground" />
+                        <ResizablePanel
+                            defaultSize={resolvedDefaultSize}
+                            id="right-panel"
+                            minSize={20}
+                            order={2}
+                            onResize={handlePanelOnResize}
+                        >
+                            <div className="flex h-full flex-col bg-background transition delay-150 duration-300 ease-in-out">
+                                <div
+                                    key={activeTab.id}
+                                    className="prose prose-lg flex-1 overflow-auto p-3 font-mono scrollbar-hide dark:prose-invert"
+                                    role="tabpanel"
+                                >
+                                    {codeResponse && (
+                                        <>
+                                            {codeResponse.stdout && (
+                                                <CodeResponse
+                                                    flag="STDOUT:"
+                                                    flagClassname="text-success-500"
+                                                    response={
+                                                        codeResponse.stdout
+                                                    }
+                                                />
+                                            )}
+                                            {codeResponse.stderr && (
+                                                <CodeResponse
+                                                    flag="STDERR:"
+                                                    flagClassname="text-warning-500"
+                                                    response={
+                                                        codeResponse.stderr
+                                                    }
+                                                />
+                                            )}
+                                            {codeResponse.error && (
+                                                <CodeResponse
+                                                    flag="ERROR:"
+                                                    flagClassname="text-danger-500"
+                                                    response={
+                                                        codeResponse.error
+                                                    }
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </ResizablePanel>
+                    </>
+                )}
+            </>
+        )
     }
-
-    const resolvedDefaultSize = resizePanel?.visible
-        ? Math.max(0, 100 - defaultSize)
-        : 0
-    const totalDefaultSize = resizePanel?.visible ? defaultSize : 100
-    const resolvedMinSize = resizePanel?.visible ? 20 : 0
 
     return (
         <EditorLayout>
@@ -81,51 +150,14 @@ const Home: FC = () => {
                             </div>
                             <div
                                 className={cn('block', {
-                                    hidden: activeTab && resizePanel.visible,
+                                    hidden: activeTab && isResizePanelVisible,
                                 })}
                             >
                                 <Footer />
                             </div>
                         </div>
                     </ResizablePanel>
-
-                    {activeTab && resizePanel.visible && (
-                        <>
-                            <ResizableHandle className="border-y border-primary dark:border-default-foreground lg:border-x xl:border-x" />
-                            <ResizablePanel
-                                defaultSize={resolvedDefaultSize}
-                                id="right-panel"
-                                minSize={resolvedMinSize}
-                                order={2}
-                                onResize={handlePanelOnResize}
-                            >
-                                <div className="flex h-full flex-col bg-background">
-                                    <div
-                                        key={activeTab.id}
-                                        className="prose prose-lg flex-1 overflow-auto p-2 font-mono dark:prose-invert"
-                                        role="tabpanel"
-                                    >
-                                        {codeResponse && (
-                                            <pre
-                                                className={cn(
-                                                    'whitespace-pre-wrap',
-                                                    {
-                                                        'text-warning-500':
-                                                            codeResponse.error ||
-                                                            codeResponse.stderr,
-                                                    }
-                                                )}
-                                            >
-                                                {codeResponse.stdout ||
-                                                    codeResponse.stderr ||
-                                                    codeResponse.error}
-                                            </pre>
-                                        )}
-                                    </div>
-                                </div>
-                            </ResizablePanel>
-                        </>
-                    )}
+                    {handleLeftPanel()}
                 </ResizablePanelGroup>
             </main>
         </EditorLayout>
