@@ -25,12 +25,16 @@ import { RadioGroup, RadioGroupItem } from './radio-group'
 const rceHandler = new RCEHandler()
 
 const Sidebar: FC = () => {
-    const { addTab, isMobileView } = useTabContext()
+    const { addTab } = useTabContext()
     const { isOpen, setIsOpen } = useAppContext()
     const [selectedRuntime, setSelectedRuntime] = useState<RuntimeProps | null>(
         null
     )
+
     const [searchQuery, setSearchQuery] = useState('')
+
+    const [newFilename, setNewFilename] = useState('')
+
     const pathname = usePathname()
     const [activeNav, setActiveNav] = useState<number | null>(null)
     const router = useRouter()
@@ -80,11 +84,11 @@ const Sidebar: FC = () => {
 
         // Sort RuntimeProps by the length of their titles
         const sortedRuntimeProps = runtimeProps.slice().sort((a, b) => {
-            return a.name.length - b.name.length
+            return a.languageName.trim().length - b.languageName.trim().length
         })
 
         return sortedRuntimeProps.filter((language) => {
-            const lowerCaseTitle = language.name.toLowerCase()
+            const lowerCaseTitle = language.languageName.trim().toLowerCase()
 
             if (lowerCaseSearchQuery.length === 1) {
                 return lowerCaseTitle.charAt(0) === lowerCaseSearchQuery
@@ -113,7 +117,7 @@ const Sidebar: FC = () => {
     const handleClick = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
             if (!selectedRuntime) {
-                reject(new CustomError('no runtime selected'))
+                reject(new CustomError('No language selected'))
 
                 return
             }
@@ -122,30 +126,38 @@ const Sidebar: FC = () => {
                 .healthz()
                 .then((status) => {
                     if (status !== 200) {
-                        reject(new CustomError('something went wrong!'))
+                        reject(new CustomError('Something went wrong!'))
 
                         return
                     }
 
-                    const { name, extension, language, alias } = selectedRuntime
+                    const {
+                        monacoEditorLanguageSupportName,
+                        fileExtension,
+                        imageName,
+                        codeMirrorLanguageSupportName,
+                        snippet,
+                    } = selectedRuntime
 
-                    const title = `${Array.from(new Set(['index', 'app', 'main', 'entry', 'source', 'code', 'script', 'program']))[Math.floor(Math.random() * 8)]}${extension}`
+                    const customFilename = `${Array.from(new Set(['index', 'app', 'main', 'entry', 'source', 'code', 'script', 'program']))[Math.floor(Math.random() * 8)]}${fileExtension}`
+
+                    const filename = newFilename.trim() || customFilename
 
                     addTab({
-                        title,
-                        value: '',
+                        filename,
+                        value: snippet || '',
 
                         metadata: {
-                            name,
-                            language,
-                            alias,
+                            monacoEditorLanguageSupportName,
+                            imageName,
+                            codeMirrorLanguageSupportName,
                         },
                         config: {
                             maxValueSize: {
-                                value: isMobileView ? 100 : 500,
+                                value: 500,
                                 units: 'lines',
                             },
-                            maxTabs: 15,
+                            maxTabs: 10,
                             isClosable: true,
                         },
                     })
@@ -157,13 +169,13 @@ const Sidebar: FC = () => {
                     resolve()
                     setSelectedRuntime(null)
                     setSearchQuery('')
+                    setNewFilename('')
                 })
                 .catch((error) => {
                     reject(new CustomError(error.message))
-                    throw error
                 })
         })
-    }, [addTab, selectedRuntime, isMobileView, setIsOpen])
+    }, [addTab, selectedRuntime, setIsOpen, newFilename])
 
     const handleModal = () => {
         if (pathname !== '/') {
@@ -188,8 +200,8 @@ const Sidebar: FC = () => {
         <>
             {isOpen.modal === true && (
                 <Modal
-                    aria-label="choose runtime modal"
-                    title="Choose A Runtime"
+                    aria-label="choose language modal"
+                    title="Choose A Language"
                     onOpenChange={() =>
                         setIsOpen({
                             modal: false,
@@ -201,36 +213,57 @@ const Sidebar: FC = () => {
                         onSubmit={(e) => {
                             e.preventDefault()
                             toast.promise(handleClick(), {
-                                loading: 'checking health status...',
-                                success: 'ready',
+                                loading: 'Running health check...',
+                                success: 'Ready',
                                 error: (err) => <span>{err.message}</span>,
                             })
                         }}
                     >
-                        <Input
-                            autoFocus
-                            aria-label="search runtime"
-                            color={
-                                resolvedTheme === 'dark' ? 'default' : 'primary'
-                            }
-                            id="inputarea"
-                            label="Search Runtime"
-                            radius="md"
-                            role="searchbox"
-                            size={isMobileView ? 'sm' : 'md'}
-                            type="text"
-                            value={searchQuery}
-                            variant="bordered"
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                        <div className="inline-flex flex-row gap-x-2">
+                            <Input
+                                autoFocus
+                                aria-label="enter filename"
+                                color={
+                                    resolvedTheme === 'dark'
+                                        ? 'default'
+                                        : 'primary'
+                                }
+                                id="filename-input"
+                                label="Enter Filename"
+                                radius="md"
+                                role="searchbox"
+                                size={'md'}
+                                type="text"
+                                value={newFilename}
+                                variant="bordered"
+                                onChange={(e) => setNewFilename(e.target.value)}
+                            />
+                            <Input
+                                aria-label="search language"
+                                color={
+                                    resolvedTheme === 'dark'
+                                        ? 'default'
+                                        : 'primary'
+                                }
+                                id="searchQuery-input"
+                                label="Search Language"
+                                radius="md"
+                                role="searchbox"
+                                size={'md'}
+                                type="text"
+                                value={searchQuery}
+                                variant="bordered"
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
 
                         <div
-                            aria-label="runtime container"
+                            aria-label="runtime group container"
                             className="overflow-hidden"
                             dir="ltr"
                         >
                             <RadioGroup
-                                className="flex snap-x snap-mandatory flex-row overflow-auto lg:gap-4 xl:gap-4"
+                                className="flex snap-x snap-mandatory flex-row gap-4 overflow-auto scrollbar-hide"
                                 orientation="horizontal"
                                 tabIndex={-1}
                                 onValueChange={handleChange}
@@ -238,44 +271,44 @@ const Sidebar: FC = () => {
                                 {filteredRuntimes.length > 0 ? (
                                     filteredRuntimes.map((runtime) => (
                                         <div
-                                            key={runtime.name}
+                                            key={runtime.languageName}
                                             className="snap-start scroll-ms-6"
                                         >
                                             <RadioGroupItem
                                                 checked={
                                                     filteredRuntimes.length ===
                                                         1 ||
-                                                    selectedRuntime?.name ===
-                                                        runtime.name
+                                                    selectedRuntime?.languageName ===
+                                                        runtime.languageName
                                                 }
                                                 className="peer sr-only"
-                                                id={runtime.name}
+                                                id={runtime.languageName}
                                                 value={JSON.stringify(runtime)}
                                             />
                                             <Label
                                                 className={cn(
                                                     'flex size-24 flex-col items-center justify-between gap-y-3 rounded-md border-2 border-default p-4 hover:border-primary peer-data-[state=checked]:border-primary lg:scale-90 lg:hover:scale-100 xl:scale-90 xl:hover:scale-100 [&:has([data-state=checked])]:border-primary'
                                                 )}
-                                                htmlFor={runtime.name}
+                                                htmlFor={runtime.languageName}
                                             >
                                                 <Image
                                                     priority
                                                     alt={`
-													${runtime.language} icon`}
+													${runtime.languageName} icon`}
                                                     className="size-10"
                                                     height={100}
-                                                    src={`/assets/language/${runtime.language}.svg`}
+                                                    src={`/assets/language/${runtime.imageName}.svg`}
                                                     width={100}
                                                 />
                                                 <span className="text-nowrap">
-                                                    {runtime.name}
+                                                    {runtime.languageName}
                                                 </span>
                                             </Label>
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-nowrap text-center">
-                                        Runtime not found.
+                                    <p className="flex-1 text-nowrap text-center">
+                                        {`${searchQuery} not found.`}
                                     </p>
                                 )}
                             </RadioGroup>
@@ -306,7 +339,7 @@ const Sidebar: FC = () => {
                             <CustomTooltip
                                 content={
                                     <span className="text-xs">
-                                        Choose Runtime
+                                        Choose Language
                                     </span>
                                 }
                             >
@@ -329,36 +362,32 @@ const Sidebar: FC = () => {
                                 />
                             </CustomTooltip>
                         ) : (
-                            !isMobileView && (
-                                <CustomTooltip
-                                    content={
-                                        <span className="text-xs">
-                                            Collaborate
-                                        </span>
-                                    }
-                                >
-                                    <Button
-                                        isIconOnly
-                                        aria-label={label}
-                                        className={cn('text-default-500', {
-                                            'text-primary dark:text-default-foreground':
-                                                activeNav === idx,
-                                        })}
-                                        radius="none"
-                                        role="link"
-                                        size="sm"
-                                        startContent={<val.icon size={24} />}
-                                        variant="light"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            // if (pathname !== '/collaborate') {
-                                            //   router.push('/collaborate')
-                                            // }
-                                            setActiveNav(idx)
-                                        }}
-                                    />
-                                </CustomTooltip>
-                            )
+                            <CustomTooltip
+                                content={
+                                    <span className="text-xs">Collaborate</span>
+                                }
+                            >
+                                <Button
+                                    isIconOnly
+                                    aria-label={label}
+                                    className={cn('text-default-500', {
+                                        'text-primary dark:text-default-foreground':
+                                            activeNav === idx,
+                                    })}
+                                    radius="none"
+                                    role="link"
+                                    size="sm"
+                                    startContent={<val.icon size={24} />}
+                                    variant="light"
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        // if (pathname !== '/collaborate') {
+                                        //   router.push('/collaborate')
+                                        // }
+                                        setActiveNav(idx)
+                                    }}
+                                />
+                            </CustomTooltip>
                         )}
                     </div>
                 ))}
