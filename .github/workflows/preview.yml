@@ -25,11 +25,9 @@ jobs:
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
-              with:
-                  version: latest
 
             - name: Install Vercel CLI
-              run: pnpm add -G vercel@latest
+              run: pnpm add -g vercel@latest
 
             - name: Pull Vercel Environment Information
               run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
