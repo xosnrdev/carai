@@ -8,10 +8,7 @@ on:
     push:
         branches-ignore:
             - master
-permissions:
-    contents: read
-    pull-requests: write
-    issues: write
+    workflow_dispatch: {}
 jobs:
     Deploy-Preview:
         runs-on: ubuntu-latest
