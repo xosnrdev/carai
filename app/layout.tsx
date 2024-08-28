@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
+import { SpeedInsights } from '@vercel/speed-insights/next'
+
 import ReduxProvider from '@/components/providers/redux-provider'
 import ThemeProvider from '@/components/providers/theme-provider'
 import nohemi from '@/config/fonts'
@@ -76,6 +78,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
                     storageKey="theme"
                 >
                     <ReduxProvider>{children}</ReduxProvider>
+                    <SpeedInsights />
                 </ThemeProvider>
             </body>
         </html>
