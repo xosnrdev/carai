@@ -1,61 +1,36 @@
 # Carai
 
-![Project Status](https://img.shields.io/badge/status-WIP-orange)
-[![codecov](https://codecov.io/gh/xosnrdev/carai/graph/badge.svg?token=cMsd6eQNq5)](https://codecov.io/gh/xosnrdev/carai)
+`Write, Test, Share – Code Made Easy!`
+
 [![Systems Nightly](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml)
-[![Carai](https://img.shields.io/badge/Carai-cexaengine.com-blue)](https://cexaengine.com)
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Installation](#installation)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
 
 ## Overview
 
-A web application code playground with multi-language support. users can edit and run their code remotely without hassle
+Carai is a web application that makes coding simple and accessible. Write, test, and share code snippets in multiple programming languages directly from your browser.
 
-### Features
-
-- **Multi-Language Support**: Supports a wide range of programming languages.
-- **Remote Code Execution (RCE)**: Execute code remotely and securely.
-- **Collaboration(WIP)**: Real-time live coding sessions with audio and video support.
-
-### Getting Started
-
-Clone the repository and follow the installation instructions to start contributing to Carai.
-
-### Installation
-
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/xosnrdev/carai.git
-   ```
-2. Navigate to the project directory:
-   ```sh
-   cd carai/editor
-   ```
-3. Install the necessary dependencies:
-   ```sh
-   pnpm install
-   ```
-4. Start the development server:
-   ```sh
-   pnpm dev
-   ```
+> [Discover how easy coding can be!](https://codespacex.com)
 
 ### Contributing
 
-Yes check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
+> Please check out the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for guidelines.
 
-### License
-
-[MIT licensed](./LICENSE).
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/xosnrdev/carai.git
+    ```
+2. Navigate to the project directory:
+    ```sh
+    cd carai
+    ```
+3. Install the necessary dependencies:
+    ```sh
+    pnpm install
+    ```
+4. Start the development server:
+    ```sh
+    pnpm dev
+    ```
 
 ### Contact
 
-For questions, issues, or suggestions, please open an issue on GitHub or contact the maintainer [hello@xosnrdev.tech](mailto:hello@xosnrdev.tech).
+For questions, issues, or suggestions, please open an issue on GitHub.
