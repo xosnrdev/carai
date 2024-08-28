@@ -1,8 +1,6 @@
 # Carai
 
-`Write, Test, Share – Code Made Easy!`
-
-[![Systems Nightly](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml/badge.svg)](https://github.com/xosnrdev/carai/actions/workflows/systems-nightly.yml)
+> Write, Test, Share – Code Made Easy!
 
 ## Overview
 
