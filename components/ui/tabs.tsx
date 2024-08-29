@@ -74,6 +74,13 @@ const Tabs: FC = () => {
     const handleCodeExecution = useCallback((): Promise<CodeResponse> => {
         const { id, metadata, content, filename } = activeTab
         const start = Date.now()
+        const lowerCaseLanguageName = metadata.languageName.toLowerCase()
+        const toImageName = transformString(
+            lowerCaseLanguageName,
+            imageNameTransformMap,
+            { lowerCase: true }
+        )
+        const image = `toolkithub/${toImageName}:edge`
 
         return new Promise<CodeResponse>((resolve, reject) => {
             if (content.trim().length === 0) {
@@ -82,8 +89,8 @@ const Tabs: FC = () => {
                 return
             }
 
-            if (!metadata.languageName) {
-                Sentry.captureMessage(`${metadata.languageName} not found`)
+            if (!image) {
+                Sentry.captureMessage(`${image} not found`)
 
                 reject(new CustomError('Something went wrong'))
 
@@ -94,7 +101,7 @@ const Tabs: FC = () => {
 
             rceHandler
                 .execute({
-                    image: `toolkithub/${transformString(metadata.languageName, imageNameTransformMap, { lowerCase: true })}:edge`,
+                    image,
                     payload: {
                         language: metadata.languageName.toLowerCase(),
                         files: [
