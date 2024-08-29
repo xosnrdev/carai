@@ -19,25 +19,21 @@ export async function POST(request: NextRequest) {
 
     const requestValidator = new RequestValidator(request)
     const isRequestAllowed = requestValidator.isAllowed()
+
     const requestBody = request.clone().body
 
-    if (!isRequestAllowed) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    if (!requestBody) {
-        return NextResponse.json({ error: 'Bad request' }, { status: 400 })
+    if (!isRequestAllowed || !requestBody) {
+        return NextResponse.json(
+            { error: isRequestAllowed ? 'Bad request' : 'Forbidden' },
+            { status: isRequestAllowed ? 400 : 403 }
+        )
     }
 
     try {
-        const run = await new RceEngine(envVars).run(
-            envVars.accessToken,
-            requestBody
-        )
+        const engine = new RceEngine(envVars)
+        const runResponse = await engine.run(envVars.accessToken, requestBody)
 
-        const runResponse = await run.text()
-
-        return new NextResponse(runResponse, { status: run.status })
+        return runResponse
     } catch (e) {
         Sentry.captureException(e)
 
