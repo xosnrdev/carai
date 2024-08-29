@@ -1,9 +1,9 @@
 import type { FC } from 'react'
 
-import { LoadingSpinner } from '@/components/ui/icons'
+import { SplashScreen } from '@/components/ui/icons'
 
 const Loading: FC = () => {
-    return <LoadingSpinner size={75} />
+    return <SplashScreen size={50} />
 }
 
 export default Loading
