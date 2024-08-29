@@ -13,10 +13,10 @@ import {
     transformString,
 } from '@/lib/utils'
 
-import { LoadingSpinner } from './icons'
+import { SplashScreen } from './icons'
 
 const _Editor = dynamic(() => import('@monaco-editor/react'), {
-    loading: () => <LoadingSpinner />,
+    loading: () => <SplashScreen />,
     ssr: false,
 })
 
@@ -55,87 +55,6 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
 
     const handleEditorOnMount: OnMount = useCallback(
         (editorInstance) => {
-            // const contentLength = activeTab.content.trim().length
-
-            // if (editorInstance && contentLength > 0) {
-            //     const model = editorInstance.getModel()
-
-            //     if (model) {
-            //         const lineCount = model.getLineCount()
-            //         const lastLineContent = model.getLineContent(lineCount)
-
-            //         // Find the last word position
-            //         const words = model.getWordAtPosition({
-            //             lineNumber: lineCount,
-            //             column: lastLineContent.length + 1,
-            //         })
-
-            //         let column: number
-
-            //         if (words) {
-            //             // If a word is found, set position to its end
-            //             column = words.endColumn
-            //         } else {
-            //             // If no word is found, find the last non-whitespace character
-            //             const lastNonWhitespaceColumn =
-            //                 model.getLineLastNonWhitespaceColumn(lineCount)
-
-            //             column =
-            //                 lastNonWhitespaceColumn > 0
-            //                     ? lastNonWhitespaceColumn
-            //                     : 1
-            //         }
-
-            //         // Set the cursor position
-            //         editorInstance.setPosition({
-            //             lineNumber: lineCount,
-            //             column: column,
-            //         })
-
-            //         // Reveal the cursor position
-            //         // editorInstance.revealPosition({
-            //         //     lineNumber: lineCount,
-            //         //     column: column,
-            //         // })
-
-            //         // const serializedState = serializeViewState(
-            //         //     editorInstance.saveViewState()
-            //         // )
-            //         // const extendedEditorState: ViewState = {
-            //         //     state: serializedState,
-            //         //     stateFields: {
-            //         //         codeResponse,
-            //         //         resizePanel,
-            //         //     },
-            //         // }
-
-            //         // updateTab({
-            //         //     id: activeTab.id,
-            //         //     viewState: {
-            //         //         ...viewState,
-            //         //         ...extendedEditorState,
-            //         //     },
-            //         // })
-
-            //         editorInstance.focus()
-            //     }
-            // } else if (editorView && viewState) {
-            //     editorView.restoreViewState(serializeViewState(viewState.state))
-
-            //     updateTab({
-            //         id: activeTab.id,
-            //         viewState: {
-            //             ...viewState,
-            //             stateFields: {
-            //                 codeResponse,
-            //                 resizePanel,
-            //             },
-            //         },
-            //     })
-
-            //     editorInstance.focus()
-            // }
-
             const serializedState = serializeViewState(viewState.state)
 
             if (editorInstance && viewState) {
@@ -145,7 +64,7 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
 
             setEditorView(editorInstance)
 
-            return (): void => editorInstance.dispose()
+            return () => editorInstance.dispose()
         },
         [viewState]
     )
@@ -171,7 +90,7 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
                 languageSupportTransformMap,
                 { lowerCase: true }
             )}
-            loading={<LoadingSpinner />}
+            loading={<SplashScreen />}
             options={editorConfigOptions}
             theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
             value={activeTab.content}
