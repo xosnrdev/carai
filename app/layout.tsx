@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
 
 import ReduxProvider from '@/components/providers/redux-provider'
 import ThemeProvider from '@/components/providers/theme-provider'
@@ -70,7 +71,6 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
             <body className={nohemi.className}>
                 <ThemeProvider
                     disableTransitionOnChange
-                    enableColorScheme
                     enableSystem
                     attribute="class"
                     defaultTheme="system"
@@ -79,6 +79,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
                 >
                     <ReduxProvider>{children}</ReduxProvider>
                     <SpeedInsights />
+                    <Analytics />
                 </ThemeProvider>
             </body>
         </html>
