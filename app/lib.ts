@@ -37,7 +37,7 @@ class RceEngine {
 class RequestValidator {
     private static readonly ALLOWED_HOSTNAMES: ReadonlySet<string> = new Set([
         'codespacex.com',
-        'carai.pages.dev',
+        'carai-eight.vercel.app',
         'localhost',
     ])
 
