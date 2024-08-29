@@ -13,7 +13,7 @@ export class RCEHandler {
         codeRequest: CodeRequest,
         abortSignal?: AbortSignal
     ): Promise<CodeResponse> {
-        const response = await fetch('/api/rce-engine/run', {
+        const response = await fetch('/rce-engine/run', {
             signal: abortSignal,
             headers: {
                 'Content-Type': 'application/json',

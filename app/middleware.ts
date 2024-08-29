@@ -10,23 +10,17 @@ const ratelimit = new Ratelimit({
 })
 
 export const config = {
-    matcher: '/*',
+    matcher: '/',
 }
 
 export default async function middleware(request: NextRequest) {
     const ip = new RequestValidator(request).requestIp
-    const { success, limit, reset, remaining } = await ratelimit.limit(ip)
-
-    const headers = {
-        'X-RateLimit-Limit': limit.toString(),
-        'X-RateLimit-Remaining': remaining.toString(),
-        'X-RateLimit-Reset': reset.toString(),
-    }
+    const { success } = await ratelimit.limit(ip)
 
     return success
-        ? NextResponse.next({
-              status: 200,
-              headers,
-          })
-        : NextResponse.json({ message: 'Rate limit exceeded' }, { status: 429 })
+        ? NextResponse.next()
+        : NextResponse.json(
+              { success: false, message: 'Rate limit exceeded' },
+              { status: 429 }
+          )
 }

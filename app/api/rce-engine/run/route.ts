@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
+import { NextResponse, type NextRequest } from 'next/server'
 
 import { EnvVarsParser, RceEngine, RequestValidator } from '@/app/lib'
 
@@ -42,4 +42,8 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         )
     }
+}
+
+export async function GET(request: NextRequest) {
+    return NextResponse.redirect(new URL('/', request.url))
 }
