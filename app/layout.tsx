@@ -74,7 +74,6 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
                     enableSystem
                     attribute="class"
                     defaultTheme="system"
-                    nonce="carai"
                     storageKey="theme"
                 >
                     <ReduxProvider>{children}</ReduxProvider>
