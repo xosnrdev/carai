@@ -6,7 +6,7 @@ const siteConfig = {
     title: 'Carai - Code Playground',
     author: 'Success Kingsley <hello@xosnrdev.tech>',
     description:
-        'An online coding playground for coding, testing, and learning.',
+        'A web application that makes coding simple and accessible. Write, test, and share code snippets in multiple programming languages directly from your browser',
     language: 'en',
     OGImage: '/carai-og.png',
     email: 'hello@xosnrdev.tech',

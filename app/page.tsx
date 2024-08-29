@@ -7,7 +7,7 @@ import { useCallback, type FC } from 'react'
 
 import CodeResponse from '@/components/ui/code-response'
 import Footer from '@/components/ui/footer'
-import { LoadingSpinner } from '@/components/ui/icons'
+import { SplashScreen } from '@/components/ui/icons'
 import Onboarding from '@/components/ui/onboarding'
 import {
     ResizableHandle,
@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils'
 const EditorLayout = dynamic(
     () => import('@/components/layouts/EditorLayout'),
     {
-        loading: () => <LoadingSpinner size={75} />,
+        loading: () => <SplashScreen size={75} />,
         ssr: false,
     }
 )

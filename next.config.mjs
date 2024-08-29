@@ -11,6 +11,15 @@ const nextConfig = {
     poweredByHeader: false,
     reactStrictMode: true,
     swcMinify: true,
+
+    async rewrites() {
+        return [
+            {
+                source: '/rce-engine/:path*',
+                destination: '/api/rce-engine/:path*',
+            },
+        ]
+    },
 }
 
 const config = withSentryConfig(nextConfig, {
