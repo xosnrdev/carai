@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse, userAgent } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
 
@@ -16,6 +16,14 @@ export const config = {
 export default async function middleware(request: NextRequest) {
     const ip = new RequestValidator(request).requestIp
     const { success } = await ratelimit.limit(ip)
+    const { device } = userAgent(request)
+
+    if (device.type === 'mobile' || device.type === undefined) {
+        return NextResponse.json(
+            { success: false, message: 'Device not supported' },
+            { status: 403 }
+        )
+    }
 
     return success
         ? NextResponse.next()

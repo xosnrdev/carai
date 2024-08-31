@@ -18,7 +18,15 @@ const useDeviceSupportCheck = () => {
     const checkScreenSize = useCallback(() => {
         const deviceWidth = window.innerWidth
 
-        const supportedDevice = deviceWidth >= SUPPORTED_DEVICE_WIDTH
+        const supportedDeviceWidth = deviceWidth >= SUPPORTED_DEVICE_WIDTH
+
+        const userAgent = navigator.userAgent.toLowerCase()
+        const isMobileDevice =
+            /iphone|ipod|android.*mobile|blackberry|mini|windows\sce|palm/i.test(
+                userAgent
+            )
+
+        const supportedDevice = supportedDeviceWidth && !isMobileDevice
 
         setIsSupported(supportedDevice)
     }, [])
