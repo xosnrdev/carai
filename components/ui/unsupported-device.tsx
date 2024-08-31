@@ -3,7 +3,7 @@ import type { FC } from 'react'
 const UnsupportedDevice: FC = () => {
     return (
         <div className="flex min-h-dvh items-center justify-center p-5">
-            <div className="prose prose-base w-full max-w-lg flex-1">
+            <div className="prose prose-base w-full max-w-lg flex-1 dark:prose-invert">
                 <h1 className="mb-4">Unsupported Device</h1>
                 <p className="mb-3">
                     It looks like you&apos;re using a device that may not
