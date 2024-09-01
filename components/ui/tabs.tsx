@@ -10,7 +10,12 @@ import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
 import { CustomError } from '@/lib/error'
-import { cn, imageNameTransformMap, transformString } from '@/lib/utils'
+import {
+    cn,
+    imageNameTransformMap,
+    scrollActiveTabIntoView,
+    transformString,
+} from '@/lib/utils'
 import { RCEHandler } from '@/network/rce-handler'
 import { CodeResponse } from '@/types/response'
 
@@ -35,21 +40,15 @@ const Tabs: FC = () => {
         setCodeResponse,
         resizePanel,
         isResizePanelVisible,
+        tabIndexMap,
     } = useTabContext()
 
     const { isOpen } = useAppContext()
     const activeTabRef = useRef<HTMLDivElement | null>(null)
 
-    const scrollActiveTabIntoView = () => {
-        if (!activeTabRef.current) return
-        const activeTab = activeTabRef.current
-
-        activeTab.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-            inline: 'start',
-        })
-    }
+    const handleScrollActiveTabIntoView = useCallback(() => {
+        scrollActiveTabIntoView(activeTabRef, tabIndexMap)
+    }, [activeTabRef, tabIndexMap])
 
     const handleCloseTab = (
         e: MouseEvent<HTMLButtonElement> | KeyboardEvent,
@@ -57,11 +56,11 @@ const Tabs: FC = () => {
     ) => {
         e.stopPropagation()
         removeTab(id)
+        handleScrollActiveTabIntoView()
     }
 
     const handleResizePanelState = useCallback(() => {
         const currentViewSize = resizePanel.viewSizeState
-
         const viewSize = isResizePanelVisible ? 0 : currentViewSize
 
         setResizePanel({
@@ -132,6 +131,22 @@ const Tabs: FC = () => {
         })
     }, [activeTab, setCodeResponse])
 
+    const isAnimatingRef = useRef(false)
+
+    const handleSwitchTab = useCallback(
+        (direction: 'next' | 'previous') => {
+            if (!isAnimatingRef.current) {
+                isAnimatingRef.current = true
+                requestAnimationFrame(() => {
+                    switchTab(direction)
+                    handleScrollActiveTabIntoView()
+                    isAnimatingRef.current = false
+                })
+            }
+        },
+        [isAnimatingRef, switchTab, handleScrollActiveTabIntoView]
+    )
+
     useKeyPress({
         targetKey: 'D',
         callback: () => {
@@ -146,8 +161,7 @@ const Tabs: FC = () => {
         targetKey: 'ArrowRight',
         callback: () => {
             if (activeTab && pathname === '/') {
-                switchTab('next')
-                scrollActiveTabIntoView()
+                handleSwitchTab('next')
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
@@ -157,14 +171,13 @@ const Tabs: FC = () => {
         targetKey: 'ArrowLeft',
         callback: () => {
             if (activeTab && pathname === '/') {
-                switchTab('previous')
-                scrollActiveTabIntoView()
+                handleSwitchTab('previous')
             }
         },
         modifier: ['ctrlKey', 'shiftKey'],
     })
 
-    const handleRunCode = async () => {
+    const handleRunCode = () => {
         toast.promise(handleCodeExecution(), {
             loading: 'Processing...',
             success: 'Success',
@@ -200,7 +213,7 @@ const Tabs: FC = () => {
                     {tabs.map(({ id, filename }) => (
                         <Tab
                             key={id}
-                            ref={activeTabRef}
+                            ref={activeTab.id === id ? activeTabRef : null}
                             activeTabId={activeTab.id}
                             closeTab={handleCloseTab}
                             filename={filename}
