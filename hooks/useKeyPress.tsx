@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-type KeyPressCallback = (_event: KeyboardEvent) => void
+type KeyPressCallback = (event: KeyboardEvent) => void
 
 interface UseKeyPressOptions {
     targetKey: string
