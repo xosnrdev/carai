@@ -1,5 +1,12 @@
 import { usePathname } from 'next/navigation'
-import { memo, useCallback, forwardRef, type FC, type MouseEvent } from 'react'
+import {
+    memo,
+    useCallback,
+    forwardRef,
+    type FC,
+    type MouseEvent,
+    useRef,
+} from 'react'
 import { MdClose } from 'react-icons/md'
 
 import useKeyPress from '@/hooks/useKeyPress'
@@ -13,11 +20,20 @@ const Tab: FC<TabProps> = memo(
             const { updateTab } = useTabContext()
             const pathname = usePathname()
 
+            const isAnimatingRef = useRef(false)
+
             const handleCloseTab = useCallback(
                 (e: MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
-                    closeTab(e, id)
+                    if (!isAnimatingRef.current) {
+                        isAnimatingRef.current = true
+                        requestAnimationFrame(() => {
+                            closeTab(e, id)
+
+                            isAnimatingRef.current = false
+                        })
+                    }
                 },
-                [closeTab, id]
+                [closeTab, id, isAnimatingRef]
             )
 
             const handleFilenameChange = useCallback(() => {

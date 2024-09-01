@@ -56,21 +56,11 @@ const Tabs: FC = () => {
     ) => {
         e.stopPropagation()
         removeTab(id)
-
         handleScrollActiveTabIntoView()
     }
 
-    const handleSwitchTab = useCallback(
-        (direction: 'next' | 'previous') => {
-            switchTab(direction)
-            handleScrollActiveTabIntoView()
-        },
-        [switchTab, handleScrollActiveTabIntoView]
-    )
-
     const handleResizePanelState = useCallback(() => {
         const currentViewSize = resizePanel.viewSizeState
-
         const viewSize = isResizePanelVisible ? 0 : currentViewSize
 
         setResizePanel({
@@ -140,6 +130,22 @@ const Tabs: FC = () => {
                 })
         })
     }, [activeTab, setCodeResponse])
+
+    const isAnimatingRef = useRef(false)
+
+    const handleSwitchTab = useCallback(
+        (direction: 'next' | 'previous') => {
+            if (!isAnimatingRef.current) {
+                isAnimatingRef.current = true
+                requestAnimationFrame(() => {
+                    switchTab(direction)
+                    handleScrollActiveTabIntoView()
+                    isAnimatingRef.current = false
+                })
+            }
+        },
+        [isAnimatingRef, switchTab, handleScrollActiveTabIntoView]
+    )
 
     useKeyPress({
         targetKey: 'D',
