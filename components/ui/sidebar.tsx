@@ -136,10 +136,10 @@ const Sidebar: FC = () => {
                     },
                     config: {
                         maxContentDelimiter: {
-                            limit: 500,
-                            units: 'lines',
+                            limit: 10485760,
+                            units: 'bytes',
                         },
-                        maxTabs: 10,
+                        maxTabs: Infinity,
                         isClosable: true,
                     },
                 })

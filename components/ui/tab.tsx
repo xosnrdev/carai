@@ -56,6 +56,7 @@ const Tab: FC<TabProps> = memo(
                                 activeTabId === id,
                         }
                     )}
+                    id={id}
                     role="tab"
                     onContextMenu={(e) => {
                         handleFilenameChange()

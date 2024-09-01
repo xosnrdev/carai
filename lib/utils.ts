@@ -1,16 +1,18 @@
+import type { IState, TabId } from '@/types'
+import type { RefObject } from 'react'
+
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-import { IState } from '@/types'
-
 export {
+    capitalizeFirstLetter,
     cn,
+    imageNameTransformMap,
+    languageNameTransformMap,
+    languageSupportTransformMap,
+    scrollActiveTabIntoView,
     serializeViewState,
     transformString,
-    languageNameTransformMap,
-    imageNameTransformMap,
-    languageSupportTransformMap,
-    capitalizeFirstLetter,
 }
 
 const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
@@ -113,4 +115,89 @@ const capitalizeFirstLetter = (s: string): string => {
             (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
         )
         .join(' ')
+}
+
+type TabViewProps = {
+    tabElement: HTMLElement
+    parentElement: HTMLElement
+}
+
+function isTabVisible({ tabElement, parentElement }: TabViewProps): boolean {
+    const tabRect = tabElement.getBoundingClientRect()
+    const parentRect = parentElement.getBoundingClientRect()
+
+    return tabRect.left >= parentRect.left && tabRect.right <= parentRect.right
+}
+
+function computeIdealScrollPosition({
+    tabElement,
+    parentElement,
+    tabWidth,
+    tabIndexMap,
+}: {
+    tabWidth: number
+    tabIndexMap: Map<TabId, number>
+} & TabViewProps): number {
+    const chunkWidth = parentElement.clientWidth
+    const tabIndex = tabIndexMap.get(tabElement.id) ?? 0
+    let scrollLeft = tabIndex * tabWidth - chunkWidth / 2 + tabWidth / 2
+
+    scrollLeft = Math.max(
+        0,
+        Math.min(scrollLeft, parentElement.scrollWidth - chunkWidth)
+    )
+
+    return scrollLeft
+}
+
+function handleCircularScrolling({
+    tabIndex,
+    numTabs,
+    parentElement,
+}: {
+    tabIndex: number
+    numTabs: number
+    parentElement: HTMLElement
+}): void {
+    if (numTabs === 0) return
+
+    const tabWidth = parentElement.scrollWidth / numTabs
+    const scrollPosition = (tabIndex * tabWidth) % parentElement.scrollWidth
+
+    parentElement.scroll({
+        left: scrollPosition,
+        behavior: 'smooth',
+    })
+}
+
+function scrollActiveTabIntoView(
+    activeTabRef: RefObject<HTMLElement>,
+    tabIndexMap: Map<TabId, number>
+): void {
+    if (!activeTabRef.current) return
+
+    const tabElement = activeTabRef.current
+    const parentElement = tabElement.parentElement
+
+    if (!parentElement) return
+
+    if (!isTabVisible({ tabElement, parentElement })) {
+        const tabWidth = tabElement.offsetWidth
+        const idealScrollLeft = computeIdealScrollPosition({
+            tabElement,
+            parentElement,
+            tabWidth,
+            tabIndexMap,
+        })
+
+        parentElement.scroll({
+            left: idealScrollLeft,
+            behavior: 'smooth',
+        })
+
+        const tabIndex = tabIndexMap.get(tabElement.id) ?? 0
+        const numTabs = parentElement.children.length
+
+        handleCircularScrolling({ tabIndex, numTabs, parentElement })
+    }
 }

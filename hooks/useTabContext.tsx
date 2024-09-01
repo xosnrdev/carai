@@ -33,6 +33,17 @@ const useTabContext = () => {
     const dispatch = useDispatch<AppDispatch>()
 
     const tabs = useGlobalSelector(selectAllTabs)
+
+    const tabIndexMap = useMemo(() => {
+        const map = new Map<TabId, number>()
+
+        tabs.forEach((tab, index) => {
+            map.set(tab.id, index)
+        })
+
+        return map
+    }, [tabs])
+
     const activeTabId = useGlobalSelector(
         (state) => state.tabs.activeTabId as TabId
     )
@@ -85,6 +96,7 @@ const useTabContext = () => {
 
     return {
         tabs,
+        tabIndexMap,
         resizePanel,
         activeTab,
         isResizePanelVisible,
