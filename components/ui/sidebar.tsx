@@ -169,13 +169,13 @@ const Sidebar: FC = () => {
     }
 
     useKeyPress({
-        targetKey: 'T',
+        targetKey: 'N',
         callback: () => {
             if (pathname === '/') {
                 handleModal()
             }
         },
-        modifier: ['ctrlKey', 'shiftKey'],
+        modifier: ['ctrlKey'],
     })
 
     return (
@@ -183,10 +183,11 @@ const Sidebar: FC = () => {
             {isOpen.modal === true && (
                 <Modal
                     aria-label="choose language modal"
+                    className="max-w-lg"
                     title="Choose A Language"
-                    onOpenChange={() =>
+                    onOpenChange={(open) =>
                         setIsOpen({
-                            modal: false,
+                            modal: open,
                         })
                     }
                 >

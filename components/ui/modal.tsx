@@ -23,6 +23,7 @@ interface IModalProps
 const Modal: FC<IModalProps> = ({
     title,
     children,
+    className,
     onOpenChange,
     ...props
 }) => {
@@ -31,7 +32,7 @@ const Modal: FC<IModalProps> = ({
             <DialogOverlay>
                 <DialogContent
                     aria-describedby={undefined}
-                    className="max-w-sm border-default md:max-w-md lg:max-w-lg xl:max-w-lg"
+                    className={`border-default ${className} `}
                 >
                     <DialogHeader>
                         <DialogTitle>{title}</DialogTitle>

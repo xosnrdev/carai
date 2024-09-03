@@ -17,6 +17,7 @@ import {
 import Tabs from '@/components/ui/tabs'
 import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
+import useAppContext from '@/hooks/useAppContext'
 
 const EditorLayout = dynamic(
     () => import('@/components/layouts/EditorLayout'),
@@ -34,6 +35,15 @@ const Home: FC = () => {
         setResizePanel,
         isResizePanelVisible,
     } = useTabContext()
+
+    const { isOpen, setIsOpen } = useAppContext()
+
+    const isUserFirstVisit = sessionStorage.getItem('isUserFirstVisit')
+
+    if (!isUserFirstVisit && !isOpen.userGuide) {
+        setIsOpen({ userGuide: true })
+        sessionStorage.setItem('isUserFirstVisit', 'true')
+    }
 
     let minSize = 30
 

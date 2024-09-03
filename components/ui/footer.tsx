@@ -4,21 +4,21 @@ import { useTheme } from 'next-themes'
 
 import useTabContext from '@/hooks/useTabContext'
 import { navProps } from '@/lib/constants/ui'
+import useAppContext from '@/hooks/useAppContext'
+
+import UserGuide from './user-guide'
 
 const Footer: FC = () => {
     const { activeTab } = useTabContext()
     const { resolvedTheme } = useTheme()
-    const [isOpen, setIsOpen] = useState({
-        close: true,
-    })
+    const { isOpen, setIsOpen } = useAppContext()
+    const [isFooterOpen, setIsFooterOpen] = useState(true)
 
-    const handleClose = () => {
-        setIsOpen((prev) => ({ ...prev, close: !prev.close }))
-    }
+    if (!isFooterOpen) return <></>
 
     return (
         <>
-            {activeTab && isOpen.close && (
+            {activeTab && (
                 <div className="h-8 border-t border-t-default bg-background">
                     <ButtonGroup>
                         {navProps.map((prop, idx) => (
@@ -35,7 +35,11 @@ const Footer: FC = () => {
                                 startContent={<prop.icon size={24} />}
                                 variant="light"
                                 onClick={(e) => {
-                                    idx === 0 ? handleClose() : null
+                                    idx === 0
+                                        ? setIsFooterOpen(false)
+                                        : idx === 2
+                                          ? setIsOpen({ userGuide: true })
+                                          : null
                                     e.preventDefault()
                                 }}
                             />
@@ -43,6 +47,7 @@ const Footer: FC = () => {
                     </ButtonGroup>
                 </div>
             )}
+            {isOpen.userGuide && <UserGuide />}
         </>
     )
 }
