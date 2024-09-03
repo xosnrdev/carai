@@ -243,10 +243,10 @@ const UserGuide: FC = () => {
                 fullWidth
                 aria-label="user guide tabs"
                 color={resolvedTheme === 'dark' ? 'default' : 'primary'}
-                selectedKey={selected}
+                selectedKey={selected.toString()}
                 size="md"
                 variant="underlined"
-                onSelectionChange={setSelected}
+                onSelectionChange={(key) => setSelected(key as Key)}
             >
                 <Tab
                     key={TAB_KEYS.QUICKSTART}
