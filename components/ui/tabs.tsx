@@ -74,11 +74,11 @@ const Tabs: FC = () => {
         const { id, metadata, content, filename } = activeTab
         const start = Date.now()
         const lowerCaseLanguageName = metadata.languageName.toLowerCase()
-        const toImageName = transformString(
-            lowerCaseLanguageName,
-            imageNameTransformMap,
-            { lowerCase: true }
-        )
+        const toImageName = transformString({
+            str: lowerCaseLanguageName,
+            map: imageNameTransformMap,
+            lowerCase: true,
+        })
         const image = `toolkithub/${toImageName}:edge`
 
         return new Promise<CodeResponse>((resolve, reject) => {
