@@ -164,6 +164,9 @@ importers:
             eslint-plugin-unused-imports:
                 specifier: ^3.2.0
                 version: 3.2.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)
+            husky:
+                specifier: ^9.1.5
+                version: 9.1.5
             monaco-editor:
                 specifier: ^0.51.0
                 version: 0.51.0
@@ -5227,6 +5230,14 @@ packages:
                 integrity: sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==,
             }
         engines: { node: '>=8.12.0' }
+
+    husky@9.1.5:
+        resolution:
+            {
+                integrity: sha512-rowAVRUBfI0b4+niA4SJMhfQwc107VLkBUgEYYAOQAbqDCnra1nYh83hF/MDmhYs9t9n1E3DuKOrs2LYNC+0Ag==,
+            }
+        engines: { node: '>=18' }
+        hasBin: true
 
     iconv-lite@0.4.24:
         resolution:
@@ -12093,6 +12104,8 @@ snapshots:
             - supports-color
 
     human-signals@1.1.1: {}
+
+    husky@9.1.5: {}
 
     iconv-lite@0.4.24:
         dependencies:

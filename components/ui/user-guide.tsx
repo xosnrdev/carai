@@ -289,7 +289,7 @@ const UserGuide: FC = () => {
                         setIsOpen({ userGuide: false })
                     }}
                 >
-                    Got it, let&apos;s code!
+                    Got it
                 </Button>
             </DialogFooter>
         </Modal>
