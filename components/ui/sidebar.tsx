@@ -286,13 +286,11 @@ const Sidebar: FC = () => {
                                                     width={100}
                                                 />
                                                 <span className="text-nowrap">
-                                                    {transformString(
-                                                        runtime.languageName,
-                                                        languageNameTransformMap,
-                                                        {
-                                                            capitalize: true,
-                                                        }
-                                                    )}
+                                                    {transformString({
+                                                        str: runtime.languageName,
+                                                        map: languageNameTransformMap,
+                                                        capitalize: true,
+                                                    })}
                                                 </span>
                                             </Label>
                                         </div>

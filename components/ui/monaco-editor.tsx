@@ -85,11 +85,11 @@ const MonacoEditor: FC<EditorProps> = ({ className, ...props }) => {
     return (
         <_Editor
             className={className}
-            language={transformString(
-                activeTab.metadata.languageName,
-                languageSupportTransformMap,
-                { lowerCase: true }
-            )}
+            language={transformString({
+                str: activeTab.metadata.languageName,
+                map: languageSupportTransformMap,
+                lowerCase: true,
+            })}
             loading={<SplashScreen />}
             options={editorConfigOptions}
             theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}

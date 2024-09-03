@@ -69,19 +69,20 @@ type Into = Partial<{
     lowerCase: boolean
 }>
 
-function transformString(
-    str: string,
-    map: Record<string, string>,
-    into: Into = {
-        capitalize: false,
-        lowerCase: false,
-    }
-): string {
+function transformString({
+    str,
+    map,
+    capitalize,
+    lowerCase,
+}: {
+    str: string
+    map: Record<string, string>
+} & Into): string {
     const transform = map[str] || str
 
-    return into.capitalize
+    return capitalize
         ? capitalizeFirstLetter(transform)
-        : into.lowerCase
+        : lowerCase
           ? transform.toLowerCase()
           : transform
 }
