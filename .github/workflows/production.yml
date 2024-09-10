@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     container: node:20.11.0
     timeout-minutes: 30
+    container: node:20.11.0
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ./web
@@ -31,6 +33,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
+          package_json_file: ./web/package.json
           package_json_file: ./web/package.json
 
       - name: Install Vercel CLI
