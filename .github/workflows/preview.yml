@@ -30,6 +30,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          package_json_file: ./web/package.json
 
       - name: Install Vercel CLI
         run: pnpm add -g vercel@latest
