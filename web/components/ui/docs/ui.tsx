@@ -32,7 +32,8 @@ const features = [
                 programming language.
             </>,
             <>
-                Run your code by clicking the <Kbd>Run</Kbd> button in the isolated terminal.
+                Run your code by clicking the <Kbd>Run</Kbd> button in the
+                isolated terminal.
             </>,
         ],
     },
@@ -47,7 +48,7 @@ const features = [
 ]
 
 const QuickStartTab: FC = () => (
-    <div className="prose overflow-auto dark:prose-invert max-h-96 mx-auto">
+    <div className="prose max-h-96 overflow-auto dark:prose-invert">
         {features.map((feature) => (
             <div key={feature.title}>
                 <h3>{feature.title}</h3>
@@ -92,12 +93,12 @@ const KeybindingsTab: FC<{ searchTerm: string; resolvedTheme: string }> = ({
         return searchResult.length > 0
             ? searchResult
             : [
-                {
-                    key: `${searchTerm}`,
-                    description: 'Not found.',
-                    category: 'No category',
-                },
-            ]
+                  {
+                      key: `${searchTerm}`,
+                      description: 'Not found.',
+                      category: 'No category',
+                  },
+              ]
     }, [searchTerm])
 
     const categories = useMemo(
@@ -106,7 +107,7 @@ const KeybindingsTab: FC<{ searchTerm: string; resolvedTheme: string }> = ({
     )
 
     return (
-        <div className="prose overflow-auto p-4 dark:prose-invert prose-thead:border-none prose-tr:border-none max-h-96 mx-auto">
+        <div className="prose max-h-96 overflow-auto p-4 dark:prose-invert prose-thead:border-none prose-tr:border-none">
             {categories.map((category) => (
                 <div key={category}>
                     <h3>{category}</h3>
@@ -151,7 +152,7 @@ export default function UserGuide() {
     return (
         <Modal
             aria-label="user guide modal"
-            className="selection:bg-default max-w-xl"
+            className="max-w-xl selection:bg-default"
             title="Are you lost?"
             onOpenChange={(open) => setIsOpen({ userGuide: open })}
         >
