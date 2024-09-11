@@ -40,7 +40,7 @@ const features = [
         title: 'Key Features',
         content: [
             <>Syntax highlighting.</>,
-            <>Visual Studio Code Editor keybindings.</>,
+            <>Visual Studio Code keybindings.</>,
             <>Tab Functionality.</>,
         ],
     },
