@@ -202,11 +202,11 @@ export default function Sandbox() {
                                             color={'success'}
                                             endContent={
                                                 <PlayIcon
+                                                    className={cn({
+                                                        hidden: codeResponse?.isRunning,
+                                                    })}
                                                     fill="currentColor"
                                                     size={18}
-                                                    className={cn({
-                                                        'hidden': codeResponse?.isRunning,
-                                                    })}
                                                 />
                                             }
                                             isDisabled={codeResponse?.isRunning}
@@ -300,8 +300,10 @@ export default function Sandbox() {
                                                     <small className="prose prose-base text-default-500">
                                                         {codeResponse?.isRunning
                                                             ? `Running ${activeTab.filename}...`
-                                                            : `Guest ran ${getContentLengthByLine(activeTab.content)} lines of 
-                    ${activeTab.metadata.languageName} (finished in ${codeResponse?.time}ms):`}
+                                                            : codeResponse.time
+                                                              ? `Guest ran ${getContentLengthByLine(activeTab.content)} lines of 
+                    ${activeTab.metadata.languageName} (finished in ${codeResponse?.time}ms):`
+                                                              : ''}
                                                     </small>
                                                     {codeResponse.stdout && (
                                                         <CodeResponse
