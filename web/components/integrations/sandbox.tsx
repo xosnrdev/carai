@@ -19,7 +19,6 @@ import {
     ResizablePanel,
     ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import Tabs from '@/components/ui/tabs/ui'
 import useAppContext from '@/hooks/useAppContext'
 import useTabContext from '@/hooks/useTabContext'
@@ -180,9 +179,9 @@ export default function Sandbox() {
                             {activeTab ? (
                                 <Tabs />
                             ) : (
-                                <ScrollArea>
+                                <div className="overflow-auto">
                                     <Onboarding />
-                                </ScrollArea>
+                                </div>
                             )}
                         </div>
                     </ResizablePanel>

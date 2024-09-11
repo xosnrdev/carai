@@ -1,5 +1,4 @@
 import { Button } from '@nextui-org/button'
-import { Chip } from '@nextui-org/chip'
 import { Input } from '@nextui-org/input'
 import { Kbd } from '@nextui-org/kbd'
 import {
@@ -18,9 +17,7 @@ import { type FC, type Key, useMemo, useState } from 'react'
 import useAppContext from '@/hooks/useAppContext'
 
 import { DialogFooter } from '../dialog'
-import { NotificationIcon } from '../icons'
 import Modal from '../modal'
-import { ScrollArea } from '../scroll-area'
 
 import { TAB_KEYS } from './index.types'
 
@@ -35,19 +32,7 @@ const features = [
                 programming language.
             </>,
             <>
-                Run your code by clicking the <Kbd>Run</Kbd> button at the top
-                right of the tab.
-            </>,
-            <>
-                Save your work{' '}
-                <Chip
-                    color="warning"
-                    endContent={<NotificationIcon size={18} />}
-                    size="sm"
-                    variant="flat"
-                >
-                    beta
-                </Chip>
+                Run your code by clicking the <Kbd>Run</Kbd> button in the isolated terminal.
             </>,
         ],
     },
@@ -55,73 +40,39 @@ const features = [
         title: 'Key Features',
         content: [
             <>Syntax highlighting.</>,
-            <>Visual Studio Code keybindings.</>,
-            <>
-                Intergrated terminal{' '}
-                <Chip
-                    color="warning"
-                    endContent={<NotificationIcon size={18} />}
-                    size="sm"
-                    variant="flat"
-                >
-                    beta
-                </Chip>
-            </>,
-            <>
-                Real-time collaboration{' '}
-                <Chip
-                    color="warning"
-                    endContent={<NotificationIcon size={18} />}
-                    size="sm"
-                    variant="flat"
-                >
-                    beta
-                </Chip>
-            </>,
-            <>
-                Version control{' '}
-                <Chip
-                    color="warning"
-                    endContent={<NotificationIcon size={18} />}
-                    size="sm"
-                    variant="flat"
-                >
-                    beta
-                </Chip>
-            </>,
+            <>Visual Studio Code Editor keybindings.</>,
+            <>Tab Functionality.</>,
         ],
     },
 ]
 
 const QuickStartTab: FC = () => (
-    <ScrollArea>
-        <div className="prose prose-base dark:prose-invert">
-            {features.map((feature) => (
-                <div key={feature.title}>
-                    <h3>{feature.title}</h3>
-                    {feature.title === 'Getting Started' ? (
-                        <ol>
-                            {feature.content.map((item, index) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ol>
-                    ) : (
-                        <ul className="list-none pl-0">
-                            {feature.content.map((item, index) => (
-                                <li
-                                    key={index}
-                                    className="flex flex-row items-center space-x-1"
-                                >
-                                    <Command className="mr-1" size={18} />
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            ))}
-        </div>
-    </ScrollArea>
+    <div className="prose overflow-auto dark:prose-invert max-h-96 mx-auto">
+        {features.map((feature) => (
+            <div key={feature.title}>
+                <h3>{feature.title}</h3>
+                {feature.title === 'Getting Started' ? (
+                    <ol>
+                        {feature.content.map((item, index) => (
+                            <li key={index}>{item}</li>
+                        ))}
+                    </ol>
+                ) : (
+                    <ul className="list-none pl-0">
+                        {feature.content.map((item, index) => (
+                            <li
+                                key={index}
+                                className="flex flex-row items-center space-x-1"
+                            >
+                                <Command className="mr-1" size={18} />
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        ))}
+    </div>
 )
 
 const KeybindingsTab: FC<{ searchTerm: string; resolvedTheme: string }> = ({
@@ -141,12 +92,12 @@ const KeybindingsTab: FC<{ searchTerm: string; resolvedTheme: string }> = ({
         return searchResult.length > 0
             ? searchResult
             : [
-                  {
-                      key: `${searchTerm}`,
-                      description: 'Not found.',
-                      category: 'No category',
-                  },
-              ]
+                {
+                    key: `${searchTerm}`,
+                    description: 'Not found.',
+                    category: 'No category',
+                },
+            ]
     }, [searchTerm])
 
     const categories = useMemo(
@@ -155,43 +106,37 @@ const KeybindingsTab: FC<{ searchTerm: string; resolvedTheme: string }> = ({
     )
 
     return (
-        <ScrollArea>
-            <div className="prose prose-base p-4 dark:prose-invert prose-thead:border-none prose-tr:border-none">
-                {categories.map((category) => (
-                    <div key={category}>
-                        <h3>{category}</h3>
-                        <Table
-                            fullWidth
-                            isHeaderSticky
-                            removeWrapper
-                            aria-label="keybindings table"
-                            color={
-                                resolvedTheme === 'dark' ? 'default' : 'primary'
-                            }
-                        >
-                            <TableHeader>
-                                <TableColumn>Shortcut</TableColumn>
-                                <TableColumn>Description</TableColumn>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredKeybindings
-                                    .filter((kb) => kb.category === category)
-                                    .map((kb, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>
-                                                <Kbd>{kb.key}</Kbd>
-                                            </TableCell>
-                                            <TableCell>
-                                                {kb.description}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                ))}
-            </div>
-        </ScrollArea>
+        <div className="prose overflow-auto p-4 dark:prose-invert prose-thead:border-none prose-tr:border-none max-h-96 mx-auto">
+            {categories.map((category) => (
+                <div key={category}>
+                    <h3>{category}</h3>
+                    <Table
+                        fullWidth
+                        isHeaderSticky
+                        removeWrapper
+                        aria-label="keybindings table"
+                        color={resolvedTheme === 'dark' ? 'default' : 'primary'}
+                    >
+                        <TableHeader>
+                            <TableColumn>Shortcut</TableColumn>
+                            <TableColumn>Description</TableColumn>
+                        </TableHeader>
+                        <TableBody>
+                            {filteredKeybindings
+                                .filter((kb) => kb.category === category)
+                                .map((kb, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>
+                                            <Kbd>{kb.key}</Kbd>
+                                        </TableCell>
+                                        <TableCell>{kb.description}</TableCell>
+                                    </TableRow>
+                                ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            ))}
+        </div>
     )
 }
 
@@ -206,7 +151,7 @@ export default function UserGuide() {
     return (
         <Modal
             aria-label="user guide modal"
-            className="max-w-3xl"
+            className="selection:bg-default max-w-xl"
             title="Are you lost?"
             onOpenChange={(open) => setIsOpen({ userGuide: open })}
         >
