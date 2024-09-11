@@ -165,7 +165,6 @@ export default function LandingPage() {
                             <div className="space-y-4">
                                 <SyntaxHighlighter
                                     showLineNumbers
-                                    wrapLongLines
                                     customStyle={{
                                         background: 'inherit',
                                     }}
