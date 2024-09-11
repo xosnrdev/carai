@@ -1,22 +1,27 @@
 {
-    "branches": [
-        "master"
+  "branches": [
+    "master"
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "../CHANGELOG.md"
+      }
     ],
-    "plugins": [
-        "@semantic-release/commit-analyzer",
-        "@semantic-release/release-notes-generator",
-        "@semantic-release/changelog",
-        "@semantic-release/github",
-        [
-            "@semantic-release/git",
-            {
-                "assets": [
-                    "package.json",
-                    "CHANGELOG.md",
-                    "pnpm-lock.yaml"
-                ],
-                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-            }
-        ]
-    ]
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "package.json",
+          "../CHANGELOG.md",
+          "pnpm-lock.yaml"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    "@semantic-release/github"
+  ]
 }
