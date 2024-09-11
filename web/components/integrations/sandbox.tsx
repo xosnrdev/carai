@@ -204,6 +204,9 @@ export default function Sandbox() {
                                                 <PlayIcon
                                                     fill="currentColor"
                                                     size={18}
+                                                    className={cn({
+                                                        'hidden': codeResponse?.isRunning,
+                                                    })}
                                                 />
                                             }
                                             isDisabled={codeResponse?.isRunning}
