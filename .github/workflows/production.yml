@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - web/**
 
   workflow_dispatch: {}
 
@@ -26,9 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     container: node:20.11.0
     timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: ./web
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -56,10 +51,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         env:
-          GIHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN}}
         with:
           working_directory: ./web
