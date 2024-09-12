@@ -6,7 +6,7 @@ const siteConfig = {
     title: 'Carai - Write, Test, and Share Code Online',
     author: 'Success Kingsley',
     description:
-        'An online platform to easily write, test, and share code with others at the speed of thought. Carai is your all-in-one open-source platform for coding, testing, and collaboration.',
+        'An online platform to easily write, test, and share code with others. Carai is your all-in-one open-source platform for coding, testing, and collaboration.',
     language: 'en',
     OGImage: '/carai-og.png',
     favicon: '/favicon.ico',

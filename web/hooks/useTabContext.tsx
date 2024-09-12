@@ -4,6 +4,7 @@ import type {
     ResizeLayoutPayload,
     TabId,
     UpdateTabPayload,
+    ViewStatePayload,
 } from '@/redux/tab/index.types'
 
 import { createSelector } from '@reduxjs/toolkit'
@@ -25,6 +26,7 @@ import {
     setActiveTab,
     setCodeResponse,
     setResizeLayout,
+    setViewState,
     switchTab,
     updateTab,
 } from '@/redux/tab/slice'
@@ -66,9 +68,15 @@ const useTabContext = () => {
         (viewState) => viewState.stateFields.resizeLayout
     )
 
+    const selectIsMounted = createSelector(
+        selectViewState,
+        (viewState) => viewState.isMounted
+    )
+
     const viewState = useGlobalSelector(selectViewState)
     const codeResponse = useGlobalSelector(selectCodeResponse)
     const resizeLayout = useGlobalSelector(selectResizeLayout)
+    const isMounted = useGlobalSelector(selectIsMounted)
 
     const boundActions = useMemo(
         () => ({
@@ -84,6 +92,8 @@ const useTabContext = () => {
                 dispatch(setCodeResponse(payload)),
             setResizeLayout: (payload: ResizeLayoutPayload) =>
                 dispatch(setResizeLayout(payload)),
+            setViewState: (payload: ViewStatePayload) =>
+                dispatch(setViewState(payload)),
         }),
         [dispatch]
     )
@@ -96,6 +106,7 @@ const useTabContext = () => {
         viewState,
         activeTabId,
         codeResponse,
+        isMounted,
         ...boundActions,
     }
 }

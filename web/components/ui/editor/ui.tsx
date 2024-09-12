@@ -22,8 +22,14 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
 })
 
 export default function Editor({ className, ...props }: EditorProp) {
-    const { updateTab, activeTab, codeResponse, resizeLayout, viewState } =
-        useTabContext()
+    const {
+        updateTab,
+        activeTab,
+        codeResponse,
+        resizeLayout,
+        viewState,
+        setViewState,
+    } = useTabContext()
 
     const { resolvedTheme } = useTheme()
     const [editorView, setEditorView] =
@@ -64,10 +70,14 @@ export default function Editor({ className, ...props }: EditorProp) {
             }
 
             setEditorView(editorInstance)
+            setViewState({
+                id: activeTab.id,
+                isMounted: !!editorInstance,
+            })
 
             return () => editorInstance.dispose()
         },
-        [viewState]
+        [viewState, setViewState, activeTab]
     )
 
     const handleBeforeMount: BeforeMount = useCallback((monaco) => {

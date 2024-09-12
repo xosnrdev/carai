@@ -2,6 +2,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+import type { RootState } from '../store'
 import type {
     AddTabPayload,
     CodeResponsePayload,
@@ -9,8 +10,8 @@ import type {
     Tab,
     TabId,
     UpdateTabPayload,
+    ViewStatePayload,
 } from './index.types'
-import type { RootState } from '../store'
 
 import {
     createEntityAdapter,
@@ -224,6 +225,14 @@ const tab_slice = createSlice({
                 snapshot: [...snapshot],
             }
         },
+        setViewState: (state, action: PayloadAction<ViewStatePayload>) => {
+            const { id, isMounted } = action.payload
+            const tab = state.entities[id]
+
+            if (!tab || !tab.viewState) return
+
+            tab.viewState.isMounted = isMounted
+        },
     },
 })
 
@@ -239,6 +248,7 @@ const {
     updateTab,
     setCodeResponse,
     setResizeLayout,
+    setViewState,
 } = tab_slice.actions
 
 export {
@@ -255,4 +265,5 @@ export {
     switchTab,
     tabAdapter,
     updateTab,
+    setViewState,
 }
