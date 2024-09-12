@@ -14,7 +14,7 @@ const features: Feature[] = [
     {
         icon: CodeIcon,
         title: 'Multi-language Support',
-        description: 'Write code in multiple programming languages.',
+        description: 'Write code in 44 programming languages.',
     },
     {
         icon: PlayIcon,
