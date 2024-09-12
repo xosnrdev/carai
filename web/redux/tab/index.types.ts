@@ -37,9 +37,15 @@ export type ViewStateField = {
 
 export type CodeEditorViewState = {} & editor.ICodeEditorViewState
 
+export type ViewStatePayload = {
+    id: TabId
+    isMounted: boolean
+}
+
 export type ViewState = {
     state: CodeEditorViewState
     stateFields: ViewStateField
+    isMounted?: boolean
 }
 
 export type Metadata = {

@@ -43,6 +43,7 @@ export default function Sandbox() {
         resizeLayout,
         setResizeLayout,
         setCodeResponse,
+        isMounted,
     } = useTabContext()
 
     const { setIsOpen } = useAppContext()
@@ -208,7 +209,10 @@ export default function Sandbox() {
                                                     size={18}
                                                 />
                                             }
-                                            isDisabled={codeResponse?.isRunning}
+                                            isDisabled={
+                                                codeResponse?.isRunning ||
+                                                !isMounted
+                                            }
                                             isLoading={codeResponse?.isRunning}
                                             radius="sm"
                                             spinner={
