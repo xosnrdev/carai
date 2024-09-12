@@ -109,9 +109,8 @@ export default function LandingPage() {
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
                         An online platform to easily write, test, and share code
-                        with others at the speed of thought. Your all-in-one
-                        open-source platform for coding sessions, testing, and
-                        collaboration.
+                        with others. Your all-in-one open-source platform for
+                        coding sessions, testing, and collaboration.
                     </motion.p>
                     <motion.div
                         animate={{ opacity: 1, y: 0 }}

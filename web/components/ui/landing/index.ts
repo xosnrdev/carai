@@ -1,8 +1,14 @@
 import type { CodeSnippet, Feature } from './index.types'
 
-import { CodeIcon, Share2Icon, ZapIcon } from 'lucide-react'
+import {
+    CodeIcon,
+    GlobeIcon,
+    PlayIcon,
+    SettingsIcon,
+    Share2Icon,
+} from 'lucide-react'
 
-export { features, codeSnippet }
+export { codeSnippet, features }
 
 const features: Feature[] = [
     {
@@ -11,14 +17,27 @@ const features: Feature[] = [
         description: 'Write code in multiple programming languages.',
     },
     {
-        icon: ZapIcon,
-        title: 'Test Instantly',
-        description: 'Run and debug your code in real-time.',
+        icon: PlayIcon,
+        title: 'Run Code',
+        description:
+            'The code is executed in a transient docker container without network.',
     },
     {
         icon: Share2Icon,
         title: 'Share Easily',
-        description: 'Collaborate and share your code snippets with others.',
+        description:
+            'Share your code snippets with others by simply copying the URL.',
+    },
+    {
+        icon: SettingsIcon,
+        title: 'Key Bindings',
+        description: 'The editor supports Visual Studio Code key bindings.',
+    },
+    {
+        icon: GlobeIcon,
+        title: 'Open Source',
+        description:
+            'If your favorite language or library is missing you can open an issue or pull request on GitHub to get it added.',
     },
 ] as const
 
