@@ -9,7 +9,7 @@ export default function Onboarding() {
     const router = useRouter()
 
     return (
-        <div className="min-h-dvh pt-16 selection:text-secondary">
+        <div className="min-h-dvh pt-16 selection:bg-background">
             <div className="container mx-auto flex flex-col items-center lg:flex-row lg:justify-between xl:flex-row xl:justify-between">
                 <div className="flex flex-col space-y-12">
                     <h1 className="text-5xl font-bold text-primary dark:text-white">
@@ -20,7 +20,7 @@ export default function Onboarding() {
                         {onboardingProps.features.map((feature, idx) => (
                             <li
                                 key={idx}
-                                className="flex flex-row items-center text-2xl font-light text-default-500 text-opacity-50 transition-opacity duration-300 hover:scale-105 hover:cursor-pointer hover:text-opacity-100"
+                                className="flex flex-row items-center text-2xl font-light text-default-500 text-opacity-50 transition-all duration-500 hover:scale-105 hover:cursor-pointer hover:text-opacity-100"
                             >
                                 <PlayIcon
                                     className="mr-2"
