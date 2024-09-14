@@ -113,9 +113,6 @@ importers:
       react-syntax-highlighter:
         specifier: 15.5.0
         version: 15.5.0(react@18.3.1)
-      react-xtermjs:
-        specifier: 1.0.9
-        version: 1.0.9(@xterm/xterm@5.5.0)
       redux-persist:
         specifier: ^6.0.0
         version: 6.0.0(react@18.3.1)(redux@5.0.1)
@@ -141,9 +138,6 @@ importers:
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.16.1
         version: 7.18.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5)
-      '@xterm/xterm':
-        specifier: 5.5.0
-        version: 5.5.0
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.20(postcss@8.4.45)
@@ -1942,9 +1936,6 @@ packages:
 
   '@webassemblyjs/wast-printer@1.12.1':
     resolution: {integrity: sha512-+X4WAlOisVWQMikjbcvY2e0rwPsKQ9F688lksZhBcPycBBuii3O7m8FACbDMWDojpAqvjIncrG8J0XHKyQfVeA==}
-
-  '@xterm/xterm@5.5.0':
-    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -4031,11 +4022,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
-
-  react-xtermjs@1.0.9:
-    resolution: {integrity: sha512-lrK1xiWfgxAC+4shtMHh0Irxg2t5t7JbTtpP0W7GIf1gQ9SHW/djmyiLpQSA75mN1DpT0bKeqj1fOKd0XX8RBA==}
-    peerDependencies:
-      '@xterm/xterm': ^5.5.0
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -7088,8 +7074,6 @@ snapshots:
       '@webassemblyjs/ast': 1.12.1
       '@xtuc/long': 4.2.2
 
-  '@xterm/xterm@5.5.0': {}
-
   '@xtuc/ieee754@1.2.0': {}
 
   '@xtuc/long@4.2.2': {}
@@ -9179,10 +9163,6 @@ snapshots:
       use-latest: 1.2.1(@types/react@18.3.5)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
-
-  react-xtermjs@1.0.9(@xterm/xterm@5.5.0):
-    dependencies:
-      '@xterm/xterm': 5.5.0
 
   react@18.3.1:
     dependencies:
