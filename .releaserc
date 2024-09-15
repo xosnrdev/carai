@@ -8,16 +8,16 @@
     [
       "@semantic-release/changelog",
       {
-        "changelogFile": "../CHANGELOG.md"
+        "changelogFile": "CHANGELOG.md"
       }
     ],
     [
       "@semantic-release/git",
       {
         "assets": [
-          "package.json",
-          "../CHANGELOG.md",
-          "pnpm-lock.yaml"
+          "web/package.json",
+          "web/pnpm-lock.yaml",
+          "CHANGELOG.md"
         ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
