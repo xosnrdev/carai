@@ -1,6 +1,6 @@
-import { Mukta } from 'next/font/google'
+import { JetBrains_Mono, Mukta } from 'next/font/google'
 
-const mukta = Mukta({
+export const mukta = Mukta({
     weight: ['200', '300', '400', '500', '600', '700', '800'],
     display: 'swap',
     subsets: ['latin'],
@@ -8,4 +8,10 @@ const mukta = Mukta({
     variable: '--font-mukta',
 })
 
-export default mukta
+export const jetbrainsMono = JetBrains_Mono({
+    weight: ['200', '300', '400', '500', '600', '700', '800'],
+    display: 'swap',
+    subsets: ['latin'],
+    preload: true,
+    variable: '--font-jetbrains-mono',
+})

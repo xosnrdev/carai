@@ -1,8 +1,8 @@
 import type { ViewState } from '@/redux/tab/index.types'
 import type { BeforeMount, OnChange, OnMount } from '@monaco-editor/react'
-import type { editor } from 'monaco-editor'
 import type { EditorProp } from './index.types'
 
+import { editor } from 'monaco-editor'
 import { useTheme } from 'next-themes'
 import dynamic from 'next/dynamic'
 import { useCallback, useState } from 'react'
@@ -57,7 +57,7 @@ export default function Editor({ className, ...props }: EditorProp) {
                 }
             }
         },
-        [updateTab, editorView, codeResponse, resizeLayout, activeTab.id]
+        [updateTab, editorView, codeResponse, resizeLayout, activeTab]
     )
 
     const handleEditorOnMount: OnMount = useCallback(
@@ -70,14 +70,10 @@ export default function Editor({ className, ...props }: EditorProp) {
             }
 
             setEditorView(editorInstance)
-            setViewState({
-                id: activeTab.id,
-                isMounted: !!editorInstance,
-            })
 
             return () => editorInstance.dispose()
         },
-        [viewState, setViewState, activeTab]
+        [viewState]
     )
 
     const handleBeforeMount: BeforeMount = useCallback((monaco) => {
@@ -94,11 +90,18 @@ export default function Editor({ className, ...props }: EditorProp) {
         fontSize: 16,
         tabSize: 2,
         fixedOverflowWidgets: true,
-        fontFamily: 'Jetbrains Mono, monospace',
+        fontFamily: 'var(--font-jetbrains-mono)',
         bracketPairColorization: {
             enabled: true,
         },
         cursorStyle: 'block',
+    }
+
+    if (editorView) {
+        setViewState({
+            id: activeTab.id,
+            isMounted: true,
+        })
     }
 
     return (
