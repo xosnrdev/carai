@@ -58,7 +58,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN}}
         with:
-          extra_plugins: |
-            @semantic-release/git
-            @semantic-release/changelog
           working_directory: ./web
