@@ -8,7 +8,7 @@ import ReduxProvider from '@/components/providers/redux-provider'
 import ThemeProvider from '@/components/providers/theme-provider'
 import siteConfig from '@/config/site'
 import '@/styles/global.css'
-import mukta from '@/config/fonts'
+import { mukta, jetbrainsMono } from '@/config/fonts'
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteConfig.siteUrl),
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html suppressHydrationWarning lang="en">
-            <body className={mukta.variable}>
+            <body className={`${mukta.variable} ${jetbrainsMono.variable}`}>
                 <ThemeProvider
                     disableTransitionOnChange
                     enableSystem
