@@ -1,4 +1,4 @@
-import type { CodeSnippet, Feature } from './index.types'
+import type { CodeSnippet, Feature } from './types'
 
 import {
     CodeIcon,

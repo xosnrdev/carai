@@ -1,9 +1,5 @@
-import type { FC } from 'react'
-
 import { Logo } from '@/components/ui/icons'
 
-const Loading: FC = () => {
+export default function Loading() {
     return <Logo size={50} />
 }
-
-export default Loading

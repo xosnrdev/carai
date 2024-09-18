@@ -4,6 +4,7 @@ import siteConfig from '@/config/site'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
+        id: 'phantom-architect-authenticate-chest',
         categories: siteConfig.categories,
         description: siteConfig.description,
         display: 'standalone',
@@ -19,7 +20,6 @@ export default function manifest(): MetadataRoute.Manifest {
                 type: 'image/png',
             },
         ],
-        lang: 'en',
         name: siteConfig.name,
         short_name: siteConfig.name,
         scope: '/',

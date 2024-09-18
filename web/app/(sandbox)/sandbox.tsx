@@ -23,10 +23,11 @@ import useAppContext from '@/hooks/useAppContext'
 import useCopyToClipboard from '@/hooks/useCopyToClipboard'
 import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
-import handleCodeExecution from './action'
 
 import getContentLengthByLine from '../../components/ui/code-response/utils'
 import CustomTooltip from '../../components/ui/custom-tooltip'
+
+import handleCodeExecution from './action'
 
 const EditorLayout = dynamic(
     () => import('@/components/layouts/EditorLayout'),
@@ -147,8 +148,8 @@ export default function Sandbox() {
     const handleCopy = async () => {
         const copyResponse = await handleCopyToClipboard(
             codeResponse?.stdout! ||
-            codeResponse?.stderr! ||
-            codeResponse?.error!
+                codeResponse?.stderr! ||
+                codeResponse?.error!
         )
 
         const { success, error } = copyResponse
@@ -304,9 +305,9 @@ export default function Sandbox() {
                                                         {codeResponse?.isRunning
                                                             ? `Running ${activeTab.filename}...`
                                                             : codeResponse.time
-                                                                ? `Guest ran ${getContentLengthByLine(activeTab.content)} lines of 
+                                                              ? `Guest ran ${getContentLengthByLine(activeTab.content)} lines of 
                     ${activeTab.metadata.languageName} (finished in ${codeResponse?.time}ms):`
-                                                                : ''}
+                                                              : ''}
                                                     </small>
                                                     {codeResponse.stdout && (
                                                         <CodeResponse

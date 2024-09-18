@@ -19,7 +19,7 @@ import {
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { type FC, type ReactNode } from 'react'
+import type { FC, ReactNode } from 'react'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import {
     atomOneDark,
@@ -29,7 +29,7 @@ import {
 import useCodeRunner from '@/hooks/useRunCode'
 import { cn } from '@/lib/utils'
 
-import { codeSnippet, features } from '.'
+import { codeSnippet, features } from './constants'
 
 export default function LandingPage() {
     const router = useRouter()
