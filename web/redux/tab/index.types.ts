@@ -1,4 +1,4 @@
-import type { CodeResponse } from '@/app/(rce)/index.types'
+import type { CodeResponse } from '@/app/(sandbox)/types'
 import type { editor } from 'monaco-editor'
 
 export type Limit = number

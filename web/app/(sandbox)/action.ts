@@ -1,12 +1,12 @@
 'use server'
 
-import type { CodeResponse } from '@/app/(rce)/index.types'
 import type { Metadata } from '@/redux/tab/index.types'
+import type { CodeResponse } from './types'
 
 import * as Sentry from '@sentry/nextjs'
 
 import { isNonEmptyString } from '@/lib/utils'
-import { getImage, RCEHandler } from '@/app/(rce)/utils'
+import { getImage, RCEHandler } from './core'
 
 export default async function handleCodeExecution({
     languageName,

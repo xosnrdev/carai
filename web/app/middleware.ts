@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse, userAgent } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { kv } from '@vercel/kv'
+import { type NextRequest, NextResponse, userAgent } from 'next/server'
 
-import { RequestValidator } from '@/app/(rce)/utils'
+import { RequestValidator } from './(sandbox)/core'
 
 const ratelimit = new Ratelimit({
     redis: kv,

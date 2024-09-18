@@ -4,12 +4,11 @@ import type { PanelGroupOnLayout } from 'react-resizable-panels'
 
 import { Button } from '@nextui-org/button'
 import { CogIcon, CopyCheckIcon, CopyIcon, PlayIcon } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import dynamic from 'next/dynamic'
 import { useCallback, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { useTheme } from 'next-themes'
 
-import handleCodeExecution from '@/app/(rce)/action'
 import CodeResponse from '@/components/ui/code-response/ui'
 import useIdleTracker from '@/components/ui/docs/useIdleTracker'
 import { Logo } from '@/components/ui/icons'
@@ -21,12 +20,13 @@ import {
 } from '@/components/ui/resizable'
 import Tabs from '@/components/ui/tabs/ui'
 import useAppContext from '@/hooks/useAppContext'
+import useCopyToClipboard from '@/hooks/useCopyToClipboard'
 import useTabContext from '@/hooks/useTabContext'
 import { cn } from '@/lib/utils'
-import useCopyToClipboard from '@/hooks/useCopyToClipboard'
+import handleCodeExecution from './action'
 
-import getContentLengthByLine from '../ui/code-response/utils'
-import CustomTooltip from '../ui/custom-tooltip'
+import getContentLengthByLine from '../../components/ui/code-response/utils'
+import CustomTooltip from '../../components/ui/custom-tooltip'
 
 const EditorLayout = dynamic(
     () => import('@/components/layouts/EditorLayout'),
@@ -147,8 +147,8 @@ export default function Sandbox() {
     const handleCopy = async () => {
         const copyResponse = await handleCopyToClipboard(
             codeResponse?.stdout! ||
-                codeResponse?.stderr! ||
-                codeResponse?.error!
+            codeResponse?.stderr! ||
+            codeResponse?.error!
         )
 
         const { success, error } = copyResponse
@@ -304,9 +304,9 @@ export default function Sandbox() {
                                                         {codeResponse?.isRunning
                                                             ? `Running ${activeTab.filename}...`
                                                             : codeResponse.time
-                                                              ? `Guest ran ${getContentLengthByLine(activeTab.content)} lines of 
+                                                                ? `Guest ran ${getContentLengthByLine(activeTab.content)} lines of 
                     ${activeTab.metadata.languageName} (finished in ${codeResponse?.time}ms):`
-                                                              : ''}
+                                                                : ''}
                                                     </small>
                                                     {codeResponse.stdout && (
                                                         <CodeResponse

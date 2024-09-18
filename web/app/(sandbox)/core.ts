@@ -5,7 +5,7 @@ import type {
     CodeResponse,
     EnvConfig,
     ErrorResponse,
-} from '@/app/(rce)/index.types'
+} from './types'
 
 import * as Sentry from '@sentry/nextjs'
 import { cache } from 'react'
@@ -13,7 +13,7 @@ import { cache } from 'react'
 import { CustomError } from '@/lib/error'
 import { imageNameTransformMap, transformString } from '@/lib/utils'
 
-export { EnvConfigParser, RequestValidator, RCEHandler, getImage }
+export { EnvConfigParser, getImage, RCEHandler, RequestValidator }
 
 class EnvConfigValidator {
     constructor(protected readonly env: EnvConfig) {}

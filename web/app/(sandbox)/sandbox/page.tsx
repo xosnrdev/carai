@@ -1,4 +1,4 @@
-import Sandbox from '@/components/integrations/sandbox'
+import Sandbox from '../sandbox'
 
 export const metadata = {
     title: 'Sandbox',

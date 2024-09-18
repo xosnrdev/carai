@@ -1,8 +1,8 @@
-import type { CodeResponse } from '@/app/(rce)/index.types'
+import type { CodeResponse } from '@/app/(sandbox)/types'
 
 import { useState } from 'react'
 
-import handleCodeExecution from '@/app/(rce)/action'
+import handleCodeExecution from '@/app/(sandbox)/action'
 
 export default function useCodeRunner() {
     const [codeResponse, setCodeResponse] = useState<
