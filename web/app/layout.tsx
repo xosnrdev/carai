@@ -33,20 +33,20 @@ export const metadata: Metadata = {
     referrer: 'origin',
     description: siteConfig.description,
     openGraph: {
-        images: siteConfig.OGImage,
+        images: siteConfig.opengraph,
         type: 'website',
         url: new URL(siteConfig.siteUrl),
     },
     twitter: {
         card: 'summary_large_image',
-        creator: siteConfig.twitterHandle,
-        images: siteConfig.OGImage,
+        images: siteConfig.opengraph,
     },
     alternates: { canonical: siteConfig.siteUrl },
 }
 
 export const viewport: Viewport = {
-    maximumScale: 1,
+    colorScheme: 'normal',
+    themeColor: '#2f2f3b',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

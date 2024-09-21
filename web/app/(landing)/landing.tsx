@@ -11,42 +11,17 @@ import { motion } from 'framer-motion'
 import {
     BracesIcon,
     ChevronRightIcon,
-    CogIcon,
     GithubIcon,
     TwitterIcon,
-    ZapIcon,
 } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import type { FC, ReactNode } from 'react'
-import SyntaxHighlighter from 'react-syntax-highlighter'
-import {
-    atomOneDark,
-    atomOneLight,
-} from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
-import useCodeRunner from '@/hooks/useRunCode'
-import { cn } from '@/lib/utils'
-
-import { codeSnippet, features } from './constants'
+import features from './constants'
+import LanguageSelector from './language-selector'
 
 export default function LandingPage() {
     const router = useRouter()
-    const { isRunning, codeResponse, run, error } = useCodeRunner()
-    const { languageName, filename, content } = codeSnippet
-    const { resolvedTheme } = useTheme()
-
-    const runningCtx = `Running ${filename}...`
-    const timeCtx = `Finished in ${codeResponse?.time}ms`
-
-    const handleCodeRunner = async () => {
-        await run({
-            languageName,
-            content,
-            filename,
-        })
-    }
 
     return (
         <div className="min-h-dvh bg-gradient-to-b from-background to-default selection:bg-secondary selection:text-white">
@@ -159,137 +134,7 @@ export default function LandingPage() {
                     <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">
                         Demo
                     </h2>
-                    <CodeBlock
-                        code={
-                            <div className="space-y-4">
-                                <SyntaxHighlighter
-                                    showLineNumbers
-                                    customStyle={{
-                                        background: 'inherit',
-                                    }}
-                                    language={languageName}
-                                    style={
-                                        resolvedTheme === 'dark'
-                                            ? atomOneDark
-                                            : atomOneLight
-                                    }
-                                >
-                                    {content}
-                                </SyntaxHighlighter>
-                                {isRunning ? (
-                                    <SyntaxHighlighter
-                                        customStyle={{
-                                            background: 'inherit',
-                                        }}
-                                        style={
-                                            resolvedTheme === 'dark'
-                                                ? atomOneDark
-                                                : atomOneLight
-                                        }
-                                    >
-                                        {runningCtx}
-                                    </SyntaxHighlighter>
-                                ) : codeResponse?.time ? (
-                                    <SyntaxHighlighter
-                                        customStyle={{
-                                            background: 'inherit',
-                                        }}
-                                        style={
-                                            resolvedTheme === 'dark'
-                                                ? atomOneDark
-                                                : atomOneLight
-                                        }
-                                    >
-                                        {timeCtx}
-                                    </SyntaxHighlighter>
-                                ) : null}
-                                <div
-                                    className={cn(
-                                        'transition-opacity duration-500',
-                                        {
-                                            'opacity-0': isRunning,
-                                            'opacity-100': !isRunning,
-                                        }
-                                    )}
-                                >
-                                    {codeResponse?.stderr && (
-                                        <SyntaxHighlighter
-                                            customStyle={{
-                                                background: 'inherit',
-                                            }}
-                                            style={
-                                                resolvedTheme === 'dark'
-                                                    ? atomOneDark
-                                                    : atomOneLight
-                                            }
-                                        >
-                                            {codeResponse.stderr}
-                                        </SyntaxHighlighter>
-                                    )}
-                                    {codeResponse?.stdout && (
-                                        <SyntaxHighlighter
-                                            customStyle={{
-                                                background: 'inherit',
-                                            }}
-                                            style={
-                                                resolvedTheme === 'dark'
-                                                    ? atomOneDark
-                                                    : atomOneLight
-                                            }
-                                        >
-                                            {codeResponse.stdout}
-                                        </SyntaxHighlighter>
-                                    )}
-                                    {error && (
-                                        <SyntaxHighlighter
-                                            customStyle={{
-                                                background: 'inherit',
-                                            }}
-                                            style={
-                                                resolvedTheme === 'dark'
-                                                    ? atomOneDark
-                                                    : atomOneLight
-                                            }
-                                        >
-                                            {error}
-                                        </SyntaxHighlighter>
-                                    )}
-                                </div>
-                            </div>
-                        }
-                    />
-                    <div className="mt-4 text-center">
-                        <Button
-                            className={cn(
-                                'animate-pulse text-white hover:animate-none',
-                                {
-                                    'animate-none': isRunning,
-                                }
-                            )}
-                            color="success"
-                            endContent={
-                                <ZapIcon
-                                    className={cn({ hidden: isRunning })}
-                                    size={16}
-                                />
-                            }
-                            isDisabled={isRunning}
-                            isLoading={isRunning}
-                            radius="sm"
-                            size="lg"
-                            spinner={
-                                <CogIcon
-                                    className={cn({
-                                        'animate-spin': isRunning,
-                                    })}
-                                    size={16}
-                                />
-                            }
-                            spinnerPlacement="end"
-                            startContent={<span>Click me</span>}
-                            onPress={handleCodeRunner}
-                        />
-                    </div>
+                    <LanguageSelector />
                 </section>
 
                 <section className="mb-16 text-center">
@@ -348,20 +193,6 @@ export default function LandingPage() {
                     </Navbar>
                 </footer>
             </main>
-        </div>
-    )
-}
-
-const CodeBlock: FC<{ code: ReactNode }> = ({ code }) => {
-    return (
-        <div className="mx-auto max-w-prose rounded-lg bg-background pb-4 text-default-500 shadow-lg">
-            <div className="flex items-center justify-start space-x-2 rounded-t-lg p-3">
-                <span className="size-3 rounded-full bg-red-500" />
-                <span className="size-3 rounded-full bg-yellow-500" />
-                <span className="size-3 rounded-full bg-green-500" />
-            </div>
-
-            {code}
         </div>
     )
 }

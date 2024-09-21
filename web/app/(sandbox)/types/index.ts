@@ -1,3 +1,7 @@
+import type { ForwardRefExoticComponent, RefAttributes } from 'react'
+
+import { LucideProps } from 'lucide-react'
+
 export type ErrorResponse = {
     message: string
 }
@@ -24,4 +28,12 @@ export type CodeResponse = {
 export type EnvConfig = {
     baseUrl: string
     accessToken: string
+}
+
+export type SidebarProp = {
+    id: string
+    icon: ForwardRefExoticComponent<
+        Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
+    >
+    label: string
 }

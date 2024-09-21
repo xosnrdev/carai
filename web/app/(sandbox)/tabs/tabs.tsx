@@ -4,10 +4,8 @@ import { useCallback, useRef } from 'react'
 import useKeyPress from '@/hooks/useKeyPress'
 import useTabContext from '@/hooks/useTabContext'
 
-import Editor from '../editor/ui'
-import Tab from '../tab/ui'
-
 import { scrollActiveTabIntoView } from './utils'
+import Tab from './tab'
 
 export default function Tabs() {
     const pathname = usePathname()
@@ -84,37 +82,24 @@ export default function Tabs() {
     })
 
     return (
-        <div
-            aria-label="tabs container"
-            className="flex h-full flex-col"
-            role="tabpanel"
-        >
-            <aside className="sticky top-0 bg-background">
-                <div
-                    aria-label="tabs"
-                    className={
-                        'flex flex-row overflow-x-auto overflow-y-hidden'
-                    }
-                    role="tablist"
-                >
-                    {tabs.map(({ id, filename }) => (
-                        <Tab
-                            key={id}
-                            ref={activeTab.id === id ? activeTabRef : null}
-                            activeTabId={activeTab.id}
-                            closeTab={handleCloseTab}
-                            filename={filename}
-                            id={id}
-                            setActiveTab={setActiveTab}
-                        />
-                    ))}
-                </div>
-            </aside>
-            <Editor
-                key={activeTab.id}
-                aria-label={`playground for ${activeTab.metadata.languageName || 'unknown language'}`}
-                className="flex-1 overflow-hidden"
-            />
-        </div>
+        <aside className="sticky top-0 z-50 bg-background">
+            <div
+                aria-label="tabs"
+                className={'flex flex-row overflow-x-auto'}
+                role="tablist"
+            >
+                {tabs.map(({ id, filename }) => (
+                    <Tab
+                        key={id}
+                        ref={activeTab.id === id ? activeTabRef : null}
+                        activeTabId={activeTab.id}
+                        closeTab={handleCloseTab}
+                        filename={filename}
+                        id={id}
+                        setActiveTab={setActiveTab}
+                    />
+                ))}
+            </div>
+        </aside>
     )
 }

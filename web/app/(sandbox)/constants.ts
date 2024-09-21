@@ -1,4 +1,4 @@
-import type { SidebarProp } from './index.types'
+import type { SidebarProp } from './types'
 
 import { PlusIcon, UsersRoundIcon } from 'lucide-react'
 

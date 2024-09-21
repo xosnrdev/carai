@@ -8,9 +8,3 @@ export type Feature = {
     title: string
     description: string
 }
-
-export type CodeSnippet = {
-    languageName: string
-    content: string
-    filename: string
-}

@@ -2,24 +2,17 @@ export type SiteConfig = typeof siteConfig
 
 const siteConfig = {
     name: 'Carai',
-    type: 'website',
     title: 'Carai - Write, Test, and Share Code Online',
-    author: 'Success Kingsley',
+    author: 'Success Kingsley <hello@xosnrdev.com>',
     description:
         'An online platform to easily write, test, and share code with others. Carai is your all-in-one open-source platform for coding, testing, and collaboration.',
-    language: 'en',
-    OGImage: '/carai-og.png',
+    opengraph: '/opengraph-image.png',
     favicon: '/favicon.ico',
-    email: 'hello@xosnrdev.tech',
-    socials: {
-        repo: 'https://github.com/xosnrdev/carai',
-        github: 'https://github.com/xosnrdev',
-        twitter: 'https://twitter.com/xosnrdev',
-        authorUrl: 'https://xosnrdev.tech',
-    },
-    twitterHandle: '@xosnrdev',
-    locale: 'en_US',
-    siteUrl: 'https://codespacex.com',
+    repo: 'https://github.com/xosnrdev/carai',
+    siteUrl:
+        process.env.NODE_ENV === 'production'
+            ? 'https://codespacex.com'
+            : 'http://localhost:3000',
     keywords: [
         'online code editor',
         'code sharing platform',
@@ -60,7 +53,6 @@ const siteConfig = {
         'Code Execution Platform',
         'Open Source Tools',
     ],
-    publisher: 'Success Kingsley',
 }
 
 export default siteConfig

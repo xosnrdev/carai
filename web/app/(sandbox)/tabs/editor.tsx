@@ -1,27 +1,22 @@
 import type { ViewState } from '@/redux/tab/index.types'
-import type { BeforeMount, OnChange, OnMount } from '@monaco-editor/react'
-import type { EditorProp } from './index.types'
+import type { OnChange, OnMount } from '@monaco-editor/react'
+import type { editor } from 'monaco-editor'
 
-import { editor } from 'monaco-editor'
 import { useTheme } from 'next-themes'
-import dynamic from 'next/dynamic'
-import { useCallback, useState } from 'react'
+import { type HTMLAttributes, useCallback, useState } from 'react'
 
+import MonacoEditor from '@/components/monaco-editor'
+import { Logo } from '@/components/ui/icons'
 import useTabContext from '@/hooks/useTabContext'
 import { languageSupportTransformMap, transformString } from '@/lib/utils'
 
-import { Logo } from '../icons'
+import { serializeViewState } from './utils'
 
-import serializeViewState from './utils'
-
-import { darkThemeData, lightThemeData } from '.'
-
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
-    loading: () => <Logo />,
-    ssr: false,
-})
-
-export default function Editor({ className, ...props }: EditorProp) {
+export default function Editor({
+    className,
+}: {
+    className?: HTMLAttributes<HTMLDivElement>['className']
+}) {
     const {
         updateTab,
         activeTab,
@@ -61,41 +56,20 @@ export default function Editor({ className, ...props }: EditorProp) {
     )
 
     const handleEditorOnMount: OnMount = useCallback(
-        (editorInstance) => {
+        (editor) => {
             const serializedState = serializeViewState(viewState.state)
 
-            if (editorInstance && viewState) {
-                editorInstance.restoreViewState(serializedState)
-                editorInstance.focus()
+            if (editor && viewState) {
+                editor.restoreViewState(serializedState)
+                editor.focus()
             }
 
-            setEditorView(editorInstance)
+            setEditorView(editor)
 
-            return () => editorInstance.dispose()
+            return () => editor.dispose()
         },
         [viewState]
     )
-
-    const handleBeforeMount: BeforeMount = useCallback((monaco) => {
-        monaco.editor.defineTheme('carai-dark', darkThemeData)
-
-        monaco.editor.defineTheme('carai-light', lightThemeData)
-    }, [])
-
-    const editorConfigOptions: editor.IStandaloneEditorConstructionOptions = {
-        wordWrap: 'on',
-        minimap: {
-            enabled: false,
-        },
-        fontSize: 16,
-        tabSize: 2,
-        fixedOverflowWidgets: true,
-        fontFamily: 'var(--font-jetbrains-mono)',
-        bracketPairColorization: {
-            enabled: true,
-        },
-        cursorStyle: 'block',
-    }
 
     if (editorView) {
         setViewState({
@@ -106,7 +80,6 @@ export default function Editor({ className, ...props }: EditorProp) {
 
     return (
         <MonacoEditor
-            beforeMount={handleBeforeMount}
             className={className}
             language={transformString({
                 str: activeTab.metadata.languageName,
@@ -114,12 +87,30 @@ export default function Editor({ className, ...props }: EditorProp) {
                 lowerCase: true,
             })}
             loading={<Logo />}
-            options={editorConfigOptions}
+            options={{
+                wordWrap: 'on',
+                minimap: {
+                    enabled: false,
+                },
+                fontSize: 16,
+                tabSize: 2,
+                fixedOverflowWidgets: true,
+                fontFamily: 'var(--font-jetbrains-mono)',
+                bracketPairColorization: {
+                    enabled: true,
+                },
+                cursorStyle: 'block',
+                lineDecorationsWidth: 0,
+                lineNumbersMinChars: 3,
+                lineHeight: 24,
+                padding: {
+                    top: 12,
+                },
+            }}
             theme={resolvedTheme === 'dark' ? 'carai-dark' : 'carai-light'}
             value={activeTab.content}
             onChange={handleEditorChange}
             onMount={handleEditorOnMount}
-            {...props}
         />
     )
 }

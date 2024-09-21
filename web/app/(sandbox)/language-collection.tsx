@@ -1,5 +1,3 @@
-import type { Runtime } from './index.types'
-
 import { Button } from '@nextui-org/button'
 import { Input } from '@nextui-org/input'
 import * as Sentry from '@sentry/nextjs'
@@ -11,19 +9,18 @@ import toast from 'react-hot-toast'
 import useAppContext from '@/hooks/useAppContext'
 import useTabContext from '@/hooks/useTabContext'
 import { cn, languageNameTransformMap, transformString } from '@/lib/utils'
+import { runtimeRecord } from '@/config/editor/constants'
 
-import { DialogFooter } from '../dialog'
-import { Label } from '../label'
-import Modal from '../modal'
-import { RadioGroup, RadioGroupItem } from '../radio-group'
-
-import { runtimeMap } from '.'
+import { DialogFooter } from '../../components/ui/dialog'
+import { Label } from '../../components/ui/label'
+import Modal from '../../components/ui/modal'
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group'
 
 export default function LanguageCollection() {
-    const [selectedRuntime, setSelectedRuntime] = useState<Runtime | null>(null)
+    const [selectedKey, setSelectedKey] = useState('')
     const [searchQuery, setSearchQuery] = useState('')
 
-    const [newEntryPoint, setnewEntryPoint] = useState('')
+    const [newEntryPoint, setNewEntryPoint] = useState('')
     const { setIsOpen } = useAppContext()
     const { addTab } = useTabContext()
 
@@ -65,53 +62,55 @@ export default function LanguageCollection() {
             return false
         }
 
-        const sortedRuntimeProps = Array.from(runtimeMap.entries())
-            .slice()
-            .sort(([_, propsA], [__, propsB]) => {
-                return (
-                    propsA.languageName.trim().length -
-                    propsB.languageName.trim().length
-                )
-            })
-
-        return sortedRuntimeProps.filter(([_, props]) => {
-            const lowerCaseTitle = props.languageName.trim().toLowerCase()
+        return Object.entries(runtimeRecord).filter(([key, runtime]) => {
+            const lowerCaseTitle = runtime.languageName.trim().toLowerCase()
+            const lowerCaseKey = key.toLowerCase()
 
             if (lowerCaseSearchQuery.length === 1) {
-                return lowerCaseTitle.charAt(0) === lowerCaseSearchQuery
+                return (
+                    lowerCaseTitle.charAt(0) === lowerCaseSearchQuery ||
+                    lowerCaseKey.charAt(0) === lowerCaseSearchQuery
+                )
             }
 
-            return boyerMooreSearch(lowerCaseTitle, lowerCaseSearchQuery)
+            return (
+                boyerMooreSearch(lowerCaseTitle, lowerCaseSearchQuery) ||
+                boyerMooreSearch(lowerCaseKey, lowerCaseSearchQuery)
+            )
         })
     }, [searchQuery])
 
-    useEffect(() => {
-        if (filteredRuntimes.length === 1) {
-            setSelectedRuntime(filteredRuntimes[0][1])
+    const selectedRuntime = useMemo(() => {
+        if (
+            !selectedKey ||
+            !filteredRuntimes.some(([key]) => key === selectedKey)
+        ) {
+            return
         }
 
-        return () => setSelectedRuntime(null)
+        return filteredRuntimes.find(([key]) => key === selectedKey)?.[1]
+    }, [selectedKey, filteredRuntimes])
+
+    useEffect(() => {
+        if (filteredRuntimes.length === 1) {
+            setSelectedKey(filteredRuntimes[0][0])
+        }
+
+        return () => setSelectedKey('')
     }, [filteredRuntimes])
 
-    const handleChange = (value: string) => {
-        const parsedValue = JSON.parse(value) as Runtime
-
-        setSelectedRuntime(parsedValue)
-    }
-
     const handleSelectedLanguage = useCallback(() => {
-        if (!selectedRuntime) {
+        if (!selectedKey || !selectedRuntime) {
             toast.error('No language selected')
 
             return
         }
 
         try {
-            const { snippet, entryPoint, languageName } = selectedRuntime
-            const filename = newEntryPoint.trim() || entryPoint
+            const { snippet, filename, languageName } = selectedRuntime
 
             addTab({
-                filename,
+                filename: newEntryPoint.trim() || filename,
                 content: newEntryPoint ? '' : snippet,
 
                 metadata: {
@@ -130,14 +129,14 @@ export default function LanguageCollection() {
                 modal: false,
             })
 
-            setSelectedRuntime(null)
+            setSelectedKey('')
             setSearchQuery('')
-            setnewEntryPoint('')
+            setNewEntryPoint('')
         } catch (error) {
             Sentry.captureException(error)
             toast.error((error as Error).message)
         }
-    }, [addTab, selectedRuntime, setIsOpen, newEntryPoint])
+    }, [addTab, selectedKey, setIsOpen, newEntryPoint, selectedRuntime])
 
     return (
         <Modal
@@ -170,7 +169,7 @@ export default function LanguageCollection() {
                         type="text"
                         value={newEntryPoint}
                         variant="bordered"
-                        onChange={(e) => setnewEntryPoint(e.target.value)}
+                        onChange={(e) => setNewEntryPoint(e.target.value)}
                     />
                     <Input
                         fullWidth
@@ -193,12 +192,12 @@ export default function LanguageCollection() {
                         className="flex snap-x snap-mandatory flex-row gap-4 overflow-x-auto"
                         orientation="vertical"
                         tabIndex={-1}
-                        onValueChange={handleChange}
+                        onValueChange={setSelectedKey}
                     >
                         {filteredRuntimes.length > 0 ? (
-                            filteredRuntimes.map(([_, runtime]) => (
+                            filteredRuntimes.map(([key, runtime]) => (
                                 <div
-                                    key={runtime.languageName}
+                                    key={key}
                                     className="snap-start scroll-ms-6"
                                 >
                                     <RadioGroupItem
@@ -209,7 +208,7 @@ export default function LanguageCollection() {
                                         }
                                         className="peer sr-only"
                                         id={runtime.languageName}
-                                        value={JSON.stringify(runtime)}
+                                        value={key}
                                     />
                                     <Label
                                         className={cn(

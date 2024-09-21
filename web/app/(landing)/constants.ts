@@ -1,4 +1,4 @@
-import type { CodeSnippet, Feature } from './types'
+import type { Feature } from './types'
 
 import {
     CodeIcon,
@@ -7,8 +7,6 @@ import {
     SettingsIcon,
     Share2Icon,
 } from 'lucide-react'
-
-export { codeSnippet, features }
 
 const features: Feature[] = [
     {
@@ -41,18 +39,4 @@ const features: Feature[] = [
     },
 ] as const
 
-const codeSnippet: CodeSnippet = {
-    languageName: 'rust',
-    content: `// hello_world.rs
-
-fn greet(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
-
-fn main() {
-    let name = "World";
-    println!("{}", greet(name));
-}
-`.trim(),
-    filename: 'hello_world.rs',
-} as const
+export default features

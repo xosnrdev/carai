@@ -1,4 +1,4 @@
-import type { TabProp } from './index.types'
+import type { TabProp } from './types'
 
 import { usePathname } from 'next/navigation'
 import { forwardRef, memo, useCallback, useRef, type FC } from 'react'

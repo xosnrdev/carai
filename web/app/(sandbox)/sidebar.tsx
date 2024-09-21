@@ -5,11 +5,10 @@ import { useState } from 'react'
 import useAppContext from '@/hooks/useAppContext'
 import useKeyPress from '@/hooks/useKeyPress'
 import { cn } from '@/lib/utils'
+import CustomTooltip from '@/components/ui/custom-tooltip'
 
-import CustomTooltip from '../custom-tooltip'
-import LanguageCollection from '../language/ui'
-
-import sidebarProps from '.'
+import LanguageCollection from './language-collection'
+import sidebarProps from './constants'
 
 export default function Sidebar() {
     const { isOpen, setIsOpen } = useAppContext()

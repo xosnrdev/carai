@@ -16,15 +16,12 @@ export default function Error({
     }, [error])
 
     return (
-        <html lang="en">
+        <html>
             <body>
-                <div className="prose prose-lg mx-auto flex min-h-dvh flex-col items-center justify-center font-mukta">
+                <div className="mx-auto flex min-h-dvh flex-col items-center justify-center space-y-4 font-mukta">
                     <h2>Something went wrong!</h2>
                     <Button
-                        color="primary"
-                        size={'sm'}
                         startContent={<span>Try again</span>}
-                        variant="ghost"
                         onPress={() => reset()}
                     />
                 </div>
