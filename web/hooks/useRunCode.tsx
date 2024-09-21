@@ -1,8 +1,9 @@
-import type { CodeResponse } from '@/app/(rce)/index.types'
+import type { CodeResponse } from '@/app/(sandbox)/types'
 
 import { useState } from 'react'
 
-import handleCodeExecution from '@/app/(rce)/action'
+import handleCodeExecution from '@/app/(sandbox)/action'
+import { isNonEmptyString } from '@/lib/utils'
 
 export default function useCodeRunner() {
     const [codeResponse, setCodeResponse] = useState<
@@ -20,6 +21,7 @@ export default function useCodeRunner() {
         content: string
         filename: string
     }) => {
+        if (isRunning || !isNonEmptyString(content)) return
         setIsRunning(true)
         setError(null)
 

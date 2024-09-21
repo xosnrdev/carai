@@ -1,16 +1,11 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 
-import siteConfig from '@/config/site'
-
-const robots = (): MetadataRoute.Robots => {
+export default function robots(): MetadataRoute.Robots {
     return {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: '/api/',
+            disallow: '',
         },
-        sitemap: `${siteConfig.siteUrl}/sitemap.xml`,
     }
 }
-
-export default robots

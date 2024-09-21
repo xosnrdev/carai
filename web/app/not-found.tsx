@@ -21,8 +21,6 @@ export default function NotFound() {
 
 const styles = {
     error: {
-        fontFamily:
-            'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"',
         height: '100vh',
         textAlign: 'center',
         display: 'flex',
