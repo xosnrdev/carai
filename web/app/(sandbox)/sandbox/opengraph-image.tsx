@@ -20,8 +20,10 @@ export default async function Image() {
                     width: '100%',
                     height: '100%',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    color: '#FFFFFF',
                 }}
             >
                 Sandbox | Carai
