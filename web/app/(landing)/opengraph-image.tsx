@@ -29,15 +29,15 @@ export default async function Image() {
                 <svg
                     className="lucide lucide-braces"
                     fill="none"
+                    stroke="#FFFFFF"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     style={{
                         width: '1em',
                         height: '1em',
                         marginRight: '0.2em',
                     }}
-                    stroke="#FFFFFF"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                 >
@@ -46,7 +46,6 @@ export default async function Image() {
                 </svg>
                 <span style={{ lineHeight: 1 }}>Carai</span>
             </div>
-
         ),
         {
             ...size,
