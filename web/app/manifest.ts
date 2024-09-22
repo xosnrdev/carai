@@ -24,7 +24,5 @@ export default function manifest(): MetadataRoute.Manifest {
         short_name: siteConfig.name,
         scope: '/',
         start_url: '/',
-        theme_color: '#2f2f3b',
-        background_color: '#2f2f3b',
     }
 }
