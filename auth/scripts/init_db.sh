@@ -32,12 +32,12 @@ if [[ -z "${SKIP_DOCKER}" ]]; then
 
   docker run \
       --env POSTGRES_USER="${SUPERUSER}" \
-      --env POSTGRES_PASSWORD="${SUPERUSER_PWD}" \
+      --env POSTGRES_PASSWORD="${SUPERUSER_PASSWORD}" \
       --health-cmd="pg_isready -U ${SUPERUSER} || exit 1" \
       --health-interval=1s \
       --health-timeout=5s \
       --health-retries=5 \
-      --publish "${DB_PORT}":5432 \
+      --publish "${DATABASE_PORT}":5432 \
       --detach \
       --name "${CONTAINER_NAME}" \
       postgres -N 1000
@@ -47,17 +47,17 @@ if [[ -z "${SKIP_DOCKER}" ]]; then
     sleep 1
   done
 
-  CREATE_QUERY="CREATE USER ${APP_USER} WITH PASSWORD '${APP_USER_PWD}';"
+  CREATE_QUERY="CREATE USER ${DATABASE_USERNAME} WITH PASSWORD '${DATABASE_PASSWORD}';"
   docker exec -it "${CONTAINER_NAME}" psql -U "${SUPERUSER}" -c "${CREATE_QUERY}"
 
-  GRANT_QUERY="ALTER USER ${APP_USER} CREATEDB;"
+  GRANT_QUERY="ALTER USER ${DATABASE_USERNAME} CREATEDB;"
   docker exec -it "${CONTAINER_NAME}" psql -U "${SUPERUSER}" -c "${GRANT_QUERY}"
 fi
 
->&2 echo "Postgres is up and running on port ${DB_PORT} - running migrations now!"
+>&2 echo "Postgres is up and running on port ${DATABASE_PORT} - running migrations now!"
 
-DATABASE_URL=postgres://${APP_USER}:${APP_USER_PWD}@localhost:${DB_PORT}/${APP_DB_NAME}
-export DATABASE_URL
+DATABASE_HOST=postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/${DATABASE_NAME}
+export DATABASE_HOST
 sqlx database create
 sqlx migrate run
 
