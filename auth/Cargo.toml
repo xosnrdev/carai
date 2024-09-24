@@ -1,0 +1,23 @@
+[package]
+name = "auth"
+version = "0.1.0"
+edition = "2021"
+authors = ["Success Kingsley <hello@xosnrdev.tech>"]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "auth"
+
+[dependencies]
+axum = "0.7.6"
+sqlx = { version = "0.8.2", default-features = false, features = [
+    "runtime-tokio-rustls",
+    "macros",
+    "postgres",
+    "uuid",
+    "chrono",
+    "migrate",
+] }
