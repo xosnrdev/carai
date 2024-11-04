@@ -1,10 +1,10 @@
 type QuickLinks = {
-    id: string
-    label: string
-    uri: string
-}
+    id: string;
+    label: string;
+    uri: string;
+};
 
 export type OnboardingProp = {
-    quickLinks: QuickLinks[]
-    features: string[]
-}
+    quickLinks: QuickLinks[];
+    features: string[];
+};

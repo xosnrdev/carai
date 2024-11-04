@@ -1,16 +1,16 @@
-import type { HeaderProp } from './index.types'
+import type { HeaderProp } from "./index.types";
 
 const headerProps: HeaderProp[] = [
     {
-        id: 'sign-up',
-        label: 'Sign Up',
-        path: '/sign-up',
+        id: "sign-up",
+        label: "Sign Up",
+        path: "/sign-up",
     },
     {
-        id: 'sign-in',
-        label: 'Sign In',
-        path: '/sign-in',
+        id: "sign-in",
+        label: "Sign In",
+        path: "/sign-in",
     },
-] as const
+] as const;
 
-export default headerProps
+export default headerProps;

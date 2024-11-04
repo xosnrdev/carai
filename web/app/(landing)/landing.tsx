@@ -1,42 +1,25 @@
-'use client'
+"use client";
 
-import { Button } from '@nextui-org/button'
-import {
-    Navbar,
-    NavbarBrand,
-    NavbarContent,
-    NavbarItem,
-} from '@nextui-org/navbar'
-import { motion } from 'framer-motion'
-import {
-    BracesIcon,
-    ChevronRightIcon,
-    GithubIcon,
-    TwitterIcon,
-} from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { Button } from "@nextui-org/button";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/navbar";
+import { motion } from "framer-motion";
+import { BracesIcon, ChevronRightIcon, GithubIcon, TwitterIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import features from './constants'
-import LanguageSelector from './language-selector'
+import features from "./constants";
+import LanguageSelector from "./language-selector";
 
 export default function LandingPage() {
-    const router = useRouter()
+    const router = useRouter();
 
     return (
         <div className="min-h-dvh bg-gradient-to-b from-background to-default selection:bg-secondary selection:text-white">
             <header className="container mx-auto">
-                <Navbar
-                    className="bg-inherit"
-                    isBlurred={false}
-                    maxWidth="full"
-                    position="static"
-                >
+                <Navbar className="bg-inherit" isBlurred={false} maxWidth="full" position="static">
                     <NavbarBrand>
                         <BracesIcon className="size-6 text-primary lg:size-8" />
-                        <span className="text-lg font-bold md:text-3xl">
-                            Carai
-                        </span>
+                        <span className="text-lg font-bold md:text-3xl">Carai</span>
                     </NavbarBrand>
                     <NavbarContent justify="end">
                         <NavbarItem className="transition-colors duration-500">
@@ -48,18 +31,12 @@ export default function LandingPage() {
                             </Link>
                         </NavbarItem>
                         <NavbarItem>
-                            <Link
-                                className="text-sm hover:text-primary md:text-lg"
-                                href="#demo"
-                            >
+                            <Link className="text-sm hover:text-primary md:text-lg" href="#demo">
                                 Demo
                             </Link>
                         </NavbarItem>
                         <NavbarItem>
-                            <Link
-                                className="text-sm hover:text-primary md:text-lg"
-                                href="/sandbox"
-                            >
+                            <Link className="text-sm hover:text-primary md:text-lg" href="/sandbox">
                                 Sandbox
                             </Link>
                         </NavbarItem>
@@ -83,9 +60,9 @@ export default function LandingPage() {
                         initial={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        An online platform to easily write, test, and share code
-                        with others. Your all-in-one open-source platform for
-                        coding sessions, testing, and collaboration.
+                        An online platform to easily write, test, and share code with others. Your
+                        all-in-one open-source platform for coding sessions, testing, and
+                        collaboration.
                     </motion.p>
                     <motion.div
                         animate={{ opacity: 1, y: 0 }}
@@ -100,47 +77,36 @@ export default function LandingPage() {
                             size="lg"
                             startContent={<span>Try Sandbox</span>}
                             variant="shadow"
-                            onPress={() => router.push('/sandbox')}
+                            onPress={() => router.push("/sandbox")}
                         />
                     </motion.div>
                 </section>
 
                 <section className="mb-16" id="features">
-                    <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">
-                        Features
-                    </h2>
+                    <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Features</h2>
                     <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                        {features.map((feature, index) => (
+                        {features.map((feature) => (
                             <div
-                                key={index}
+                                key={feature.title}
                                 className="cursor-pointer rounded-lg bg-background p-4 shadow-lg transition-all duration-500 ease-in-out hover:scale-105 hover:shadow-xl sm:p-6 lg:p-8"
                             >
-                                <feature.icon
-                                    className="mb-4 text-primary"
-                                    size={40}
-                                />
+                                <feature.icon className="mb-4 text-primary" size={40} />
                                 <h3 className="mb-2 text-lg font-semibold md:text-xl">
                                     {feature.title}
                                 </h3>
-                                <p className="text-default-500">
-                                    {feature.description}
-                                </p>
+                                <p className="text-default-500">{feature.description}</p>
                             </div>
                         ))}
                     </div>
                 </section>
 
                 <section className="mb-16" id="demo">
-                    <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">
-                        Demo
-                    </h2>
+                    <h2 className="mb-8 text-center text-2xl font-bold md:text-3xl">Demo</h2>
                     <LanguageSelector />
                 </section>
 
                 <section className="mb-16 text-center">
-                    <h2 className="mb-8 text-2xl font-bold md:text-3xl">
-                        Ready to get started?
-                    </h2>
+                    <h2 className="mb-8 text-2xl font-bold md:text-3xl">Ready to get started?</h2>
                     <div>
                         <Button
                             className="text-white"
@@ -150,7 +116,7 @@ export default function LandingPage() {
                             size="lg"
                             startContent={<span>Try Sandbox</span>}
                             variant="shadow"
-                            onPress={() => router.push('/sandbox')}
+                            onPress={() => router.push("/sandbox")}
                         />
                     </div>
                 </section>
@@ -163,10 +129,7 @@ export default function LandingPage() {
                         position="static"
                     >
                         <NavbarBrand>
-                            <p>
-                                Copyright &copy; {new Date().getFullYear()}{' '}
-                                Carai
-                            </p>
+                            <p>Copyright &copy; {new Date().getFullYear()} Carai</p>
                         </NavbarBrand>
                         <NavbarContent justify="end">
                             <NavbarItem>
@@ -194,5 +157,5 @@ export default function LandingPage() {
                 </footer>
             </main>
         </div>
-    )
+    );
 }

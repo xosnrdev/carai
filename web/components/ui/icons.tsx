@@ -1,23 +1,12 @@
-import type { SVGProps } from 'react'
+import type { SVGProps } from "react";
 
 type IconSvgProps = SVGProps<SVGSVGElement> & {
-    size?: number
-}
+    size?: number;
+};
 
-export {
-    MoonFilledIcon,
-    SunFilledIcon,
-    ComputerFilledIcon,
-    Logo,
-    NotificationIcon,
-}
+export { MoonFilledIcon, SunFilledIcon, ComputerFilledIcon, Logo, NotificationIcon };
 
-const MoonFilledIcon = ({
-    size = 24,
-    width,
-    height,
-    ...props
-}: IconSvgProps) => (
+const MoonFilledIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => (
     <svg
         aria-hidden="true"
         className="text-primary"
@@ -33,14 +22,9 @@ const MoonFilledIcon = ({
             fill="currentColor"
         />
     </svg>
-)
+);
 
-const SunFilledIcon = ({
-    size = 24,
-    width,
-    height,
-    ...props
-}: IconSvgProps) => (
+const SunFilledIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => (
     <svg
         aria-hidden="true"
         className="text-default-foreground"
@@ -56,14 +40,9 @@ const SunFilledIcon = ({
             <path d="M12 22.96a.969.969 0 01-1-.96v-.08a1 1 0 012 0 1.038 1.038 0 01-1 1.04zm7.14-2.82a1.024 1.024 0 01-.71-.29l-.13-.13a1 1 0 011.41-1.41l.13.13a1 1 0 010 1.41.984.984 0 01-.7.29zm-14.28 0a1.024 1.024 0 01-.71-.29 1 1 0 010-1.41l.13-.13a1 1 0 011.41 1.41l-.13.13a1 1 0 01-.7.29zM22 13h-.08a1 1 0 010-2 1.038 1.038 0 011.04 1 .969.969 0 01-.96 1zM2.08 13H2a1 1 0 010-2 1.038 1.038 0 011.04 1 .969.969 0 01-.96 1zm16.93-7.01a1.024 1.024 0 01-.71-.29 1 1 0 010-1.41l.13-.13a1 1 0 011.41 1.41l-.13.13a.984.984 0 01-.7.29zm-14.02 0a1.024 1.024 0 01-.71-.29l-.13-.14a1 1 0 011.41-1.41l.13.13a1 1 0 010 1.41.97.97 0 01-.7.3zM12 3.04a.969.969 0 01-1-.96V2a1 1 0 012 0 1.038 1.038 0 01-1 1.04z" />
         </g>
     </svg>
-)
+);
 
-const ComputerFilledIcon = ({
-    size = 24,
-    width,
-    height,
-    ...props
-}: IconSvgProps) => (
+const ComputerFilledIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => (
     <svg
         aria-hidden="true"
         className="text-default-foreground"
@@ -90,7 +69,7 @@ const ComputerFilledIcon = ({
             </clipPath>
         </defs>
     </svg>
-)
+);
 
 const Logo = ({ size = 50, width, height, ...props }: IconSvgProps) => (
     <div className="flex min-h-dvh items-center justify-center">
@@ -114,7 +93,7 @@ const Logo = ({ size = 50, width, height, ...props }: IconSvgProps) => (
             <path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1" />
         </svg>
     </div>
-)
+);
 
 const NotificationIcon = ({ size, height, width, ...props }: IconSvgProps) => {
     return (
@@ -126,6 +105,7 @@ const NotificationIcon = ({ size, height, width, ...props }: IconSvgProps) => {
             xmlns="http://www.w3.org/2000/svg"
             {...props}
         >
+            <title>notification icon</title>
             <path
                 clipRule="evenodd"
                 d="M18.707 8.796c0 1.256.332 1.997 1.063 2.85.553.628.73 1.435.73 2.31 0 .874-.287 1.704-.863 2.378a4.537 4.537 0 01-2.9 1.413c-1.571.134-3.143.247-4.736.247-1.595 0-3.166-.068-4.737-.247a4.532 4.532 0 01-2.9-1.413 3.616 3.616 0 01-.864-2.378c0-.875.178-1.682.73-2.31.754-.854 1.064-1.594 1.064-2.85V8.37c0-1.682.42-2.781 1.283-3.858C7.861 2.942 9.919 2 11.956 2h.09c2.08 0 4.204.987 5.466 2.625.82 1.054 1.195 2.108 1.195 3.745v.426zM9.074 20.061c0-.504.462-.734.89-.833.5-.106 3.545-.106 4.045 0 .428.099.89.33.89.833-.025.48-.306.904-.695 1.174a3.635 3.635 0 01-1.713.731 3.795 3.795 0 01-1.008 0 3.618 3.618 0 01-1.714-.732c-.39-.269-.67-.694-.695-1.173z"
@@ -133,5 +113,5 @@ const NotificationIcon = ({ size, height, width, ...props }: IconSvgProps) => {
                 fillRule="evenodd"
             />
         </svg>
-    )
-}
+    );
+};

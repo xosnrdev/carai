@@ -1,18 +1,18 @@
-import type { SidebarProp } from './types'
+import type { SidebarProp } from "./types";
 
-import { PlusIcon, UsersRoundIcon } from 'lucide-react'
+import { PlusIcon, UsersRoundIcon } from "lucide-react";
 
 const sidebarProps: SidebarProp[] = [
     {
-        id: 'add',
+        id: "add",
         icon: PlusIcon,
-        label: 'Add',
+        label: "Add",
     },
     {
-        id: 'users',
+        id: "users",
         icon: UsersRoundIcon,
-        label: 'Users',
+        label: "Users",
     },
-] as const
+] as const;
 
-export default sidebarProps
+export default sidebarProps;

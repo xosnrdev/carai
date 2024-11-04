@@ -46,6 +46,6 @@
 - max tabs on both mobile and desktop is now 10 with wrap support ([38ef992](https://github.com/xosnrdev/carai/commit/38ef99225a6885db842353d348cec7fe21831817))
 - migrated to codemirror for enhanced editor mobile support ([fd31266](https://github.com/xosnrdev/carai/commit/fd312665fe6de6a5d23c89e03eca93d0f90d50c5))
 - Remove systems-release workflow and update README.md ([dbf9763](https://github.com/xosnrdev/carai/commit/dbf976309be48cb5bb79e2351271fcca6aebaffc))
-- run rce-engine job on cloudflare workers ([422cd4c](https://github.com/xosnrdev/carai/commit/422cd4c3eb76c5748e2c3363794474c2937f91ee))
+- run rce-engine job on rce-worker workers ([422cd4c](https://github.com/xosnrdev/carai/commit/422cd4c3eb76c5748e2c3363794474c2937f91ee))
 - Update language SVG files for new language support ([5e30cca](https://github.com/xosnrdev/carai/commit/5e30cca3d3df305360a5f9cd7d7c856b132d52b5))
 - Update Tab component to use forwardRef and add filename change functionality ([39d9332](https://github.com/xosnrdev/carai/commit/39d9332d65397f2a1efcf9f6c8cb470b6a542d83))

@@ -57,5 +57,3 @@ jobs:
         uses: cycjimmy/semantic-release-action@v4
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN}}
-        with:
-          working_directory: ./web

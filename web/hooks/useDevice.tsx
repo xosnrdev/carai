@@ -1,51 +1,46 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-import { debounce } from '@/lib/utils'
+import { debounce } from "@/lib/utils";
 
-const SUPPORTED_DEVICE_WIDTH = 768
-const WINDOW_DEBOUNCE_DELAY = 1000
+const SUPPORTED_DEVICE_WIDTH = 768;
+const WINDOW_DEBOUNCE_DELAY = 1000;
 
 export default function useDevice() {
-    const [isSupported, setIsSupported] = useState(true)
+    const [isSupported, setIsSupported] = useState(true);
 
     useEffect(() => {
-        if (typeof window === 'undefined') {
-            setIsSupported(false)
+        if (typeof window === "undefined") {
+            setIsSupported(false);
 
-            return
+            return;
         }
 
         const handleDeviceCheck = () => {
-            const deviceWidth = window.innerWidth
+            const deviceWidth = window.innerWidth;
 
-            const supportedDeviceWidth = deviceWidth >= SUPPORTED_DEVICE_WIDTH
+            const supportedDeviceWidth = deviceWidth >= SUPPORTED_DEVICE_WIDTH;
 
-            const userAgent = navigator.userAgent.toLowerCase()
+            const userAgent = navigator.userAgent.toLowerCase();
             const isMobileDevice =
-                /iphone|ipod|android.*mobile|blackberry|mini|windows\sce|palm/i.test(
-                    userAgent
-                )
+                /iphone|ipod|android.*mobile|blackberry|mini|windows\sce|palm/i.test(userAgent);
 
-            const supportedDevice = supportedDeviceWidth && !isMobileDevice
+            const supportedDevice = supportedDeviceWidth && !isMobileDevice;
 
-            setIsSupported(supportedDevice)
-        }
+            setIsSupported(supportedDevice);
+        };
 
-        handleDeviceCheck()
+        handleDeviceCheck();
 
-        const debouceDeviceCheck = debounce(
-            handleDeviceCheck,
-            WINDOW_DEBOUNCE_DELAY
-        )
+        const debouceDeviceCheck = debounce(handleDeviceCheck, WINDOW_DEBOUNCE_DELAY);
 
-        window.addEventListener('resize', debouceDeviceCheck, true)
-        window.addEventListener('load', handleDeviceCheck, true)
+        window.addEventListener("resize", debouceDeviceCheck, true);
+        window.addEventListener("load", handleDeviceCheck, true);
 
         return () => {
-            window.removeEventListener('resize', debouceDeviceCheck, true)
-            window.removeEventListener('load', handleDeviceCheck, true)
-        }
-    }, [])
+            window.removeEventListener("resize", debouceDeviceCheck, true);
+            window.removeEventListener("load", handleDeviceCheck, true);
+        };
+    }, []);
 
-    return isSupported
+    return isSupported;
 }

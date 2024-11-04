@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import type { FC, ReactNode } from 'react'
+import type { FC, ReactNode } from "react";
 
-import { Provider } from 'react-redux'
-import { PersistGate } from 'redux-persist/integration/react'
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 
-import store, { persistor } from '@/redux/store'
+import store, { persistor } from "@/redux/store";
 
-import { Logo } from '../ui/icons'
+import { Logo } from "../ui/icons";
 
 export interface ReduxProviderProps {
-    children: ReactNode
+    children: ReactNode;
 }
 
 const ReduxProvider: FC<ReduxProviderProps> = ({ children }) => {
@@ -20,7 +20,7 @@ const ReduxProvider: FC<ReduxProviderProps> = ({ children }) => {
                 {children}
             </PersistGate>
         </Provider>
-    )
-}
+    );
+};
 
-export default ReduxProvider
+export default ReduxProvider;

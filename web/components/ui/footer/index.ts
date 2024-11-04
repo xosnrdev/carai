@@ -1,6 +1,6 @@
-import type { Footer } from './index.types'
+import type { Footer } from "./index.types";
 
-import { CircleX, Info, TriangleAlert } from 'lucide-react'
+import { CircleX, Info, TriangleAlert } from "lucide-react";
 
 export const footer: Footer[] = [
     {
@@ -12,4 +12,4 @@ export const footer: Footer[] = [
     {
         icon: Info,
     },
-] as const
+] as const;

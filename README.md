@@ -15,9 +15,9 @@ This is an independent rewrite inspired by [P2PCoder](https://github.com/world-w
 
 ```sh
 git clone https://github.com/xosnrdev/carai.git
-cd carai/web
+cd carai
 pnpm install
-pnpm dev
+pnpm --filter web dev
 ```
 
 Open `http://localhost:3000` in your browser.

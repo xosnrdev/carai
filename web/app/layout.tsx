@@ -1,14 +1,14 @@
-import type { Metadata, Viewport } from 'next'
-import type { ReactNode } from 'react'
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
-import ReduxProvider from '@/components/providers/redux-provider'
-import ThemeProvider from '@/components/providers/theme-provider'
-import { jetbrainsMono, mukta } from '@/config/fonts'
-import siteConfig from '@/config/site'
-import '@/styles/global.css'
+import ReduxProvider from "@/components/providers/redux-provider";
+import ThemeProvider from "@/components/providers/theme-provider";
+import { jetbrainsMono, mukta } from "@/config/fonts";
+import siteConfig from "@/config/site";
+import "@/styles/global.css";
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteConfig.siteUrl),
@@ -18,52 +18,46 @@ export const metadata: Metadata = {
     },
     icons: [
         {
-            rel: 'icon',
-            url: '/favicon-32x32.svg',
-            type: 'image/svg+xml',
+            rel: "icon",
+            url: "/favicon-32x32.svg",
+            type: "image/svg+xml",
         },
-        { rel: 'icon', url: '/favicon.ico', sizes: '32x32' },
+        { rel: "icon", url: "/favicon.ico", sizes: "32x32" },
         {
-            rel: 'apple-touch-icon',
-            url: '/apple-touch-icon.png',
+            rel: "apple-touch-icon",
+            url: "/apple-touch-icon.png",
         },
     ],
-    robots: 'index, follow',
+    robots: "index, follow",
     keywords: siteConfig.keywords,
-    referrer: 'origin',
+    referrer: "origin",
     description: siteConfig.description,
     openGraph: {
         images: siteConfig.opengraph,
-        type: 'website',
+        type: "website",
         url: new URL(siteConfig.siteUrl),
     },
     twitter: {
-        card: 'summary_large_image',
+        card: "summary_large_image",
         images: siteConfig.opengraph,
     },
     alternates: { canonical: siteConfig.siteUrl },
-}
+};
 
 export const viewport: Viewport = {
     maximumScale: 1,
-}
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html suppressHydrationWarning lang="en">
             <body className={`${mukta.variable} ${jetbrainsMono.variable}`}>
-                <ThemeProvider
-                    disableTransitionOnChange
-                    enableSystem
-                    attribute="class"
-                    defaultTheme="system"
-                    storageKey="theme"
-                >
+                <ThemeProvider>
                     <ReduxProvider>{children}</ReduxProvider>
                     <SpeedInsights />
                     <Analytics />
                 </ThemeProvider>
             </body>
         </html>
-    )
+    );
 }

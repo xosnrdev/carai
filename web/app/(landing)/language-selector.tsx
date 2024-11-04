@@ -1,45 +1,42 @@
-import type { Selection } from '@nextui-org/table'
+import type { Selection } from "@nextui-org/table";
 
-import { Avatar } from '@nextui-org/avatar'
-import { Select, SelectItem } from '@nextui-org/select'
-import { useTheme } from 'next-themes'
-import { useMemo, useState } from 'react'
+import { Avatar } from "@nextui-org/avatar";
+import { Select, SelectItem } from "@nextui-org/select";
+import { useTheme } from "next-themes";
+import { useMemo, useState } from "react";
 
-import { languageNameTransformMap, transformString } from '@/lib/utils'
-import { runtimeRecord } from '@/config/editor/constants'
+import { runtimeRecord } from "@/config/editor/constants";
+import { languageNameTransformMap, transformString } from "@/lib/utils";
 
-import CodeBlock from './code-block'
+import CodeBlock from "./code-block";
 
 export default function LanguageSelector() {
-    const [selectedKeys, setSelectedKeys] = useState<Selection>(
-        new Set(['.js'])
-    )
-    const { resolvedTheme } = useTheme()
+    const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([".js"]));
+    const { resolvedTheme } = useTheme();
 
     const selectedRuntime = useMemo(() => {
-        if (!(selectedKeys instanceof Set)) return
-        const key = selectedKeys.values().next().value ?? '.js'
+        if (!(selectedKeys instanceof Set)) {
+            return;
+        }
+        const key = selectedKeys.values().next().value ?? ".js";
 
-        return runtimeRecord[key]
-    }, [selectedKeys])
+        return runtimeRecord[key];
+    }, [selectedKeys]);
 
     return (
         <div className="mx-auto space-y-6 md:max-w-2xl lg:max-w-3xl">
             <Select
                 classNames={{
-                    base: 'md:max-w-xs w-full mx-auto',
-                    trigger: 'h-12',
+                    base: "md:max-w-xs w-full mx-auto",
+                    trigger: "h-12",
                 }}
-                color={resolvedTheme === 'dark' ? 'default' : 'primary'}
+                color={resolvedTheme === "dark" ? "default" : "primary"}
                 items={Object.entries(runtimeRecord)}
                 label="Select a language"
                 labelPlacement="outside"
                 renderValue={(items) => {
                     return items.map((item) => (
-                        <div
-                            key={item.key}
-                            className="flex flex-row items-center gap-2"
-                        >
+                        <div key={item.key} className="flex flex-row items-center gap-2">
                             <Avatar
                                 alt={`${item.data?.[1].languageName} icon`}
                                 className="flex-shrink-0"
@@ -49,7 +46,7 @@ export default function LanguageSelector() {
                             <div className="flex flex-col">
                                 <span>
                                     {transformString({
-                                        str: item.data?.[1].languageName!,
+                                        str: item.data?.[1].languageName ?? "",
                                         map: languageNameTransformMap,
                                         capitalize: true,
                                     })}
@@ -59,7 +56,7 @@ export default function LanguageSelector() {
                                 </span>
                             </div>
                         </div>
-                    ))
+                    ));
                 }}
                 selectedKeys={selectedKeys}
                 selectionMode="single"
@@ -67,10 +64,7 @@ export default function LanguageSelector() {
                 onSelectionChange={setSelectedKeys}
             >
                 {(runtimeRecord) => (
-                    <SelectItem
-                        key={runtimeRecord[0]}
-                        textValue={runtimeRecord[1].languageName}
-                    >
+                    <SelectItem key={runtimeRecord[0]} textValue={runtimeRecord[1].languageName}>
                         <div className="flex flex-row items-center gap-2">
                             <Avatar
                                 alt={runtimeRecord[1].languageName}
@@ -95,11 +89,8 @@ export default function LanguageSelector() {
                 )}
             </Select>
             {selectedRuntime && (
-                <CodeBlock
-                    key={selectedRuntime.languageName}
-                    {...selectedRuntime}
-                />
+                <CodeBlock key={selectedRuntime.languageName} {...selectedRuntime} />
             )}
         </div>
-    )
+    );
 }
