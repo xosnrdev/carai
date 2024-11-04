@@ -1,39 +1,37 @@
-import type { ForwardRefExoticComponent, RefAttributes } from 'react'
+import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
-import { LucideProps } from 'lucide-react'
+import type { LucideProps } from "lucide-react";
 
 export type ErrorResponse = {
-    message: string
-}
+    message: string;
+};
 
 export type CodeFileRequest = {
-    language: string
+    language: string;
     files: Array<{
-        name: string
-        content: string
-    }>
-}
+        name: string;
+        content: string;
+    }>;
+};
 
 export type CodeRequest = {
-    image: string
-    payload: CodeFileRequest
-}
+    image: string;
+    payload: CodeFileRequest;
+};
 
 export type CodeResponse = {
-    error: string
-    stderr: string
-    stdout: string
-}
+    error: string;
+    stderr: string;
+    stdout: string;
+};
 
 export type EnvConfig = {
-    baseUrl: string
-    accessToken: string
-}
+    baseUrl: string;
+    accessToken: string;
+};
 
 export type SidebarProp = {
-    id: string
-    icon: ForwardRefExoticComponent<
-        Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
-    >
-    label: string
-}
+    id: string;
+    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+    label: string;
+};

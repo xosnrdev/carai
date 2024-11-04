@@ -1,13 +1,13 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties } from "react";
 
 export type Runtime = {
-    languageName: string
-    snippet: string
-    filename: string
-}
+    languageName: string;
+    snippet: string;
+    filename: string;
+};
 
 export type CodeResponseProp = {
-    response: string
-    time?: string
-    customStyle?: CSSProperties
-}
+    response: string;
+    time?: string;
+    customStyle?: CSSProperties;
+};

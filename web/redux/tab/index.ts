@@ -1,15 +1,15 @@
-import type { TabConfig, ViewState } from './index.types'
+import type { TabConfig, ViewState } from "./index.types";
 
-export { defaultConfig, defaultViewState }
+export { defaultConfig, defaultViewState };
 
 const defaultConfig: TabConfig = {
     isClosable: true,
     maxTabs: 2,
     maxContentDelimiter: {
         limit: 1000,
-        units: 'characters',
+        units: "characters",
     },
-} as const
+} as const;
 
 const defaultViewState: ViewState = {
     state: {
@@ -25,10 +25,14 @@ const defaultViewState: ViewState = {
         contributionsState: {},
     },
     stateFields: {
-        codeResponse: undefined,
+        codeResponse: {
+            error: "",
+            stderr: "",
+            stdout: "",
+        },
         resizeLayout: {
             vertical: [70, 30],
             snapshot: [70, 30],
         },
     },
-} as const
+} as const;

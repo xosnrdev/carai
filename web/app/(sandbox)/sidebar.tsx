@@ -1,35 +1,35 @@
-import { Button } from '@nextui-org/button'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { Button } from "@nextui-org/button";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
-import useAppContext from '@/hooks/useAppContext'
-import useKeyPress from '@/hooks/useKeyPress'
-import { cn } from '@/lib/utils'
-import CustomTooltip from '@/components/ui/custom-tooltip'
+import CustomTooltip from "@/components/ui/custom-tooltip";
+import useAppContext from "@/hooks/useAppContext";
+import useKeyPress from "@/hooks/useKeyPress";
+import { cn } from "@/lib/utils";
 
-import LanguageCollection from './language-collection'
-import sidebarProps from './constants'
+import sidebarProps from "./constants";
+import LanguageCollection from "./language-collection";
 
 export default function Sidebar() {
-    const { isOpen, setIsOpen } = useAppContext()
-    const pathname = usePathname()
-    const [activeNav, setActiveNav] = useState<number | null>(null)
+    const { isOpen, setIsOpen } = useAppContext();
+    const pathname = usePathname();
+    const [activeNav, setActiveNav] = useState<number | null>(null);
 
     const handleModal = () => {
         setIsOpen({
             modal: true,
-        })
-    }
+        });
+    };
 
     useKeyPress({
-        targetKey: 'N',
+        targetKey: "N",
         callback: () => {
-            if (pathname === '/sandbox') {
-                handleModal()
+            if (pathname === "/sandbox") {
+                handleModal();
             }
         },
-        modifier: ['ctrlKey'],
-    })
+        modifier: ["ctrlKey"],
+    });
 
     return (
         <>
@@ -38,58 +38,40 @@ export default function Sidebar() {
                     <div key={id} className="mx-auto my-6 flex flex-col">
                         {idx === 0 ? (
                             <CustomTooltip
-                                content={
-                                    <span className="text-xs">
-                                        Choose Language
-                                    </span>
-                                }
+                                content={<span className="text-xs">Choose Language</span>}
                             >
                                 <Button
                                     isIconOnly
                                     aria-label={label}
-                                    className={cn('text-default-500', {
-                                        'text-primary dark:text-white':
-                                            activeNav === idx,
+                                    className={cn("text-default-500", {
+                                        "text-primary dark:text-white": activeNav === idx,
                                     })}
                                     color="default"
                                     size="md"
                                     startContent={<val.icon size={30} />}
                                     onClick={() => {
-                                        handleModal()
-                                        setActiveNav(idx)
+                                        handleModal();
+                                        setActiveNav(idx);
                                     }}
                                 />
                             </CustomTooltip>
                         ) : (
-                            <CustomTooltip
-                                content={
-                                    <span className="text-xs">Collaborate</span>
-                                }
-                            >
+                            <CustomTooltip content={<span className="text-xs">Collaborate</span>}>
                                 <Button
                                     isIconOnly
                                     aria-label={label}
-                                    className={cn(
-                                        'text-default-500 transition-colors',
-                                        {
-                                            'text-primary dark:text-white':
-                                                activeNav === idx,
-                                        }
-                                    )}
+                                    className={cn("text-default-500 transition-colors", {
+                                        "text-primary dark:text-white": activeNav === idx,
+                                    })}
                                     color="default"
                                     role="link"
                                     size="md"
-                                    startContent={
-                                        <val.icon
-                                            fill="currentColor"
-                                            size={32}
-                                        />
-                                    }
+                                    startContent={<val.icon fill="currentColor" size={32} />}
                                     onClick={() => {
                                         // if (pathname !== '/collaborate') {
                                         //   router.push('/collaborate')
                                         // }
-                                        setActiveNav(idx)
+                                        setActiveNav(idx);
                                     }}
                                 />
                             </CustomTooltip>
@@ -99,5 +81,5 @@ export default function Sidebar() {
             </aside>
             {isOpen.modal && <LanguageCollection />}
         </>
-    )
+    );
 }

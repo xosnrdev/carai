@@ -1,105 +1,99 @@
-import type { TabProp } from './types'
+import type { TabProp } from "./types";
 
-import { usePathname } from 'next/navigation'
-import { forwardRef, memo, useCallback, useRef, type FC } from 'react'
-import { X } from 'lucide-react'
+import { X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { type FC, forwardRef, memo, useCallback, useRef } from "react";
 
-import useKeyPress from '@/hooks/useKeyPress'
-import useTabContext from '@/hooks/useTabContext'
-import { cn } from '@/lib/utils'
+import useKeyPress from "@/hooks/useKeyPress";
+import useTabContext from "@/hooks/useTabContext";
+import { cn } from "@/lib/utils";
 
 const Tab: FC<TabProp> = memo(
     forwardRef<HTMLDivElement, TabProp>(
         ({ id, filename, activeTabId, setActiveTab, closeTab }, ref) => {
-            const { updateTab, codeResponse } = useTabContext()
-            const pathname = usePathname()
+            const { updateTab, codeResponse } = useTabContext();
+            const pathname = usePathname();
 
-            const isAnimatingRef = useRef(false)
+            const isAnimatingRef = useRef(false);
 
             const handleCloseTab = useCallback(() => {
                 if (!isAnimatingRef.current) {
-                    isAnimatingRef.current = true
+                    isAnimatingRef.current = true;
                     requestAnimationFrame(() => {
-                        closeTab(id)
+                        closeTab(id);
 
-                        isAnimatingRef.current = false
-                    })
+                        isAnimatingRef.current = false;
+                    });
                 }
-            }, [closeTab, id, isAnimatingRef])
+            }, [closeTab, id]);
 
             const handleFilenameChange = useCallback(() => {
-                const newFilename = prompt(
-                    'Enter new filename',
-                    filename
-                )?.trim()
+                const newFilename = prompt("Enter new filename", filename)?.trim();
 
-                if (!newFilename) return
+                if (!newFilename) {
+                    return;
+                }
 
                 updateTab({
                     id,
                     filename: newFilename,
-                })
-            }, [id, filename, updateTab])
+                });
+            }, [id, filename, updateTab]);
 
             useKeyPress({
-                targetKey: 'W',
+                targetKey: "W",
                 callback: () => {
-                    if (
-                        id === activeTabId &&
-                        pathname === '/sandbox' &&
-                        !codeResponse?.isRunning
-                    ) {
-                        handleCloseTab()
+                    if (id === activeTabId && pathname === "/sandbox" && !codeResponse?.isRunning) {
+                        handleCloseTab();
                     }
                 },
-                modifier: ['ctrlKey', 'shiftKey'],
-            })
+                modifier: ["ctrlKey", "shiftKey"],
+            });
 
             return (
-                <section
+                <div
                     key={id}
                     ref={ref}
                     aria-label="tab"
                     className={cn(
-                        'flex h-10 cursor-pointer items-center border-b border-r border-default pl-2 text-center transition-colors duration-500 hover:border-b hover:border-b-primary hover:dark:border-b-white',
+                        "flex h-10 cursor-pointer items-center border-b border-r border-default pl-2 text-center transition-colors duration-500 hover:border-b hover:border-b-primary hover:dark:border-b-white",
                         {
-                            'border-b border-b-primary dark:border-b-white':
-                                activeTabId === id,
-                        }
+                            "border-b border-b-primary dark:border-b-white": activeTabId === id,
+                        },
                     )}
                     id={id}
-                    role="tab"
                     onContextMenu={(e) => {
-                        handleFilenameChange()
-                        e.preventDefault()
+                        handleFilenameChange();
+                        e.preventDefault();
                     }}
                 >
-                    <span
+                    <button
                         aria-label="tab filename"
-                        role="button"
                         tabIndex={0}
                         onMouseDown={() => {
-                            setActiveTab(id)
+                            setActiveTab(id);
                         }}
+                        type="button"
                     >
                         {filename}
-                    </span>
+                    </button>
                     <button
                         className="ml-1 rounded-full p-1 hover:bg-default"
                         disabled={codeResponse?.isRunning}
                         onClick={(e) => {
-                            handleCloseTab()
-                            e.stopPropagation()
+                            handleCloseTab();
+                            e.stopPropagation();
                         }}
+                        type="button"
                     >
                         <X size={16} />
                     </button>
-                </section>
-            )
-        }
-    )
-)
+                </div>
+            );
+        },
+    ),
+);
 
-Tab.displayName = 'Tab'
+Tab.displayName = "Tab";
 
-export default Tab
+export default Tab;

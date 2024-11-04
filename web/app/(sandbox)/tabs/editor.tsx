@@ -1,86 +1,79 @@
-import type { ViewState } from '@/redux/tab/index.types'
-import type { OnChange, OnMount } from '@monaco-editor/react'
-import type { editor } from 'monaco-editor'
+import type { ViewState } from "@/redux/tab/index.types";
+import type { OnChange, OnMount } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 
-import { useTheme } from 'next-themes'
-import { type HTMLAttributes, useCallback, useState } from 'react'
+import { useTheme } from "next-themes";
+import { type HTMLAttributes, useCallback, useState } from "react";
 
-import MonacoEditor from '@/components/monaco-editor'
-import { Logo } from '@/components/ui/icons'
-import useTabContext from '@/hooks/useTabContext'
-import { languageSupportTransformMap, transformString } from '@/lib/utils'
+import MonacoEditor from "@/components/monaco-editor";
+import { Logo } from "@/components/ui/icons";
+import useTabContext from "@/hooks/useTabContext";
+import { languageSupportTransformMap, transformString } from "@/lib/utils";
 
-import { serializeViewState } from './utils'
+import { serializeViewState } from "./utils";
 
 export default function Editor({
     className,
 }: {
-    className?: HTMLAttributes<HTMLDivElement>['className']
+    className?: HTMLAttributes<HTMLDivElement>["className"];
 }) {
-    const {
-        updateTab,
-        activeTab,
-        codeResponse,
-        resizeLayout,
-        viewState,
-        setViewState,
-    } = useTabContext()
+    const { updateTab, activeTab, codeResponse, resizeLayout, viewState, setViewState } =
+        useTabContext();
 
-    const { resolvedTheme } = useTheme()
-    const [editorView, setEditorView] =
-        useState<editor.IStandaloneCodeEditor | null>(null)
+    const { resolvedTheme } = useTheme();
+    const [editorView, setEditorView] = useState<editor.IStandaloneCodeEditor | null>(null);
 
     const handleEditorChange: OnChange = useCallback(
         (content) => {
             if (editorView) {
-                const editorState = editorView.saveViewState()
+                const editorState = editorView.saveViewState();
 
                 if (editorState) {
                     const extendedEditorState = {
                         state: serializeViewState(editorState),
                         stateFields: {
-                            codeResponse,
+                            codeResponse: codeResponse ?? { error: "", stderr: "", stdout: "" },
                             resizeLayout,
                         },
-                    } satisfies ViewState
+                    } satisfies ViewState;
 
                     updateTab({
                         id: activeTab.id,
-                        content,
+                        content: content ?? "",
                         viewState: extendedEditorState,
-                    })
+                    });
                 }
             }
         },
-        [updateTab, editorView, codeResponse, resizeLayout, activeTab]
-    )
+        [updateTab, editorView, codeResponse, resizeLayout, activeTab],
+    );
 
     const handleEditorOnMount: OnMount = useCallback(
         (editor) => {
-            const serializedState = serializeViewState(viewState.state)
+            const serializedState = serializeViewState(viewState.state);
 
             if (editor && viewState) {
-                editor.restoreViewState(serializedState)
-                editor.focus()
+                editor.restoreViewState(serializedState);
+                editor.focus();
             }
 
-            setEditorView(editor)
+            setEditorView(editor);
 
-            return () => editor.dispose()
+            return () => editor.dispose();
         },
-        [viewState]
-    )
+        [viewState],
+    );
 
     if (editorView) {
         setViewState({
             id: activeTab.id,
             isMounted: true,
-        })
+        });
     }
 
     return (
         <MonacoEditor
-            className={className}
+            className={className ?? ""}
             language={transformString({
                 str: activeTab.metadata.languageName,
                 map: languageSupportTransformMap,
@@ -88,18 +81,18 @@ export default function Editor({
             })}
             loading={<Logo />}
             options={{
-                wordWrap: 'on',
+                wordWrap: "on",
                 minimap: {
                     enabled: false,
                 },
                 fontSize: 16,
                 tabSize: 2,
                 fixedOverflowWidgets: true,
-                fontFamily: 'var(--font-jetbrains-mono)',
+                fontFamily: "var(--font-jetbrains-mono)",
                 bracketPairColorization: {
                     enabled: true,
                 },
-                cursorStyle: 'block',
+                cursorStyle: "block",
                 lineDecorationsWidth: 0,
                 lineNumbersMinChars: 3,
                 lineHeight: 24,
@@ -107,10 +100,10 @@ export default function Editor({
                     top: 12,
                 },
             }}
-            theme={resolvedTheme === 'dark' ? 'carai-dark' : 'carai-light'}
+            theme={resolvedTheme === "dark" ? "carai-dark" : "carai-light"}
             value={activeTab.content}
             onChange={handleEditorChange}
             onMount={handleEditorOnMount}
         />
-    )
+    );
 }

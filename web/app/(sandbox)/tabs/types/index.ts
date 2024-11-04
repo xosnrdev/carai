@@ -1,18 +1,18 @@
-import type { RefObject } from 'react'
+import type { RefObject } from "react";
 
 export type TabView = {
-    tabElement: HTMLElement
-    parentElement: HTMLElement
-}
+    tabElement: HTMLElement;
+    parentElement: HTMLElement;
+};
 
 interface TabAction {
-    setActiveTab: (id: string) => void
-    closeTab: (id: string) => void
+    setActiveTab: (id: string) => void;
+    closeTab: (id: string) => void;
 }
 
 export type TabProp = {
-    id: string
-    filename: string
-    activeTabId: string
-    ref: RefObject<HTMLDivElement> | null
-} & TabAction
+    id: string;
+    filename: string;
+    activeTabId: string;
+    ref: RefObject<HTMLDivElement> | null;
+} & TabAction;

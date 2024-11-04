@@ -1,5 +1,5 @@
 export type HeaderProp = {
-    id: string
-    label: string
-    path: string
-}
+    id: string;
+    label: string;
+    path: string;
+};

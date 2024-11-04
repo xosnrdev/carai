@@ -227,10 +227,7 @@
         },
         {
             "name": "Punctuation Definition Heading,punctuation Definition Identity",
-            "scope": [
-                "punctuation.definition.heading",
-                "punctuation.definition.identity"
-            ],
+            "scope": ["punctuation.definition.heading", "punctuation.definition.identity"],
             "settings": { "foreground": "#4078F2" }
         },
         {
@@ -444,10 +441,7 @@
         },
         {
             "name": "Source Css Property Name Support,source Css Property Value Support",
-            "scope": [
-                "source.css property-name.support",
-                "source.css property-value.support"
-            ],
+            "scope": ["source.css property-name.support", "source.css property-value.support"],
             "settings": { "foreground": "#383A42" }
         },
         {
@@ -466,10 +460,7 @@
         },
         {
             "name": "Source Elixir Variable Definition,source Elixir Variable Anonymous",
-            "scope": [
-                "source.elixir variable.definition",
-                "source.elixir variable.anonymous"
-            ],
+            "scope": ["source.elixir variable.definition", "source.elixir variable.anonymous"],
             "settings": { "foreground": "#A626A4" }
         },
         {
@@ -498,18 +489,12 @@
         },
         {
             "name": "Source Elixir Regexp Section,source Elixir Regexp String",
-            "scope": [
-                "source.elixir regexp.section",
-                "source.elixir regexp.string"
-            ],
+            "scope": ["source.elixir regexp.section", "source.elixir regexp.string"],
             "settings": { "foreground": "#CA1243" }
         },
         {
             "name": "Source Elixir Separator,source Elixir Keyword Operator",
-            "scope": [
-                "source.elixir separator",
-                "source.elixir keyword.operator"
-            ],
+            "scope": ["source.elixir separator", "source.elixir keyword.operator"],
             "settings": { "foreground": "#986801" }
         },
         {
@@ -519,11 +504,7 @@
         },
         {
             "name": "Source Elixir Array,source Elixir Scope,source Elixir Section",
-            "scope": [
-                "source.elixir array",
-                "source.elixir scope",
-                "source.elixir section"
-            ],
+            "scope": ["source.elixir array", "source.elixir scope", "source.elixir section"],
             "settings": { "foreground": "#696C77" }
         },
         {
@@ -601,9 +582,7 @@
         },
         {
             "name": "Source Json Meta Structure Dictionary Json > String Quoted Json",
-            "scope": [
-                "source.json meta.structure.dictionary.json > string.quoted.json"
-            ],
+            "scope": ["source.json meta.structure.dictionary.json > string.quoted.json"],
             "settings": { "foreground": "#E45649" }
         },
         {
@@ -648,10 +627,7 @@
         },
         {
             "name": "Ng Interpolation Function Begin,ng Interpolation Function End",
-            "scope": [
-                "ng.interpolation function.begin",
-                "ng.interpolation function.end"
-            ],
+            "scope": ["ng.interpolation function.begin", "ng.interpolation function.end"],
             "settings": { "foreground": "#4078F2" }
         },
         {
@@ -686,10 +662,7 @@
         },
         {
             "name": "Ng Attribute With Value String Begin,ng Attribute With Value String End",
-            "scope": [
-                "ng.attribute-with-value string.begin",
-                "ng.attribute-with-value string.end"
-            ],
+            "scope": ["ng.attribute-with-value string.begin", "ng.attribute-with-value string.end"],
             "settings": { "foreground": "#383A42" }
         },
         {
@@ -775,10 +748,7 @@
         },
         {
             "name": "[VSCODE-CUSTOM] JS/TS Support Variable Property Dom",
-            "scope": [
-                "support.variable.property.dom.js",
-                "support.variable.property.dom.ts"
-            ],
+            "scope": ["support.variable.property.dom.js", "support.variable.property.dom.ts"],
             "settings": { "foreground": "#E45649" }
         },
         {
@@ -923,10 +893,7 @@
         },
         {
             "name": "[VSCODE-CUSTOM] TS Keyword Operator",
-            "scope": [
-                "source.ts keyword.operator",
-                "source.tsx keyword.operator"
-            ],
+            "scope": ["source.ts keyword.operator", "source.tsx keyword.operator"],
             "settings": { "foreground": "#0184BC" }
         },
         {
@@ -1143,10 +1110,7 @@
         },
         {
             "name": "[VSCODE-CUSTOM] JS/TS Meta Object Literal Key",
-            "scope": [
-                "meta.object-literal.key.js",
-                "meta.object-literal.key.ts"
-            ],
+            "scope": ["meta.object-literal.key.js", "meta.object-literal.key.ts"],
             "settings": { "foreground": "#E45649" }
         },
         {
@@ -1345,18 +1309,12 @@
         },
         {
             "name": "[VSCODE-CUSTOM] Markdown Underline Link/Image",
-            "scope": [
-                "markup.underline.link.markdown",
-                "markup.underline.link.image.markdown"
-            ],
+            "scope": ["markup.underline.link.markdown", "markup.underline.link.image.markdown"],
             "settings": { "foreground": "#A626A4" }
         },
         {
             "name": "[VSCODE-CUSTOM] Markdown Link Title/Description",
-            "scope": [
-                "string.other.link.title.markdown",
-                "string.other.link.description.markdown"
-            ],
+            "scope": ["string.other.link.title.markdown", "string.other.link.description.markdown"],
             "settings": { "foreground": "#4078F2" }
         },
         {

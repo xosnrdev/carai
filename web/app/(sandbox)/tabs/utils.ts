@@ -1,14 +1,14 @@
-import type { RefObject } from 'react'
-import type { TabView } from './types'
-import type { CodeEditorViewState } from '@/redux/tab/index.types'
+import type { CodeEditorViewState } from "@/redux/tab/index.types";
+import type { RefObject } from "react";
+import type { TabView } from "./types";
 
-export { scrollActiveTabIntoView, serializeViewState }
+export { scrollActiveTabIntoView, serializeViewState };
 
 function isTabVisible({ tabElement, parentElement }: TabView): boolean {
-    const tabRect = tabElement.getBoundingClientRect()
-    const parentRect = parentElement.getBoundingClientRect()
+    const tabRect = tabElement.getBoundingClientRect();
+    const parentRect = parentElement.getBoundingClientRect();
 
-    return tabRect.left >= parentRect.left && tabRect.right <= parentRect.right
+    return tabRect.left >= parentRect.left && tabRect.right <= parentRect.right;
 }
 
 function computeIdealScrollPosition({
@@ -17,19 +17,16 @@ function computeIdealScrollPosition({
     tabWidth,
     tabIndexMap,
 }: {
-    tabWidth: number
-    tabIndexMap: Map<string, number>
+    tabWidth: number;
+    tabIndexMap: Map<string, number>;
 } & TabView): number {
-    const chunkWidth = parentElement.clientWidth
-    const tabIndex = tabIndexMap.get(tabElement.id) ?? 0
-    let scrollLeft = tabIndex * tabWidth - chunkWidth / 2 + tabWidth / 2
+    const chunkWidth = parentElement.clientWidth;
+    const tabIndex = tabIndexMap.get(tabElement.id) ?? 0;
+    let scrollLeft = tabIndex * tabWidth - chunkWidth / 2 + tabWidth / 2;
 
-    scrollLeft = Math.max(
-        0,
-        Math.min(scrollLeft, parentElement.scrollWidth - chunkWidth)
-    )
+    scrollLeft = Math.max(0, Math.min(scrollLeft, parentElement.scrollWidth - chunkWidth));
 
-    return scrollLeft
+    return scrollLeft;
 }
 
 function handleCircularScrolling({
@@ -37,56 +34,60 @@ function handleCircularScrolling({
     numTabs,
     parentElement,
 }: {
-    tabIndex: number
-    numTabs: number
-    parentElement: HTMLElement
+    tabIndex: number;
+    numTabs: number;
+    parentElement: HTMLElement;
 }): void {
-    if (numTabs === 0) return
+    if (numTabs === 0) {
+        return;
+    }
 
-    const tabWidth = parentElement.scrollWidth / numTabs
-    const scrollPosition = (tabIndex * tabWidth) % parentElement.scrollWidth
+    const tabWidth = parentElement.scrollWidth / numTabs;
+    const scrollPosition = (tabIndex * tabWidth) % parentElement.scrollWidth;
 
     parentElement.scroll({
         left: scrollPosition,
-        behavior: 'smooth',
-    })
+        behavior: "smooth",
+    });
 }
 
 function scrollActiveTabIntoView(
     activeTabRef: RefObject<HTMLElement>,
-    tabIndexMap: Map<string, number>
+    tabIndexMap: Map<string, number>,
 ): void {
-    if (!activeTabRef.current) return
+    if (!activeTabRef.current) {
+        return;
+    }
 
-    const tabElement = activeTabRef.current
-    const parentElement = tabElement.parentElement
+    const tabElement = activeTabRef.current;
+    const parentElement = tabElement.parentElement;
 
-    if (!parentElement) return
+    if (!parentElement) {
+        return;
+    }
 
     if (!isTabVisible({ tabElement, parentElement })) {
-        const tabWidth = tabElement.offsetWidth
+        const tabWidth = tabElement.offsetWidth;
         const idealScrollLeft = computeIdealScrollPosition({
             tabElement,
             parentElement,
             tabWidth,
             tabIndexMap,
-        })
+        });
 
         parentElement.scroll({
             left: idealScrollLeft,
-            behavior: 'smooth',
-        })
+            behavior: "smooth",
+        });
 
-        const tabIndex = tabIndexMap.get(tabElement.id) ?? 0
-        const numTabs = parentElement.children.length
+        const tabIndex = tabIndexMap.get(tabElement.id) ?? 0;
+        const numTabs = parentElement.children.length;
 
-        handleCircularScrolling({ tabIndex, numTabs, parentElement })
+        handleCircularScrolling({ tabIndex, numTabs, parentElement });
     }
 }
 
-function serializeViewState(
-    state: CodeEditorViewState | null
-): CodeEditorViewState {
+function serializeViewState(state: CodeEditorViewState | null): CodeEditorViewState {
     if (!state) {
         return {
             cursorState: [],
@@ -96,7 +97,7 @@ function serializeViewState(
                 firstPositionDeltaTop: 0,
             },
             contributionsState: {},
-        }
+        };
     }
 
     return {
@@ -112,9 +113,8 @@ function serializeViewState(
             },
         })),
         viewState: {
-            scrollTop: state.viewState.scrollTop,
-            scrollTopWithoutViewZones:
-                state.viewState.scrollTopWithoutViewZones,
+            scrollTop: state.viewState.scrollTop ?? 0,
+            scrollTopWithoutViewZones: state.viewState.scrollTopWithoutViewZones ?? 0,
             scrollLeft: state.viewState.scrollLeft,
             firstPosition: {
                 lineNumber: state.viewState.firstPosition.lineNumber,
@@ -123,5 +123,5 @@ function serializeViewState(
             firstPositionDeltaTop: state.viewState.firstPositionDeltaTop,
         },
         contributionsState: state.contributionsState,
-    }
+    };
 }

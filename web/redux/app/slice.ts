@@ -1,9 +1,9 @@
-import type { TogglePayload } from './index.types'
+import type { TogglePayload } from "./index.types";
 
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 const app_slice = createSlice({
-    name: 'app',
+    name: "app",
     initialState: {
         isOpen: {
             modal: false,
@@ -15,11 +15,11 @@ const app_slice = createSlice({
             state.isOpen = {
                 ...state.isOpen,
                 ...action.payload,
-            }
+            };
         },
     },
-})
+});
 
-const { onIsOpen } = app_slice.actions
+const { onIsOpen } = app_slice.actions;
 
-export { onIsOpen, app_slice as default }
+export { onIsOpen, app_slice as default };
