@@ -1,18 +1,12 @@
-import type { FC } from 'react'
 import type {
     DialogContentProps,
     DialogOverlayProps,
     DialogProps,
     DialogTitleProps,
-} from '@radix-ui/react-dialog'
+} from "@radix-ui/react-dialog";
+import type { FC } from "react";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogOverlay,
-    DialogTitle,
-} from './dialog'
+import { Dialog, DialogContent, DialogHeader, DialogOverlay, DialogTitle } from "./dialog";
 
 interface IModalProps
     extends DialogProps,
@@ -24,7 +18,7 @@ const Modal: FC<IModalProps> = ({
     title,
     children,
     className,
-    onOpenChange,
+    onOpenChange = () => {},
     ...props
 }) => {
     return (
@@ -41,7 +35,7 @@ const Modal: FC<IModalProps> = ({
                 </DialogContent>
             </DialogOverlay>
         </Dialog>
-    )
-}
+    );
+};
 
-export default Modal
+export default Modal;

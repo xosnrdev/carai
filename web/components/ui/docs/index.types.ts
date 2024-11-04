@@ -1,10 +1,10 @@
 export enum TAB_KEYS {
-    'quickstart',
-    'keybindings',
+    quickstart = 0,
+    keybindings = 1,
 }
 
 export type Keybinding = {
-    category: string
-    key: string
-    description: string
-}
+    category: string;
+    key: string;
+    description: string;
+};

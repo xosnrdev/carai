@@ -1,14 +1,14 @@
-import { usePathname } from 'next/navigation'
-import { useCallback, useRef } from 'react'
+import { usePathname } from "next/navigation";
+import { useCallback, useRef } from "react";
 
-import useKeyPress from '@/hooks/useKeyPress'
-import useTabContext from '@/hooks/useTabContext'
+import useKeyPress from "@/hooks/useKeyPress";
+import useTabContext from "@/hooks/useTabContext";
 
-import { scrollActiveTabIntoView } from './utils'
-import Tab from './tab'
+import Tab from "./tab";
+import { scrollActiveTabIntoView } from "./utils";
 
 export default function Tabs() {
-    const pathname = usePathname()
+    const pathname = usePathname();
     const {
         tabs,
         activeTab,
@@ -18,76 +18,68 @@ export default function Tabs() {
         setActiveTab,
         tabIndexMap,
         codeResponse,
-    } = useTabContext()
+    } = useTabContext();
 
-    const activeTabRef = useRef<HTMLDivElement | null>(null)
+    const activeTabRef = useRef<HTMLDivElement | null>(null);
 
     const handleScrollActiveTabIntoView = useCallback(() => {
-        scrollActiveTabIntoView(activeTabRef, tabIndexMap)
-    }, [activeTabRef, tabIndexMap])
+        scrollActiveTabIntoView(activeTabRef, tabIndexMap);
+    }, [tabIndexMap]);
 
     const handleCloseTab = (id: string) => {
-        removeTab(id)
-        handleScrollActiveTabIntoView()
-    }
+        removeTab(id);
+        handleScrollActiveTabIntoView();
+    };
 
-    const isAnimatingRef = useRef(false)
+    const isAnimatingRef = useRef(false);
 
     const handleSwitchTab = useCallback(
-        (direction: 'next' | 'previous') => {
+        (direction: "next" | "previous") => {
             if (!isAnimatingRef.current) {
-                isAnimatingRef.current = true
+                isAnimatingRef.current = true;
                 requestAnimationFrame(() => {
-                    switchTab(direction)
-                    handleScrollActiveTabIntoView()
-                    isAnimatingRef.current = false
-                })
+                    switchTab(direction);
+                    handleScrollActiveTabIntoView();
+                    isAnimatingRef.current = false;
+                });
             }
         },
-        [isAnimatingRef, switchTab, handleScrollActiveTabIntoView]
-    )
+        [switchTab, handleScrollActiveTabIntoView],
+    );
 
     useKeyPress({
-        targetKey: 'Q',
+        targetKey: "Q",
         callback: () => {
-            if (
-                activeTab &&
-                pathname === '/sandbox' &&
-                !codeResponse?.isRunning
-            ) {
-                closeAllTabs()
+            if (activeTab && pathname === "/sandbox" && !codeResponse?.isRunning) {
+                closeAllTabs();
             }
         },
-        modifier: ['ctrlKey', 'shiftKey'],
-    })
+        modifier: ["ctrlKey", "shiftKey"],
+    });
 
     useKeyPress({
-        targetKey: 'ArrowRight',
+        targetKey: "ArrowRight",
         callback: () => {
-            if (activeTab && pathname === '/sandbox') {
-                handleSwitchTab('next')
+            if (activeTab && pathname === "/sandbox") {
+                handleSwitchTab("next");
             }
         },
-        modifier: ['ctrlKey', 'shiftKey'],
-    })
+        modifier: ["ctrlKey", "shiftKey"],
+    });
 
     useKeyPress({
-        targetKey: 'ArrowLeft',
+        targetKey: "ArrowLeft",
         callback: () => {
-            if (activeTab && pathname === '/sandbox') {
-                handleSwitchTab('previous')
+            if (activeTab && pathname === "/sandbox") {
+                handleSwitchTab("previous");
             }
         },
-        modifier: ['ctrlKey', 'shiftKey'],
-    })
+        modifier: ["ctrlKey", "shiftKey"],
+    });
 
     return (
         <aside className="sticky top-0 z-50 bg-background">
-            <div
-                aria-label="tabs"
-                className={'flex flex-row overflow-x-auto'}
-                role="tablist"
-            >
+            <div aria-label="tabs" className={"flex flex-row overflow-x-auto"} role="tablist">
                 {tabs.map(({ id, filename }) => (
                     <Tab
                         key={id}
@@ -101,5 +93,5 @@ export default function Tabs() {
                 ))}
             </div>
         </aside>
-    )
+    );
 }

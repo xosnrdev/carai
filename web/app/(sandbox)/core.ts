@@ -1,204 +1,190 @@
-import 'server-only'
+import "server-only";
 
-import type {
-    CodeRequest,
-    CodeResponse,
-    EnvConfig,
-    ErrorResponse,
-} from './types'
+import type { CodeRequest, CodeResponse, EnvConfig, ErrorResponse } from "./types";
 
-import * as Sentry from '@sentry/nextjs'
-import { cache } from 'react'
+import * as Sentry from "@sentry/nextjs";
+import { cache } from "react";
 
-import { CustomError } from '@/lib/error'
-import { imageNameTransformMap, transformString } from '@/lib/utils'
+import { CustomError } from "@/lib/error";
+import { imageNameTransformMap, transformString } from "@/lib/utils";
 
-export { EnvConfigParser, getImage, RCEHandler, RequestValidator }
+export { EnvConfigParser, getImage, RCEHandler, RequestValidator };
 
 class EnvConfigValidator {
     constructor(protected readonly env: EnvConfig) {}
 
     protected getString(field: keyof EnvConfig): string {
-        if (!(field in this.env) || this.env[field] === '') {
-            throw new CustomError(`Missing env var ${field}`)
+        if (!(field in this.env) || this.env[field] === "") {
+            throw new CustomError(`Missing env var ${field}`);
         }
 
-        return this.env[field]
+        return this.env[field];
     }
 
     protected getNumber(field: keyof EnvConfig): number {
-        const value = this.getString(field)
-        const n = parseInt(value, 10)
+        const value = this.getString(field);
+        const n = Number.parseInt(value, 10);
 
-        if (isNaN(n)) {
-            throw new CustomError(`Invalid number for env var ${field}`)
+        if (Number.isNaN(n)) {
+            throw new CustomError(`Invalid number for env var ${field}`);
         }
 
-        return n
+        return n;
     }
 }
 
 class EnvConfigParser extends EnvConfigValidator {
     private get baseUrl(): string {
-        return this.getString('baseUrl')
+        return this.getString("baseUrl");
     }
 
     private get accessToken(): string {
-        return this.getString('accessToken')
+        return this.getString("accessToken");
     }
 
     public parse(): EnvConfig {
         return {
             baseUrl: this.baseUrl,
             accessToken: this.accessToken,
-        }
+        };
     }
 }
 
 class RequestValidator {
     private static readonly ALLOWED_HOSTNAMES: ReadonlySet<string> = new Set([
-        'www.codespacex.com',
-        'codespacex.com',
-        'carai-eight.vercel.app',
-        'localhost',
-    ])
+        "www.codespacex.com",
+        "codespacex.com",
+        "carai-eight.vercel.app",
+        "localhost",
+    ]);
 
     constructor(private readonly request: Request) {}
 
     public static get allowedHostnames(): ReadonlySet<string> {
-        return new Set(RequestValidator.ALLOWED_HOSTNAMES)
+        return new Set(RequestValidator.ALLOWED_HOSTNAMES);
     }
 
     public get requestIp(): string {
-        return this.request.headers.get('CF-Connecting-IP') ?? '127.0.0.1'
+        return this.request.headers.get("CF-Connecting-IP") ?? "127.0.0.1";
     }
 
     public get isSecure(): boolean {
-        return this.origin.startsWith('https://')
+        return this.origin.startsWith("https://");
     }
 
     private get origin(): string {
-        return this.request.headers.get('Origin') ?? ''
+        return this.request.headers.get("Origin") ?? "";
     }
 
     private get referer(): string {
-        return this.request.headers.get('Referer') ?? ''
+        return this.request.headers.get("Referer") ?? "";
     }
 
     private get encoding(): string {
-        return this.request.headers.get('Accept-Encoding') ?? ''
+        return this.request.headers.get("Accept-Encoding") ?? "";
     }
 
     private static hasAllowedHostname(host: string): boolean {
         try {
-            const url = new URL(host)
+            const url = new URL(host);
 
-            return RequestValidator.ALLOWED_HOSTNAMES.has(url.hostname)
-        } catch (e) {
-            return false
+            return RequestValidator.ALLOWED_HOSTNAMES.has(url.hostname);
+        } catch (_) {
+            return false;
         }
     }
 
     public isAllowed(): boolean {
-        return (
-            this.hasAllowedOrigin() &&
-            this.hasAllowedReferer() &&
-            this.supportsBrotli()
-        )
+        return this.hasAllowedOrigin() && this.hasAllowedReferer() && this.supportsBrotli();
     }
 
     private hasAllowedOrigin(): boolean {
-        return this.origin
-            ? RequestValidator.hasAllowedHostname(this.origin)
-            : false
+        return this.origin ? RequestValidator.hasAllowedHostname(this.origin) : false;
     }
 
     private hasAllowedReferer(): boolean {
-        return this.referer
-            ? RequestValidator.hasAllowedHostname(this.referer)
-            : false
+        return this.referer ? RequestValidator.hasAllowedHostname(this.referer) : false;
     }
 
     private supportsBrotli(): boolean {
-        if (!this.encoding) return false
-        const encodings = this.encoding.split(', ')
+        if (!this.encoding) {
+            return false;
+        }
+        const encodings = this.encoding.split(", ");
 
-        return (
-            encodings.includes('br') ||
-            encodings.some((enc) => enc.startsWith('br;'))
-        )
+        return encodings.includes("br") || encodings.some((enc) => enc.startsWith("br;"));
     }
 }
 
 class RCEHandler {
     public async execute(
         codeRequest: CodeRequest,
-        abortSignal?: AbortSignal
+        abortSignal?: AbortSignal,
     ): Promise<CodeResponse> {
-        const { env } = process
+        const { env } = process;
 
         if (!env.RCE_BASE_URL || !env.RCE_ACCESS_TOKEN) {
-            throw new CustomError('Missing env vars')
+            throw new CustomError("Missing env vars");
         }
 
         const envConfig = new EnvConfigParser({
             baseUrl: env.RCE_BASE_URL,
             accessToken: env.RCE_ACCESS_TOKEN,
-        }).parse()
+        }).parse();
 
         const response = await fetch(envConfig.baseUrl, {
-            signal: abortSignal,
+            signal: abortSignal ?? null,
             headers: {
-                'Content-Type': 'application/json',
-                'X-Access-Token': envConfig.accessToken,
+                "Content-Type": "application/json",
+                "X-Access-Token": envConfig.accessToken,
             },
             body: JSON.stringify(codeRequest),
-            method: 'POST',
-        })
+            method: "POST",
+        });
 
         if (response.status !== 200) {
-            await this.processError(response)
+            await this.processError(response);
         }
 
-        const body = (await response.json()) as CodeResponse
+        const body = (await response.json()) as CodeResponse;
 
         return {
             error: body.error,
             stderr: body.stderr,
             stdout: body.stdout,
-        }
+        };
     }
 
     private async processError(response: Response): Promise<void> {
         switch (response.status) {
             case 404:
-                throw new CustomError('URI not found')
+                throw new CustomError("URI not found");
 
             case 500: {
-                const body = (await response.json()) as ErrorResponse
+                const body = (await response.json()) as ErrorResponse;
 
-                throw new CustomError(body.message)
+                throw new CustomError(body.message);
             }
 
             case 400: {
-                const body = (await response.json()) as ErrorResponse
+                const body = (await response.json()) as ErrorResponse;
 
-                throw new CustomError(body.message)
+                throw new CustomError(body.message);
             }
 
             case 401: {
-                const body = (await response.json()) as ErrorResponse
+                const body = (await response.json()) as ErrorResponse;
 
-                throw new CustomError(body.message)
+                throw new CustomError(body.message);
             }
         }
 
-        const body = await response.text()
+        const body = await response.text();
 
         Sentry.captureException(
             new CustomError(`Received ${response.status} with body
-            ${body}`)
-        )
+            ${body}`),
+        );
     }
 }
 
@@ -207,7 +193,7 @@ const getImage = cache((languageName: string) => {
         str: languageName,
         map: imageNameTransformMap,
         lowerCase: true,
-    })
+    });
 
-    return `toolkithub/${toImageName}:edge`
-})
+    return `toolkithub/${toImageName}:edge`;
+});

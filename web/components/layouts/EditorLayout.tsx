@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from "react-hot-toast";
 
-import useDevice from '@/hooks/useDevice'
-import Sidebar from '@/app/(sandbox)/sidebar'
+import Sidebar from "@/app/(sandbox)/sidebar";
+import useDevice from "@/hooks/useDevice";
 
-import Footer from '../ui/footer/ui'
-import Header from '../ui/header/ui'
-import UnsupportedDevice from '../ui/unsupported-device'
+import Footer from "../ui/footer/ui";
+import Header from "../ui/header/ui";
+import UnsupportedDevice from "../ui/unsupported-device";
 
 export default function EditorLayout({ children }: { children: ReactNode }) {
-    const isSupportedDevice = useDevice()
+    const isSupportedDevice = useDevice();
 
     if (!isSupportedDevice) {
-        return <UnsupportedDevice />
+        return <UnsupportedDevice />;
     }
 
     return (
@@ -24,11 +24,9 @@ export default function EditorLayout({ children }: { children: ReactNode }) {
             <Toaster reverseOrder position="top-center" />
             <main className="flex flex-grow flex-row overflow-hidden">
                 <Sidebar />
-                <div className="relative flex-1 bg-[#FFFFFF] dark:bg-[#1E1E2A]">
-                    {children}
-                </div>
+                <div className="relative flex-1 bg-[#FFFFFF] dark:bg-[#1E1E2A]">{children}</div>
             </main>
             <Footer />
         </div>
-    )
+    );
 }

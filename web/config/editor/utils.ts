@@ -1,7 +1,7 @@
-import { isNonEmptyString } from '@/lib/utils'
+import { isNonEmptyString } from "@/lib/utils";
 
 function getContentLengthByLine(content: string) {
-    return isNonEmptyString(content) ? content.trim().split('\n').length : 0
+    return isNonEmptyString(content) ? content.trim().split("\n").length : 0;
 }
 
-export default getContentLengthByLine
+export default getContentLengthByLine;

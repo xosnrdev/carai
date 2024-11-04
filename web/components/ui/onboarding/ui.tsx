@@ -1,12 +1,12 @@
-import { Button } from '@nextui-org/button'
-import { PlayIcon } from 'lucide-react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { Button } from "@nextui-org/button";
+import { PlayIcon } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-import onboardingProps from '.'
+import onboardingProps from ".";
 
 export default function Onboarding() {
-    const router = useRouter()
+    const router = useRouter();
 
     return (
         <div className="min-h-dvh pt-16 selection:bg-background">
@@ -17,9 +17,9 @@ export default function Onboarding() {
                     </h1>
 
                     <ul className="list-none space-y-12 p-0">
-                        {onboardingProps.features.map((feature, idx) => (
+                        {onboardingProps.features.map((feature) => (
                             <li
-                                key={idx}
+                                key={feature}
                                 className="flex flex-row items-center text-2xl font-light text-default-500 text-opacity-50 transition-all duration-500 hover:scale-105 hover:cursor-pointer hover:text-opacity-100"
                             >
                                 <PlayIcon
@@ -34,23 +34,21 @@ export default function Onboarding() {
                     </ul>
 
                     <div className="inline-flex flex-col gap-y-4">
-                        {onboardingProps.quickLinks.map(
-                            ({ id, uri, label }, index) => (
-                                <Button
-                                    key={id}
-                                    fullWidth
-                                    className="text-white"
-                                    color={index === 0 ? 'primary' : 'default'}
-                                    radius="sm"
-                                    size={'lg'}
-                                    startContent={<span>{label}</span>}
-                                    variant="solid"
-                                    onPress={() => {
-                                        router.push(uri)
-                                    }}
-                                />
-                            )
-                        )}
+                        {onboardingProps.quickLinks.map(({ id, uri, label }, index) => (
+                            <Button
+                                key={id}
+                                fullWidth
+                                className="text-white"
+                                color={index === 0 ? "primary" : "default"}
+                                radius="sm"
+                                size={"lg"}
+                                startContent={<span>{label}</span>}
+                                variant="solid"
+                                onPress={() => {
+                                    router.push(uri);
+                                }}
+                            />
+                        ))}
                     </div>
                 </div>
                 <div className="hidden lg:block xl:block">
@@ -59,11 +57,11 @@ export default function Onboarding() {
                         alt="coding illustration"
                         className="h-auto w-auto"
                         height={500}
-                        src={'/onboarding.svg'}
+                        src={"/onboarding.svg"}
                         width={500}
                     />
                 </div>
             </div>
         </div>
-    )
+    );
 }

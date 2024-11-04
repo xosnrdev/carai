@@ -1,32 +1,32 @@
-import type { Runtime } from '@/config/editor/types'
+import type { Runtime } from "@/config/editor/types";
 
-import { Button } from '@nextui-org/button'
-import { CogIcon, CopyCheckIcon, CopyIcon, PlayCircleIcon } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { useState } from 'react'
+import { Button } from "@nextui-org/button";
+import { CogIcon, CopyCheckIcon, CopyIcon, PlayCircleIcon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useState } from "react";
 
-import MonacoEditor from '@/components/monaco-editor'
-import CodeResponse from '@/config/editor/code-response'
-import useCopyToClipboard from '@/hooks/useCopyToClipboard'
-import useCodeRunner from '@/hooks/useRunCode'
-import { cn, languageSupportTransformMap, transformString } from '@/lib/utils'
+import MonacoEditor from "@/components/monaco-editor";
+import CodeResponse from "@/config/editor/code-response";
+import useCopyToClipboard from "@/hooks/useCopyToClipboard";
+import useCodeRunner from "@/hooks/useRunCode";
+import { cn, languageSupportTransformMap, transformString } from "@/lib/utils";
 
 export default function CodeBlock(runtime: Runtime) {
-    const { languageName, snippet, filename } = runtime
-    const { isRunning, codeResponse, run, error } = useCodeRunner()
-    const [content, setContent] = useState(snippet)
-    const runningCtx = `Running ${filename}...`
-    const timeCtx = `Finished in ${codeResponse?.time}ms`
-    const { resolvedTheme } = useTheme()
-    const { handleCopyToClipboard, isCopied } = useCopyToClipboard()
+    const { languageName, snippet, filename } = runtime;
+    const { isRunning, codeResponse, run, error } = useCodeRunner();
+    const [content, setContent] = useState(snippet);
+    const runningCtx = `Running ${filename}...`;
+    const timeCtx = `Finished in ${codeResponse?.time}ms`;
+    const { resolvedTheme } = useTheme();
+    const { handleCopyToClipboard, isCopied } = useCopyToClipboard();
 
     const handleCodeRunner = async () => {
         await run({
             languageName,
             content,
             filename,
-        })
-    }
+        });
+    };
 
     return (
         <div className="relative w-full rounded-lg bg-background shadow-lg">
@@ -39,19 +39,15 @@ export default function CodeBlock(runtime: Runtime) {
                     </div>
                     <Button
                         isIconOnly
-                        aria-label={isCopied ? 'Copied' : 'Copy to clipboard'}
-                        color={resolvedTheme === 'dark' ? 'default' : 'primary'}
+                        aria-label={isCopied ? "Copied" : "Copy to clipboard"}
+                        color={resolvedTheme === "dark" ? "default" : "primary"}
                         size="sm"
                         startContent={
-                            isCopied ? (
-                                <CopyCheckIcon size={24} />
-                            ) : (
-                                <CopyIcon size={24} />
-                            )
+                            isCopied ? <CopyCheckIcon size={24} /> : <CopyIcon size={24} />
                         }
                         variant="light"
                         onPress={() => {
-                            handleCopyToClipboard(content)
+                            handleCopyToClipboard(content);
                         }}
                     />
                 </div>
@@ -64,8 +60,10 @@ export default function CodeBlock(runtime: Runtime) {
                         })}
                         value={content}
                         onChange={(content) => {
-                            if (!content) return
-                            setContent(content)
+                            if (!content) {
+                                return;
+                            }
+                            setContent(content);
                         }}
                     />
                 </div>
@@ -73,8 +71,7 @@ export default function CodeBlock(runtime: Runtime) {
                     {isRunning ? (
                         <CodeResponse
                             customStyle={{
-                                animation:
-                                    'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
                             }}
                             response={runningCtx}
                         />
@@ -82,28 +79,21 @@ export default function CodeBlock(runtime: Runtime) {
                         <CodeResponse response={timeCtx} />
                     ) : null}
                     <div
-                        className={cn('transition-opacity duration-500', {
-                            'opacity-0': isRunning,
-                            'opacity-100': !isRunning,
+                        className={cn("transition-opacity duration-500", {
+                            "opacity-0": isRunning,
+                            "opacity-100": !isRunning,
                         })}
                     >
-                        {codeResponse?.stderr && (
-                            <CodeResponse response={codeResponse.stderr} />
-                        )}
-                        {codeResponse?.stdout && (
-                            <CodeResponse response={codeResponse.stdout} />
-                        )}
+                        {codeResponse?.stderr && <CodeResponse response={codeResponse.stderr} />}
+                        {codeResponse?.stdout && <CodeResponse response={codeResponse.stdout} />}
                         {error && <CodeResponse response={error} />}
                     </div>
                 </div>
                 <div className="mt-4 text-center">
                     <Button
-                        className={cn(
-                            'animate-pulse text-white hover:animate-none',
-                            {
-                                'animate-none': isRunning,
-                            }
-                        )}
+                        className={cn("animate-pulse text-white hover:animate-none", {
+                            "animate-none": isRunning,
+                        })}
                         color="success"
                         endContent={<span>Run</span>}
                         isDisabled={isRunning}
@@ -113,22 +103,19 @@ export default function CodeBlock(runtime: Runtime) {
                         spinner={
                             <CogIcon
                                 className={cn({
-                                    'animate-spin': isRunning,
+                                    "animate-spin": isRunning,
                                 })}
                                 size={16}
                             />
                         }
                         spinnerPlacement="end"
                         startContent={
-                            <PlayCircleIcon
-                                className={cn({ hidden: isRunning })}
-                                size={16}
-                            />
+                            <PlayCircleIcon className={cn({ hidden: isRunning })} size={16} />
                         }
                         onPress={handleCodeRunner}
                     />
                 </div>
             </div>
         </div>
-    )
+    );
 }

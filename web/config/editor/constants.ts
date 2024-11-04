@@ -1,271 +1,262 @@
-import type { Runtime } from './types'
-import type { editor } from 'monaco-editor'
+import type { editor } from "monaco-editor";
+import type { Runtime } from "./types";
 
-import caraiDark from './theme/carai-dark.json'
-import caraiLight from './theme/carai-light.json'
+import caraiDark from "./theme/carai-dark.json";
+import caraiLight from "./theme/carai-light.json";
 
-export { darkThemeData, lightThemeData, runtimeRecord }
+export { darkThemeData, lightThemeData, runtimeRecord };
 
 const darkThemeData: editor.IStandaloneThemeData = {
-    base: 'vs-dark',
+    base: "vs-dark",
     inherit: true,
     rules: caraiDark.tokenColors.map((token) => {
-        const tokenScope = Array.isArray(token.scope)
-            ? token.scope.join(', ')
-            : token.scope
+        const tokenScope = Array.isArray(token.scope) ? token.scope.join(", ") : token.scope;
 
         return {
             token: tokenScope,
             foreground: token.settings.foreground,
             fontStyle: token.settings.fontStyle,
-        }
+        };
     }),
     colors: caraiDark.colors,
-} as const
+} as const;
 
 const lightThemeData: editor.IStandaloneThemeData = {
-    base: 'vs',
+    base: "vs",
     inherit: true,
     rules: caraiLight.tokenColors.map((token) => {
-        const tokenScope = Array.isArray(token.scope)
-            ? token.scope.join(', ')
-            : token.scope
+        const tokenScope = Array.isArray(token.scope) ? token.scope.join(", ") : token.scope;
 
         return {
             token: tokenScope,
             foreground: token.settings.foreground,
             fontStyle: token.settings.fontStyle,
             background: token.settings.background,
-        }
+        };
     }),
     colors: caraiLight.colors,
-} as const
+} as const;
 
 const runtimeRecord: Record<string, Runtime> = {
-    '.js': {
-        languageName: 'javascript',
+    ".js": {
+        languageName: "javascript",
         snippet: 'console.log("Hello, World!")',
-        filename: 'main.js',
+        filename: "main.js",
     },
-    '.go': {
-        languageName: 'go',
-        snippet:
-            'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}',
-        filename: 'main.go',
+    ".go": {
+        languageName: "go",
+        snippet: 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}',
+        filename: "main.go",
     },
-    '.py': {
-        languageName: 'python',
+    ".py": {
+        languageName: "python",
         snippet: 'print("Hello, World!")',
-        filename: 'main.py',
+        filename: "main.py",
     },
-    '.ts': {
-        languageName: 'typescript',
+    ".ts": {
+        languageName: "typescript",
         snippet: 'console.log("Hello, World!")',
-        filename: 'main.ts',
+        filename: "main.ts",
     },
-    '.c': {
-        languageName: 'c',
-        snippet:
-            '#include <stdio.h>\n\nint main() {\n\tprintf("Hello, World!");\n\treturn 0;\n}',
-        filename: 'main.c',
+    ".c": {
+        languageName: "c",
+        snippet: '#include <stdio.h>\n\nint main() {\n\tprintf("Hello, World!");\n\treturn 0;\n}',
+        filename: "main.c",
     },
-    '.cpp': {
-        languageName: 'cpp',
+    ".cpp": {
+        languageName: "cpp",
         snippet:
             '#include <iostream>\n\nint main() {\n\tstd::cout << "Hello, World!";\n\treturn 0;\n}',
-        filename: 'main.cpp',
+        filename: "main.cpp",
     },
-    '.php': {
-        languageName: 'php',
+    ".php": {
+        languageName: "php",
         snippet: '<?php\n\necho "Hello, World!";',
-        filename: 'index.php',
+        filename: "index.php",
     },
-    '.rb': {
-        languageName: 'ruby',
+    ".rb": {
+        languageName: "ruby",
         snippet: 'puts "Hello, World!"',
-        filename: 'main.rb',
+        filename: "main.rb",
     },
-    '.lua': {
-        languageName: 'lua',
+    ".lua": {
+        languageName: "lua",
         snippet: 'print("Hello, World!")',
-        filename: 'main.lua',
+        filename: "main.lua",
     },
-    '.jl': {
-        languageName: 'julia',
+    ".jl": {
+        languageName: "julia",
         snippet: 'println("Hello, World!")',
-        filename: 'main.jl',
+        filename: "main.jl",
     },
-    '.erl': {
-        languageName: 'erlang',
+    ".erl": {
+        languageName: "erlang",
         snippet:
             '% escript will ignore the first line\n\nmain(_) ->\n    io:format("Hello World!~n").',
-        filename: 'main.erl',
+        filename: "main.erl",
     },
-    '.ex': {
-        languageName: 'elixir',
+    ".ex": {
+        languageName: "elixir",
         snippet: 'IO.puts "Hello, World!"',
-        filename: 'main.ex',
+        filename: "main.ex",
     },
-    '.java': {
-        languageName: 'java',
+    ".java": {
+        languageName: "java",
         snippet:
             'public class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello, World!");\n\t}\n}',
-        filename: 'Main.java',
+        filename: "Main.java",
     },
-    '.lsp': {
-        languageName: 'clisp',
+    ".lsp": {
+        languageName: "clisp",
         snippet: '(format t "Hello World!")',
-        filename: 'main.lsp',
+        filename: "main.lsp",
     },
-    '.cs': {
-        languageName: 'csharp',
+    ".cs": {
+        languageName: "csharp",
         snippet:
             'using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nclass MainClass {\n\tstatic void Main() {\n\t\tConsole.WriteLine("Hello, World!");\n\t}\n}',
-        filename: 'Program.cs',
+        filename: "Program.cs",
     },
-    '.rs': {
-        languageName: 'rust',
+    ".rs": {
+        languageName: "rust",
         snippet: 'fn main() {\n\tprintln!("Hello, World!");\n}',
-        filename: 'main.rs',
+        filename: "main.rs",
     },
-    '.kt': {
-        languageName: 'kotlin',
+    ".kt": {
+        languageName: "kotlin",
         snippet: 'fun main() {\n\tprintln("Hello, World!")\n}',
-        filename: 'Main.kt',
+        filename: "Main.kt",
     },
-    '.swift': {
-        languageName: 'Swift',
+    ".swift": {
+        languageName: "Swift",
         snippet: 'print("Hello, World!")',
-        filename: 'main.swift',
+        filename: "main.swift",
     },
-    '.scala': {
-        languageName: 'Scala',
+    ".scala": {
+        languageName: "Scala",
         snippet: 'object Main extends App {\n\tprintln("Hello, World!")\n}',
-        filename: 'Main.scala',
+        filename: "Main.scala",
     },
-    '.dart': {
-        languageName: 'Dart',
+    ".dart": {
+        languageName: "Dart",
         snippet: 'void main() {\n\tprint("Hello, World!");\n}',
-        filename: 'main.dart',
+        filename: "main.dart",
     },
-    '.hs': {
-        languageName: 'Haskell',
+    ".hs": {
+        languageName: "Haskell",
         snippet: 'main = putStrLn "Hello, World!"',
-        filename: 'Main.hs',
+        filename: "Main.hs",
     },
-    '.pl': {
-        languageName: 'Perl',
+    ".pl": {
+        languageName: "Perl",
         snippet: 'print "Hello, World!\\n";',
-        filename: 'main.pl',
+        filename: "main.pl",
     },
-    '.sh': {
-        languageName: 'Bash',
+    ".sh": {
+        languageName: "Bash",
         snippet: 'echo "Hello, World!"',
-        filename: 'main.sh',
+        filename: "main.sh",
     },
-    '.clj': {
-        languageName: 'Clojure',
+    ".clj": {
+        languageName: "Clojure",
         snippet: '(println "Hello, World!")',
-        filename: 'main.clj',
+        filename: "main.clj",
     },
-    '.dats': {
-        languageName: 'ATS',
+    ".dats": {
+        languageName: "ATS",
         snippet: 'implement main0() = print("Hello, World!")',
-        filename: 'main.dats',
+        filename: "main.dats",
     },
-    '.nim': {
-        languageName: 'Nim',
+    ".nim": {
+        languageName: "Nim",
         snippet: 'echo "Hello, World!"',
-        filename: 'main.nim',
+        filename: "main.nim",
     },
-    '.coffee': {
-        languageName: 'coffeescript',
+    ".coffee": {
+        languageName: "coffeescript",
         snippet: 'console.log "Hello, World!"',
-        filename: 'main.coffee',
+        filename: "main.coffee",
     },
-    '.cr': {
-        languageName: 'Crystal',
+    ".cr": {
+        languageName: "Crystal",
         snippet: 'puts "Hello, World!"',
-        filename: 'main.cr',
+        filename: "main.cr",
     },
-    '.zig': {
-        languageName: 'Zig',
+    ".zig": {
+        languageName: "Zig",
         snippet:
             'const std = @import("std");\n\npub fn main() !void {\n    const stdout = std.io.getStdOut().writer();\n    try stdout.print("{s}\\n", .{"Hello World!"});\n}',
-        filename: 'main.zig',
+        filename: "main.zig",
     },
-    '.d': {
-        languageName: 'D',
-        snippet:
-            'import std.stdio;\n\nvoid main() {\n\twriteln("Hello, World!");\n}',
-        filename: 'main.d',
+    ".d": {
+        languageName: "D",
+        snippet: 'import std.stdio;\n\nvoid main() {\n\twriteln("Hello, World!");\n}',
+        filename: "main.d",
     },
-    '.elm': {
-        languageName: 'Elm',
+    ".elm": {
+        languageName: "Elm",
         snippet:
             'module Main exposing (main)\n\nimport Html exposing (..)\n\nmain =\n    text "Hello World!"',
-        filename: 'Main.elm',
+        filename: "Main.elm",
     },
-    '.fs': {
-        languageName: 'fsharp',
+    ".fs": {
+        languageName: "fsharp",
         snippet: 'printfn "Hello, World!"',
-        filename: 'Program.fs',
+        filename: "Program.fs",
     },
-    '.groovy': {
-        languageName: 'Groovy',
+    ".groovy": {
+        languageName: "Groovy",
         snippet: 'println "Hello, World!"',
-        filename: 'Main.groovy',
+        filename: "Main.groovy",
     },
-    '.scm': {
-        languageName: 'Guile',
+    ".scm": {
+        languageName: "Guile",
         snippet: '(display "Hello, World!")',
-        filename: 'main.scm',
+        filename: "main.scm",
     },
-    '.ha': {
-        languageName: 'Hare',
-        snippet:
-            'use fmt;\n\nexport fn main() void = {\n\tfmt::println("Hello World!")!;\n};\n',
-        filename: 'main.ha',
+    ".ha": {
+        languageName: "Hare",
+        snippet: 'use fmt;\n\nexport fn main() void = {\n\tfmt::println("Hello World!")!;\n};\n',
+        filename: "main.ha",
     },
-    '.idr': {
-        languageName: 'Idris',
+    ".idr": {
+        languageName: "Idris",
         snippet: 'main : IO ()\nmain = putStrLn "Hello, World!"',
-        filename: 'Main.idr',
+        filename: "Main.idr",
     },
-    '.m': {
-        languageName: 'Mercury',
+    ".m": {
+        languageName: "Mercury",
         snippet:
             ':- module main.\n:- interface.\n:- import_module io.\n\n:- pred main(io::di, io::uo) is det.\n\n:- implementation.\n\nmain(!IO) :-\n    io.write_string("Hello World!", !IO).',
-        filename: 'main.m',
+        filename: "main.m",
     },
-    '.nix': {
-        languageName: 'Nix',
+    ".nix": {
+        languageName: "Nix",
         snippet: 'let\n    hello = "Hello World!";\nin\nhello',
-        filename: 'default.nix',
+        filename: "default.nix",
     },
-    '.ml': {
-        languageName: 'OCaml',
+    ".ml": {
+        languageName: "OCaml",
         snippet: 'print_endline "Hello, World!"',
-        filename: 'main.ml',
+        filename: "main.ml",
     },
-    '.pas': {
-        languageName: 'Pascal',
+    ".pas": {
+        languageName: "Pascal",
         snippet: "Program Main;\n\nbegin\n  writeln('Hello World!');\nend.\n",
-        filename: 'main.pas',
+        filename: "main.pas",
     },
-    '.raku': {
-        languageName: 'Raku',
+    ".raku": {
+        languageName: "Raku",
         snippet: 'say "Hello, World!";',
-        filename: 'main.raku',
+        filename: "main.raku",
     },
-    '.sac': {
-        languageName: 'SaC',
-        snippet:
-            'int main () {\n    StdIO::printf ("Hello World!");\n    return 0;\n}',
-        filename: 'main.sac',
+    ".sac": {
+        languageName: "SaC",
+        snippet: 'int main () {\n    StdIO::printf ("Hello World!");\n    return 0;\n}',
+        filename: "main.sac",
     },
-    '.cob': {
-        languageName: 'Cobol',
+    ".cob": {
+        languageName: "Cobol",
         snippet: `       IDENTIFICATION DIVISION.
            PROGRAM-ID. HELLO.
 
@@ -273,6 +264,6 @@ const runtimeRecord: Record<string, Runtime> = {
                DISPLAY 'Hello World!'.
                GOBACK.
            `,
-        filename: 'main.cob',
+        filename: "main.cob",
     },
-}
+};
