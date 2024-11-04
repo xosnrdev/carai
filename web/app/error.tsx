@@ -18,9 +18,13 @@ export default function AppError({
     return (
         <html lang="en">
             <body>
-                <div className="mx-auto flex min-h-dvh flex-col items-center justify-center space-y-4 font-mukta">
+                <div className="flex flex-col min-h-dvh place-content-center space-y-6 antialiased">
                     <h2>Something went wrong!</h2>
-                    <Button startContent={<span>Try again</span>} onPress={() => reset()} />
+                    <Button
+                        startContent={<span>Try again</span>}
+                        onPress={() => reset()}
+                        color="danger"
+                    />
                 </div>
             </body>
         </html>
