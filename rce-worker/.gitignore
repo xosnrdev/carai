@@ -169,8 +169,7 @@ dist
 # wrangler project
 
 .dev.vars
-.wrangler/
-wrangler.toml
+*wrangler*
 worker-configuration.d.ts
 .idea
 
