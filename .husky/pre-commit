@@ -1,1 +1,1 @@
-pnpm check && pnpm fmt
+cd client && pnpm check && pnpm fmt

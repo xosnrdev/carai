@@ -4,8 +4,6 @@ import type { ReactNode } from "react";
 import siteConfig from "@/src/common/site";
 import ReduxProvider from "@/src/layout/redux_provider";
 import ThemeProvider from "@/src/layout/theme_provider";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@/styles/global.css";
 import { JetBrains_Mono, Mukta } from "next/font/google";
 
@@ -58,8 +56,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <body className={`${mukta.variable} ${jetbrainsMono.variable}`}>
                 <ThemeProvider>
                     <ReduxProvider>{children}</ReduxProvider>
-                    <SpeedInsights />
-                    <Analytics />
                 </ThemeProvider>
             </body>
         </html>

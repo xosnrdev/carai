@@ -7,7 +7,10 @@
         "check": "biome check --write .",
         "fix": "biome check --fix .",
         "prepare": "husky",
-        "release": "release-it"
+        "release": "release-it",
+        "build": "NODE_ENV=production pnpm --filter web build",
+        "dev": "pnpm --filter web dev",
+        "start": "pnpm --filter web start"
     },
     "devDependencies": {
         "@biomejs/biome": "1.9.4",
@@ -15,10 +18,8 @@
         "release-it": "17.10.0",
         "typescript": "5.6.3"
     },
-    "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee",
+    "packageManager": "pnpm@9.14.4+sha512.c8180b3fbe4e4bca02c94234717896b5529740a6cbadf19fa78254270403ea2f27d4e1d46a08a0f56c89b63dc8ebfd3ee53326da720273794e6200fcf0d184ab",
     "engines": {
-        "node": ">=20.11.0",
-        "yarn": "Please use pnpm",
-        "npm": "Please use pnpm"
+        "node": ">=20.11.0"
     }
 }
