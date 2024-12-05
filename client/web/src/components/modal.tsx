@@ -6,13 +6,7 @@ import type {
 } from "@radix-ui/react-dialog";
 import type { FC } from "react";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogOverlay,
-    DialogTitle,
-} from "../components/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogOverlay, DialogTitle } from "./dialog";
 
 interface IModalProps
     extends DialogProps,
