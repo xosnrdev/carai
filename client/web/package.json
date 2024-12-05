@@ -36,7 +36,7 @@
         "@react-aria/ssr": "3.9.6",
         "@react-aria/visually-hidden": "3.8.17",
         "@reduxjs/toolkit": "2.3.0",
-        "@sentry/nextjs": "8.39.0",
+        "@sentry/nextjs": "8.42.0",
         "class-variance-authority": "0.7.0",
         "clsx": "2.1.1",
         "framer-motion": "11.11.17",
