@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:13.16-bookworm
+    container_name: postgres
+    environment:
+      POSTGRES_USER: $DATABASE_USERNAME
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_DB: $DATABASE_NAME
+    ports:
+      - target: $DATABASE_PORT
+        published: $DATABASE_PORT
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+
+  redis:
+    image: redis:bookworm
+    container_name: redis
+    ports:
+      - target: $REDIS_PORT
+        published: $REDIS_PORT
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+
+volumes:
+  postgres-data:
+    name: postgres-data
+  redis-data:
+    name: redis-data
