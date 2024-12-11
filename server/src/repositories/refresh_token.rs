@@ -1,6 +1,6 @@
 use crate::{model::RefreshToken, response::CaraiResult};
 use anyhow::anyhow;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -39,38 +39,33 @@ pub async fn read_token_by_user(pool: &PgPool, user_id: Uuid) -> CaraiResult<Opt
     .map_err(|e| anyhow!("Failed to read refresh token by user: {}", e))
 }
 
-pub async fn read_token_by_value(
-    pool: &PgPool,
-    token_value: &str,
-) -> CaraiResult<Option<RefreshToken>> {
+pub async fn read_token_by_value(pool: &PgPool, token: &str) -> CaraiResult<Option<RefreshToken>> {
     sqlx::query_as!(
         RefreshToken,
         r#"
         SELECT * FROM refresh_tokens
         WHERE token = $1
         "#,
-        token_value
+        token
     )
     .fetch_optional(pool)
     .await
     .map_err(|e| anyhow!("Failed to read refresh token by value: {}", e))
 }
 
-pub async fn update_token(pool: &PgPool, user_id: Uuid) -> CaraiResult<RefreshToken> {
-    sqlx::query_as!(
-        RefreshToken,
+pub async fn revoke_token(pool: &PgPool, user_id: Uuid, now: DateTime<Utc>) -> CaraiResult<()> {
+    sqlx::query!(
         r#"
         UPDATE refresh_tokens
         SET is_revoked = true, updated_at = $1
         WHERE user_id = $2
-        RETURNING *
         "#,
-        Utc::now(),
+        now,
         user_id
     )
-    .fetch_one(pool)
-    .await
-    .map_err(|e| anyhow!("Failed to update refresh token: {}", e))
+    .execute(pool)
+    .await?;
+    Ok(())
 }
 
 pub async fn delete_token(pool: &PgPool, user_id: Uuid) -> CaraiResult<()> {
