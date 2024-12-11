@@ -32,17 +32,17 @@ pub struct User {
 
 impl User {
     pub fn new(
-        email: String,
-        password_hash: String,
+        email: impl Into<String>,
+        password_hash: impl Into<String>,
         github_id: Option<i64>,
-        username: String,
+        username: impl Into<String>,
         avatar_url: Option<String>,
         now: DateTime<Utc>,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
             github_id,
-            username,
+            username: username.into(),
             email: email.into(),
             password_hash: password_hash.into(),
             avatar_url,
