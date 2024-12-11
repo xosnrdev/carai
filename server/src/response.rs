@@ -3,23 +3,6 @@ use axum::{
     Json,
 };
 use serde::Serialize;
-use smart_default::SmartDefault;
-
-#[derive(Debug, Serialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Status {
-    Success,
-    Error,
-}
-
-impl From<&str> for Status {
-    fn from(s: &str) -> Self {
-        match s {
-            "success" => Status::Success,
-            _ => Status::Error,
-        }
-    }
-}
 
 #[derive(Debug)]
 pub enum Message {
@@ -31,48 +14,47 @@ impl Message {
     pub fn to_internal(&self) -> String {
         match self {
             Message::Internal(err) => err.to_string(),
-            Message::External(msg) => msg.to_owned(),
+            _ => "An internal server error occurred.".to_string(),
         }
     }
 
     pub fn to_external(&self) -> String {
         match self {
             Message::External(msg) => msg.to_owned(),
-            _ => "An internal server error occurred.".to_string(),
+            Message::Internal(msg) => msg.to_string(),
         }
     }
 }
 
 #[derive(Debug)]
 pub struct AppError {
-    code: u16,
+    status: u16,
     message: Message,
 }
 
 impl AppError {
-    pub fn new(code: u16, message: Message) -> Self {
-        Self { code, message }
+    pub fn new(status: u16, message: Message) -> Self {
+        Self { status, message }
     }
 
     pub fn internal(error: impl Into<anyhow::Error>) -> Self {
         Self {
-            code: 500,
+            status: 500,
             message: Message::Internal(error.into()),
         }
     }
 
-    pub fn external(message: String, code: u16) -> Self {
+    pub fn external(message: String, status: u16) -> Self {
         Self {
-            code,
+            status,
             message: Message::External(message),
         }
     }
 
     pub fn to_error_response(&self) -> ErrorResponse {
         ErrorResponse {
-            code: self.code,
-            message: self.message.to_external(),
-            ..Default::default()
+            status: self.status,
+            body: self.message.to_external(),
         }
     }
 }
@@ -83,36 +65,32 @@ impl IntoResponse for AppError {
     }
 }
 
-#[derive(Debug, Serialize, SmartDefault)]
-pub struct SuccessResponse<T: Default> {
-    #[default = "success"]
-    status: Status,
-    pub code: u16,
-    pub data: T,
+#[derive(Debug, Serialize)]
+pub struct SuccessResponse<T: Serialize> {
+    pub status: u16,
+    pub body: T,
 }
 
-impl<T: Default + Serialize> SuccessResponse<T> {
-    pub fn new(data: T, code: u16) -> Self {
-        Self {
-            code,
-            data,
-            ..Default::default()
-        }
+impl<T: Serialize> SuccessResponse<T> {
+    pub fn new(body: T, status: u16) -> Self {
+        Self { status, body }
+    }
+
+    pub fn ok(body: T) -> Self {
+        Self::new(body, 200)
     }
 }
 
-impl<T: Default + Serialize> IntoResponse for SuccessResponse<T> {
+impl<T: Serialize> IntoResponse for SuccessResponse<T> {
     fn into_response(self) -> Response {
         Json(self).into_response()
     }
 }
 
-#[derive(Debug, Serialize, SmartDefault)]
+#[derive(Debug, Serialize)]
 pub struct ErrorResponse {
-    #[default = "error"]
-    status: Status,
-    code: u16,
-    message: String,
+    pub status: u16,
+    pub body: String,
 }
 
 macro_rules! process_error_from {
