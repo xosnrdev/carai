@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    defaults:
+      run:
+        working-directory: server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install latest rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Run tests
+        run: cargo test

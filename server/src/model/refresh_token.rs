@@ -32,14 +32,14 @@ pub struct RefreshToken {
 impl RefreshToken {
     pub fn new(
         user_id: Uuid,
-        token: String,
+        token: impl Into<String>,
         expires_at: DateTime<Utc>,
         now: DateTime<Utc>,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
             user_id,
-            token,
+            token: token.into(),
             expires_at,
             created_at: now,
             updated_at: now,
