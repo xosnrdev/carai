@@ -72,6 +72,22 @@ pub async fn read_user_by_username(pool: &PgPool, username: &str) -> CaraiResult
     .map_err(|e| anyhow!("Failed to read user by username: {}", e))
 }
 
+pub async fn read_all_users(pool: &PgPool, limit: i64, offset: i64) -> CaraiResult<Vec<User>> {
+    sqlx::query_as!(
+        User,
+        r#"
+        SELECT * FROM users
+        ORDER BY created_at DESC
+        LIMIT $1 OFFSET $2
+        "#,
+        limit,
+        offset
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|e| anyhow!("Failed to read all users: {}", e))
+}
+
 pub async fn read_user_by_github_id(pool: &PgPool, github_id: i64) -> CaraiResult<Option<User>> {
     sqlx::query_as!(
         User,
@@ -129,7 +145,7 @@ pub async fn update_user_password(
 pub async fn update_user_profile(
     pool: &PgPool,
     id: Uuid,
-    username: Option<String>,
+    username: &str,
     avatar_url: Option<String>,
 ) -> CaraiResult<User> {
     sqlx::query_as!(
