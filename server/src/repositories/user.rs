@@ -72,6 +72,25 @@ pub async fn read_user_by_username(pool: &PgPool, username: &str) -> CaraiResult
     .map_err(|e| anyhow!("Failed to read user by username: {}", e))
 }
 
+pub async fn read_user_by_username_or_email(
+    pool: &PgPool,
+    username: &str,
+    email: &str,
+) -> CaraiResult<Option<User>> {
+    sqlx::query_as!(
+        User,
+        r#"
+        SELECT * FROM users
+        WHERE username = $1 OR email = $2
+        "#,
+        username,
+        email
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| anyhow!("Failed to read user by username or email: {}", e))
+}
+
 pub async fn read_all_users(pool: &PgPool, limit: i64, offset: i64) -> CaraiResult<Vec<User>> {
     sqlx::query_as!(
         User,
@@ -146,17 +165,21 @@ pub async fn update_user_profile(
     pool: &PgPool,
     id: Uuid,
     username: &str,
+    email: &str,
+    password_hash: &str,
     avatar_url: Option<String>,
 ) -> CaraiResult<User> {
     sqlx::query_as!(
         User,
         r#"
         UPDATE users
-        SET username = $1, avatar_url = $2, updated_at = $3
-        WHERE id = $4
+        SET username = $1, email = $2, password_hash = $3, avatar_url = $4, updated_at = $5
+        WHERE id = $6
         RETURNING *
         "#,
         username,
+        email,
+        password_hash,
         avatar_url,
         Utc::now(),
         id

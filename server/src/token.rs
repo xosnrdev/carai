@@ -22,48 +22,33 @@ pub enum Role {
     User,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Scope {
-    #[serde(rename = "user:read")]
-    UserRead,
-    #[serde(rename = "user:write")]
-    UserWrite,
-    #[serde(rename = "user:delete")]
-    UserDelete,
-    #[serde(rename = "admin:read")]
-    AdminRead,
-    #[serde(rename = "admin:write")]
-    AdminWrite,
-    #[serde(rename = "admin:delete")]
-    AdminDelete,
-    #[serde(rename = "user:manage")]
-    UserManage,
-}
-
 #[derive(Debug, Serialize, Deserialize, Getters, Display)]
 #[display(
-    "Claims: {{ sub: {}, exp: {}, iat: {}, typ: {:?}, jti: {}, scope: {:?}, role: {:?} }}",
+    "Claims: {{ sub: {}, exp: {}, iat: {}, typ: {:?}, jti: {}, role: {:?} }}",
     sub,
     exp,
     iat,
     token_type,
     jti,
-    scope,
     role
 )]
 pub struct Claims {
     #[getset(get = "pub")]
     sub: Uuid,
+    #[getset(get = "pub")]
     exp: i64,
     iat: i64,
     #[serde(rename = "typ")]
     token_type: TokenType,
     jti: Uuid,
     #[getset(get = "pub")]
-    scope: Vec<Scope>,
-    #[getset(get = "pub")]
     role: Vec<Role>,
+}
+
+impl Claims {
+    fn get_expires_in(&self) -> i64 {
+        self.exp - self.iat
+    }
 }
 
 fn generate_token(claims: &Claims, secret: &[u8]) -> CaraiResult<String> {
@@ -75,19 +60,23 @@ fn generate_token(claims: &Claims, secret: &[u8]) -> CaraiResult<String> {
     .map_err(|e| anyhow!("Failed to generate token: {}", e))
 }
 
+fn decode_token(token: &str, secret: &[u8]) -> CaraiResult<Claims> {
+    let validation = Validation::default();
+
+    let token_data: TokenData<Claims> =
+        decode(token, &DecodingKey::from_secret(secret), &validation)
+            .map_err(|e| anyhow!("Failed to decode token: {}", e))?;
+
+    Ok(token_data.claims)
+}
+
 fn verify_token(
     token: &str,
     secret: &[u8],
     token_type: &TokenType,
     now: &DateTime<Utc>,
 ) -> CaraiResult<Claims> {
-    let validation = Validation::default();
-
-    let token_data: TokenData<Claims> =
-        decode(token, &DecodingKey::from_secret(secret), &validation)
-            .map_err(|e| anyhow!("Failed to verify token: {}", e))?;
-
-    let claims = token_data.claims;
+    let claims = decode_token(token, secret)?;
 
     if &claims.token_type != token_type {
         bail!(
@@ -120,18 +109,16 @@ impl<'a> TokenManager<'a> {
     pub fn generate_access_token(
         &self,
         user_id: Uuid,
-        expiration: DateTime<Utc>,
+        expires_at: DateTime<Utc>,
         issued_at: DateTime<Utc>,
-        scope: Vec<Scope>,
         role: Vec<Role>,
     ) -> CaraiResult<String> {
         let claims = Claims {
             sub: user_id,
-            exp: expiration.timestamp(),
+            exp: expires_at.timestamp(),
             iat: issued_at.timestamp(),
             token_type: TokenType::Access,
             jti: Uuid::new_v4(),
-            scope,
             role,
         };
 
@@ -141,16 +128,15 @@ impl<'a> TokenManager<'a> {
     pub fn generate_refresh_token(
         &self,
         user_id: Uuid,
-        expiration: DateTime<Utc>,
+        expires_at: DateTime<Utc>,
         issued_at: DateTime<Utc>,
     ) -> CaraiResult<String> {
         let claims = Claims {
             sub: user_id,
-            exp: expiration.timestamp(),
+            exp: expires_at.timestamp(),
             iat: issued_at.timestamp(),
             token_type: TokenType::Refresh,
             jti: Uuid::new_v4(),
-            scope: Vec::new(),
             role: Vec::new(),
         };
 
@@ -163,5 +149,11 @@ impl<'a> TokenManager<'a> {
 
     pub fn validate_refresh_token(&self, token: &str, now: DateTime<Utc>) -> CaraiResult<Claims> {
         verify_token(token, self.secret, &TokenType::Refresh, &now)
+    }
+
+    pub fn get_expires_in(&self, token: &str) -> CaraiResult<i64> {
+        let claims = decode_token(token, self.secret)?;
+
+        Ok(claims.get_expires_in())
     }
 }

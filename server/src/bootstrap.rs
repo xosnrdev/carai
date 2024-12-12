@@ -29,7 +29,7 @@ pub async fn run_application(config: AppConfig) -> CaraiResult<()> {
 
     let listener = TcpListener::bind(address).await?;
 
-    tracing::info!("Starting server at {}", address);
+    tracing::info!("Listening on {}:{}", address.ip(), address.port());
     serve(listener, app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await

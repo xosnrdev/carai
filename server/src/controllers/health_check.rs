@@ -1,23 +1,20 @@
 use crate::response::{AppError, SuccessResponse};
-
 use serde::Serialize;
-use smart_default::SmartDefault;
 
-#[derive(Serialize, SmartDefault)]
-pub struct HealthCheckData {
-    status: String,
+#[derive(Serialize)]
+pub struct ServiceInfo {
+    name: String,
     version: String,
     description: String,
 }
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub async fn health_check() -> Result<SuccessResponse<HealthCheckData>, AppError> {
-    let data = HealthCheckData {
-        status: "pass".to_string(),
+pub async fn health_check_handler() -> Result<SuccessResponse<ServiceInfo>, AppError> {
+    let body = ServiceInfo {
+        name: "Carai".to_string(),
         version: VERSION.to_string(),
-        description: "Service is operational".to_string(),
+        description: "Backend service for Carai".to_string(),
     };
-
-    Ok(SuccessResponse::new(data, 200))
+    Ok(SuccessResponse::ok(body))
 }
