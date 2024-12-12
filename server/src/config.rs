@@ -125,9 +125,9 @@ pub struct JwtConfig {
     #[getset(get = "pub")]
     secret: String,
     #[getset(get = "pub")]
-    access_token_expiration_in_secs: u64,
+    access_token_expiration_in_secs: i64,
     #[getset(get = "pub")]
-    refresh_token_expiration_in_secs: u64,
+    refresh_token_expiration_in_secs: i64,
 }
 
 #[derive(Debug, Deserialize, Getters, Clone)]
