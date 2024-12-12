@@ -44,10 +44,10 @@ impl AppError {
         }
     }
 
-    pub fn external(message: String, status: u16) -> Self {
+    pub fn external(message: impl Into<String>, status: u16) -> Self {
         Self {
             status,
-            message: Message::External(message),
+            message: Message::External(message.into()),
         }
     }
 
@@ -97,6 +97,7 @@ macro_rules! process_error_from {
     ($error:ty) => {
         impl From<$error> for AppError {
             fn from(error: $error) -> Self {
+                tracing::debug!("{}", error);
                 AppError::internal(error)
             }
         }
