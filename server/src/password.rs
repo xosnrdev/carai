@@ -1,17 +1,15 @@
 use anyhow::anyhow;
 use argon2::{
-    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
 
 use crate::response::CaraiResult;
 
-pub fn hash_password_with_salt(password: &[u8], salt: &str) -> CaraiResult<String> {
-    let salt_string = SaltString::from_b64(salt)
-        .map_err(|e| anyhow!("Failed to decode salt from base64: {}", e))?;
-
+pub fn hash_password(password: &[u8]) -> CaraiResult<String> {
+    let salt = SaltString::generate(&mut OsRng);
     Argon2::default()
-        .hash_password(password, &salt_string)
+        .hash_password(password, &salt)
         .map_err(|e| anyhow!("Failed to hash password: {}", e))
         .map(|hash| hash.to_string())
 }
