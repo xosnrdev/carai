@@ -50,8 +50,4 @@ impl RefreshToken {
     pub fn is_expired(&self, now: DateTime<Utc>) -> bool {
         now > self.expires_at
     }
-
-    pub const fn read_user_id(&self) -> Uuid {
-        self.user_id
-    }
 }
