@@ -5,7 +5,7 @@ use chrono::{Duration, Utc};
 use crate::{
     bootstrap::AppState,
     middlewares::auth::{check_authorization, RefreshTokenClaims},
-    model::RefreshToken,
+    models::RefreshToken,
     repositories,
     response::{AppError, SuccessResponse},
     services::{create_refresh_token_cookie, handle_existing_token, TokenInfo},

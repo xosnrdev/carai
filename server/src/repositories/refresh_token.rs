@@ -1,4 +1,4 @@
-use crate::{model::RefreshToken, response::CaraiResult};
+use crate::{models::RefreshToken, response::CaraiResult};
 use anyhow::anyhow;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;

@@ -5,7 +5,7 @@ use chrono::{Duration, Utc};
 use crate::{
     bootstrap::AppState,
     dto::{LoginDto, RegisterDto},
-    model::User,
+    models::User,
     password::{hash_password, verify_password},
     repositories,
     response::{AppError, SuccessResponse},

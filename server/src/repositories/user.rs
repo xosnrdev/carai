@@ -3,7 +3,7 @@ use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{model::User, response::CaraiResult};
+use crate::{models::User, response::CaraiResult};
 
 pub async fn create_user(pool: &PgPool, user: &User) -> CaraiResult<User> {
     sqlx::query_as!(

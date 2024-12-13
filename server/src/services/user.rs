@@ -2,7 +2,7 @@ use axum::http::StatusCode;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::{bootstrap::AppState, model::User, repositories, response::AppError};
+use crate::{bootstrap::AppState, models::User, repositories, response::AppError};
 
 pub fn validate_dto<T: Validate>(dto: &T) -> Result<(), AppError> {
     dto.validate()

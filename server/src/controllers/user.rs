@@ -5,7 +5,7 @@ use crate::{
     bootstrap::AppState,
     dto::UpdateProfileDto,
     middlewares::auth::check_authorization,
-    model::User,
+    models::User,
     password::hash_password,
     repositories,
     response::{AppError, SuccessResponse},
