@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct RefreshTokenDto {
+    #[allow(dead_code)]
     pub refresh_token: String,
 }

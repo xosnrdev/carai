@@ -1,6 +1,8 @@
 use anyhow::anyhow;
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    password_hash::{
+        self, rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+    },
     Argon2,
 };
 
@@ -20,8 +22,9 @@ pub fn verify_password(password: &[u8], password_hash: &str) -> CaraiResult<bool
     let hash = PasswordHash::new(password_hash)
         .map_err(|e| anyhow!("Failed to parse password hash: {}", e))?;
 
-    argon2
-        .verify_password(password, &hash)
-        .map(|_| true)
-        .map_err(|e| anyhow!("Failed to verify password: {}", e))
+    match argon2.verify_password(password, &hash) {
+        Ok(_) => Ok(true),
+        Err(password_hash::Error::Password) => Ok(false),
+        Err(e) => Err(anyhow!("Failed to verify password: {}", e)),
+    }
 }
