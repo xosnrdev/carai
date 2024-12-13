@@ -1,11 +1,13 @@
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, time::Duration};
 
 use anyhow::Context;
 use axum::{
+    extract::FromRef,
     http::{HeaderValue, Method},
-    routing::get,
+    routing::{delete, get, patch, post},
     serve, Router,
 };
+use axum_extra::extract::cookie::Key;
 use getset::Getters;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, signal};
@@ -14,7 +16,10 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
     config::{AppConfig, DatabaseConfig},
-    controllers::health_check,
+    controllers::{
+        delete_me_handler, get_me_handler, health_check_handler, login_handler, logout_handler,
+        refresh_token_handler, register_handler, update_me_handler,
+    },
     response::CaraiResult,
 };
 
@@ -62,10 +67,23 @@ pub struct AppState {
     db_pool: PgPool,
     #[getset(get = "pub")]
     config: AppConfig,
+    #[getset(get = "pub")]
+    key: Key,
+}
+
+impl FromRef<AppState> for Key {
+    fn from_ref(state: &AppState) -> Self {
+        state.key.to_owned()
+    }
 }
 
 fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
-    let state = Arc::new(AppState { db_pool, config });
+    let key = Key::generate();
+    let state = AppState {
+        db_pool,
+        config,
+        key,
+    };
     let timeout = Duration::from_secs(*state.config.server().timeout_in_secs());
     let origins: Vec<HeaderValue> = state
         .config
@@ -75,18 +93,34 @@ fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
         .filter_map(|s| s.parse::<HeaderValue>().ok())
         .collect();
 
+    let users_router = Router::new()
+        .route("/me", get(get_me_handler))
+        .route("/me", patch(update_me_handler))
+        .route("/me", delete(delete_me_handler))
+        .route("/me", post(logout_handler));
+
+    let auth_router = Router::new()
+        .route("/login", post(login_handler))
+        .route("/register", post(register_handler))
+        .route("/refresh-token", post(refresh_token_handler));
+
     Router::new()
-        .route("/", get(health_check))
+        .route("/health", get(health_check_handler))
+        .nest("/users", users_router)
+        .nest("/auth", auth_router)
         .layer((
             TraceLayer::new_for_http(),
             TimeoutLayer::new(timeout),
-            CorsLayer::new().allow_origin(origins).allow_methods([
-                Method::GET,
-                Method::POST,
-                Method::DELETE,
-                Method::PUT,
-                Method::PATCH,
-            ]),
+            CorsLayer::new()
+                .allow_origin(origins)
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::DELETE,
+                    Method::PUT,
+                    Method::PATCH,
+                ])
+                .allow_credentials(true),
         ))
         .with_state(state)
 }
