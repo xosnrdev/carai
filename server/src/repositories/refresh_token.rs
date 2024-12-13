@@ -39,20 +39,6 @@ pub async fn read_token_by_user(pool: &PgPool, user_id: Uuid) -> CaraiResult<Opt
     .map_err(|e| anyhow!("Failed to read refresh token by user: {}", e))
 }
 
-pub async fn read_token_by_value(pool: &PgPool, token: &str) -> CaraiResult<Option<RefreshToken>> {
-    sqlx::query_as!(
-        RefreshToken,
-        r#"
-        SELECT * FROM refresh_tokens
-        WHERE token = $1
-        "#,
-        token
-    )
-    .fetch_optional(pool)
-    .await
-    .map_err(|e| anyhow!("Failed to read refresh token by value: {}", e))
-}
-
 pub async fn revoke_token(pool: &PgPool, user_id: Uuid, now: DateTime<Utc>) -> CaraiResult<()> {
     sqlx::query!(
         r#"
