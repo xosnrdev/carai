@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        UPDATE users\n        SET username = $1, avatar_url = $2, updated_at = $3\n        WHERE id = $4\n        RETURNING *\n        ",
+  "query": "\n        SELECT * FROM users\n        WHERE username = $1 OR email = $2\n        ",
   "describe": {
     "columns": [
       {
@@ -47,9 +47,7 @@
     "parameters": {
       "Left": [
         "Text",
-        "Text",
-        "Timestamptz",
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -63,5 +61,5 @@
       false
     ]
   },
-  "hash": "2116f39861c2bef3e0370b9ad40621904cf6307a663e19149fd76cac6d6aa2ba"
+  "hash": "5ac944d8b54614e26e5327b6296643d49d06eebc045fbf4070353adb79a4cc3b"
 }
