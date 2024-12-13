@@ -1,7 +1,7 @@
 services:
-  db:
-    image: postgres:13.16-bookworm
-    container_name: postgres
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
     environment:
       POSTGRES_USER: $APP__DATABASE__USERNAME
       POSTGRES_PASSWORD: $APP__DATABASE__PASSWORD
@@ -11,12 +11,25 @@ services:
         published: $APP__DATABASE__PORT
         protocol: tcp
         mode: host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-  redis:
-    image: redis:bookworm
-    container_name: redis
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: $APP__PGADMIN__EMAIL
+      PGADMIN_DEFAULT_PASSWORD: $APP__PGADMIN__PASSWORD
     ports:
-      - target: $APP__REDIS__PORT
-        published: $APP__REDIS__PORT
+      - target: $APP__PGADMIN__PORT
+        published: $APP__PGADMIN__PORT
         protocol: tcp
         mode: host
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
