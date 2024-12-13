@@ -107,60 +107,6 @@ pub async fn read_all_users(pool: &PgPool, limit: i64, offset: i64) -> CaraiResu
     .map_err(|e| anyhow!("Failed to read all users: {}", e))
 }
 
-pub async fn read_user_by_github_id(pool: &PgPool, github_id: i64) -> CaraiResult<Option<User>> {
-    sqlx::query_as!(
-        User,
-        r#"
-        SELECT * FROM users
-        WHERE github_id = $1
-        "#,
-        github_id
-    )
-    .fetch_optional(pool)
-    .await
-    .map_err(|e| anyhow!("Failed to read user by GitHub ID: {}", e))
-}
-
-pub async fn update_user_email(pool: &PgPool, id: Uuid, email: &str) -> CaraiResult<User> {
-    sqlx::query_as!(
-        User,
-        r#"
-        UPDATE users
-        SET email = $1, updated_at = $2
-        WHERE id = $3
-        RETURNING *
-        "#,
-        email,
-        Utc::now(),
-        id
-    )
-    .fetch_one(pool)
-    .await
-    .map_err(|e| anyhow!("Failed to update user email: {}", e))
-}
-
-pub async fn update_user_password(
-    pool: &PgPool,
-    id: Uuid,
-    password_hash: &str,
-) -> CaraiResult<User> {
-    sqlx::query_as!(
-        User,
-        r#"
-        UPDATE users
-        SET password_hash = $1, updated_at = $2
-        WHERE id = $3
-        RETURNING *
-        "#,
-        password_hash,
-        Utc::now(),
-        id
-    )
-    .fetch_one(pool)
-    .await
-    .map_err(|e| anyhow!("Failed to update user password: {}", e))
-}
-
 pub async fn update_user_profile(
     pool: &PgPool,
     id: Uuid,
@@ -187,24 +133,6 @@ pub async fn update_user_profile(
     .fetch_one(pool)
     .await
     .map_err(|e| anyhow!("Failed to update user profile: {}", e))
-}
-
-pub async fn update_user_github_id(pool: &PgPool, id: Uuid, github_id: i64) -> CaraiResult<User> {
-    sqlx::query_as!(
-        User,
-        r#"
-        UPDATE users
-        SET github_id = $1, updated_at = $2
-        WHERE id = $3
-        RETURNING *
-        "#,
-        github_id,
-        Utc::now(),
-        id
-    )
-    .fetch_one(pool)
-    .await
-    .map_err(|e| anyhow!("Failed to update user GitHub ID: {}", e))
 }
 
 pub async fn delete_user(pool: &PgPool, id: Uuid) -> CaraiResult<()> {
