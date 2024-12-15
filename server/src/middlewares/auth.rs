@@ -1,3 +1,12 @@
+#![deny(missing_docs)]
+//! This module provides middleware extractors for handling JWT authorization,
+//! ensuring requests contain valid access or refresh tokens where needed.
+
+use crate::{
+    bootstrap::AppState,
+    token::{Claims, TokenManager},
+    utils::AppError,
+};
 use axum::{
     async_trait,
     extract::FromRequestParts,
@@ -9,14 +18,10 @@ use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
-use chrono::Utc;
 
-use crate::{
-    bootstrap::AppState,
-    response::AppError,
-    token::{Claims, Role, TokenManager},
-};
-
+/// Middleware extractor that validates the `Authorization: Bearer` header for access tokens.
+///
+/// If the token is invalid or missing, it returns an `AppError` with a `UNAUTHORIZED` status.
 #[async_trait]
 impl FromRequestParts<AppState> for Claims {
     type Rejection = AppError;
@@ -28,19 +33,25 @@ impl FromRequestParts<AppState> for Claims {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|e| AppError::external(format!("{}", e), StatusCode::UNAUTHORIZED))?;
+            .map_err(|e| AppError::new(StatusCode::UNAUTHORIZED, format!("{}", e)))?;
 
-        let token_manager = TokenManager::new(state.config().jwt().secret().as_bytes());
+        // Configure the TokenManager
+        let token_manager = TokenManager::new(state.config().jwt().secret().as_bytes(), None);
+
         token_manager
-            .validate_access_token(bearer.token(), Utc::now())
-            .map_err(|e| AppError::external(format!("{}", e), StatusCode::UNAUTHORIZED))
+            .validate_access_token(bearer.token())
+            .map_err(|e| AppError::new(StatusCode::UNAUTHORIZED, format!("{}", e)))
     }
 }
 
-pub struct RefreshTokenClaims(pub Claims);
+/// A wrapper type to signal that the contained `Claims` come from a refresh token.
+pub struct RefreshClaims(pub Claims);
 
+/// Middleware extractor that validates the presence and validity of a refresh token stored in cookies.
+///
+/// If the refresh token is invalid, missing, or expired, returns an `AppError` with `UNAUTHORIZED`.
 #[async_trait]
-impl FromRequestParts<AppState> for RefreshTokenClaims {
+impl FromRequestParts<AppState> for RefreshClaims {
     type Rejection = AppError;
 
     async fn from_request_parts(
@@ -49,35 +60,40 @@ impl FromRequestParts<AppState> for RefreshTokenClaims {
     ) -> Result<Self, Self::Rejection> {
         let jar = PrivateCookieJar::from_request_parts(parts, state.key())
             .await
-            .map_err(|e| AppError::external(format!("{}", e), StatusCode::UNAUTHORIZED))?;
+            .map_err(|e| AppError::new(StatusCode::UNAUTHORIZED, format!("{}", e)))?;
 
-        if let Some(token) = get_refresh_token(&jar) {
-            let token_manager = TokenManager::new(state.config().jwt().secret().as_bytes());
+        if let Some(token) = get_session_token(&jar) {
+            let token_manager = TokenManager::new(state.config().jwt().secret().as_bytes(), None);
+
             token_manager
-                .validate_refresh_token(&token, Utc::now())
-                .map_err(|e| AppError::external(format!("{}", e), StatusCode::UNAUTHORIZED))
-                .map(RefreshTokenClaims)
+                .validate_refresh_token(&token)
+                .map(RefreshClaims)
+                .map_err(|e| AppError::new(StatusCode::UNAUTHORIZED, format!("{}", e)))
         } else {
-            Err(AppError::external(
-                "Invalid token",
+            Err(AppError::new(
                 StatusCode::UNAUTHORIZED,
+                "Missing refresh token",
             ))
         }
     }
 }
 
-fn get_refresh_token(jar: &PrivateCookieJar) -> Option<String> {
+/// Extracts the `refresh_token` from the user's cookie jar.
+///
+/// Returns `Some(token)` if present, otherwise `None`.
+fn get_session_token(jar: &PrivateCookieJar) -> Option<String> {
     jar.get("refresh_token")
         .map(|cookie| cookie.value().to_owned())
 }
 
-pub fn check_authorization(claims: &Claims, role: Role) -> Result<(), AppError> {
-    if claims.role().contains(&role) {
-        Ok(())
-    } else {
-        Err(AppError::external(
-            "Unauthorized".to_string(),
+/// Checks if the user has admin privileges.
+pub fn check_admin(claims: &Claims) -> Result<(), AppError> {
+    if !claims.is_admin() {
+        Err(AppError::new(
             StatusCode::FORBIDDEN,
+            "Access denied: admin privileges required",
         ))
+    } else {
+        Ok(())
     }
 }
