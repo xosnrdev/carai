@@ -26,18 +26,18 @@ pub struct User {
     pub password_hash: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub avatar_url: Option<String>,
+    pub is_admin: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
 impl User {
     pub fn new(
+        github_id: Option<i64>,
         email: impl Into<String>,
         password_hash: impl Into<String>,
-        github_id: Option<i64>,
         username: impl Into<String>,
         avatar_url: Option<String>,
-        now: DateTime<Utc>,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
@@ -46,8 +46,9 @@ impl User {
             email: email.into(),
             password_hash: password_hash.into(),
             avatar_url,
-            created_at: now,
-            updated_at: now,
+            is_admin: false,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
         }
     }
 }
