@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM refresh_tokens\n        WHERE user_id = $1\n        ",
+  "query": "\n        SELECT * FROM sessions\n        WHERE user_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -15,28 +15,28 @@
       },
       {
         "ordinal": 2,
-        "name": "token",
+        "name": "refresh_token",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "is_revoked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
         "name": "expires_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "updated_at",
         "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 6,
-        "name": "is_revoked",
-        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -54,5 +54,5 @@
       false
     ]
   },
-  "hash": "a2f3e04bd624677cec93f04fae8ebc8dfc5149f057eb30725c13bbd80bfd87e2"
+  "hash": "87c8830345549a7a0c925bbdf4a237c472f0262b08b8b7b00cfc7e260bcd6343"
 }

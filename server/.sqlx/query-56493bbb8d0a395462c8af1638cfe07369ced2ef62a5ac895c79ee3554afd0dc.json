@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT * FROM users\n        WHERE username = $1\n        ",
+  "query": "\n        INSERT INTO users (\n            id, github_id, username, email, \n            password_hash, avatar_url, is_admin, created_at, updated_at\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -51,7 +51,15 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Uuid",
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz"
       ]
     },
     "nullable": [
@@ -66,5 +74,5 @@
       false
     ]
   },
-  "hash": "e151dfc9c1cad7131bc0c1ff4bcd9173a05ea514fd79f6d622692c093dc70d72"
+  "hash": "56493bbb8d0a395462c8af1638cfe07369ced2ef62a5ac895c79ee3554afd0dc"
 }

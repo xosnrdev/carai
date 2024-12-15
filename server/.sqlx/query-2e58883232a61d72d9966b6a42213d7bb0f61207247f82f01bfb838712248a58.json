@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO refresh_tokens (id, user_id, token, expires_at, is_revoked, created_at, updated_at)\n        VALUES ($1, $2, $3, $4, $5, $6, $7)\n        RETURNING *\n        ",
+  "query": "\n        INSERT INTO sessions (id, user_id, refresh_token, expires_at, is_revoked, created_at, updated_at)\n        VALUES ($1, $2, $3, $4, $5, $6, $7)\n        RETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -15,28 +15,28 @@
       },
       {
         "ordinal": 2,
-        "name": "token",
+        "name": "refresh_token",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "is_revoked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
         "name": "expires_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "updated_at",
         "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 6,
-        "name": "is_revoked",
-        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -60,5 +60,5 @@
       false
     ]
   },
-  "hash": "cc8b8ed498f1776401eceff261114d79851ee462b1a490b11cf57d27c875bdc7"
+  "hash": "2e58883232a61d72d9966b6a42213d7bb0f61207247f82f01bfb838712248a58"
 }
