@@ -21,7 +21,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: $APP__PGADMIN__EMAIL
       PGADMIN_DEFAULT_PASSWORD: $APP__PGADMIN__PASSWORD
     ports:
-      - target: $APP__PGADMIN__PORT
+      - target: 80
         published: $APP__PGADMIN__PORT
         protocol: tcp
         mode: host
