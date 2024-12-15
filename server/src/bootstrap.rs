@@ -15,12 +15,12 @@ use tower_http::{cors::CorsLayer, timeout::TimeoutLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
-    config::{AppConfig, DatabaseConfig},
     controllers::{
-        delete_me_handler, get_me_handler, health_check_handler, login_handler, logout_handler,
-        refresh_token_handler, register_handler, update_me_handler,
+        delete_me, delete_user, get_all_users, get_me, get_user, health_check, login, logout,
+        refresh_session_by_body, refresh_session_by_cookie, register, revoke_all_sessions,
+        revoke_my_session, revoke_user_session, update_me, update_user,
     },
-    response::CaraiResult,
+    utils::{AppConfig, CaraiResult, DatabaseConfig},
 };
 
 pub async fn run_application(config: AppConfig) -> CaraiResult<()> {
@@ -94,20 +94,31 @@ fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
         .collect();
 
     let users_router = Router::new()
-        .route("/me", get(get_me_handler))
-        .route("/me", patch(update_me_handler))
-        .route("/me", delete(delete_me_handler))
-        .route("/me", post(logout_handler));
+        .route("/register", post(register))
+        .route("/", get(get_all_users))
+        .route("/me", get(get_me))
+        .route("/:id", get(get_user))
+        .route("/:id", patch(update_user))
+        .route("/me", patch(update_me))
+        .route("/:id", delete(delete_user))
+        .route("/me", delete(delete_me));
 
     let auth_router = Router::new()
-        .route("/login", post(login_handler))
-        .route("/register", post(register_handler))
-        .route("/refresh-token", post(refresh_token_handler));
+        .route("/login", post(login))
+        .route("/logout", post(logout));
+
+    let session_router = Router::new()
+        .route("/refresh-cookie", post(refresh_session_by_cookie))
+        .route("/refresh", post(refresh_session_by_body))
+        .route("/current", patch(revoke_my_session))
+        .route("/:id", patch(revoke_user_session))
+        .route("/", patch(revoke_all_sessions));
 
     Router::new()
-        .route("/health", get(health_check_handler))
+        .route("/", get(health_check))
         .nest("/users", users_router)
         .nest("/auth", auth_router)
+        .nest("/sessions", session_router)
         .layer((
             TraceLayer::new_for_http(),
             TimeoutLayer::new(timeout),
