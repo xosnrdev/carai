@@ -1,5 +1,8 @@
 use anyhow::Context;
-use carai::{bootstrap::run_application, config::CONFIG, response::CaraiResult};
+use carai::{
+    bootstrap::run_application,
+    utils::{CaraiResult, CONFIG},
+};
 
 #[tokio::main]
 async fn main() -> CaraiResult<()> {
