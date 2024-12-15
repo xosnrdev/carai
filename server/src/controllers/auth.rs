@@ -1,121 +1,130 @@
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use axum_extra::extract::PrivateCookieJar;
-use chrono::{Duration, Utc};
+use chrono::Duration;
+use validator::Validate;
 
 use crate::{
     bootstrap::AppState,
-    dto::{LoginDto, RegisterDto},
-    models::User,
-    password::{hash_password, verify_password},
-    repositories,
-    response::{AppError, SuccessResponse},
-    services::{
-        create_refresh_token_cookie, generate_tokens, handle_existing_token, validate_dto,
-        TokenInfo,
-    },
-    token::TokenManager,
+    dto::{process_optional_fields, LoginReqDto, LoginResDto},
+    models::Session,
+    repositories::{create_session, delete_session_by_user_id},
+    services::{get_session_by_user_id, get_user_by_username_or_email},
+    token::{Claims, TokenManager},
+    utils::{check_password, AppError, SuccessResponse},
 };
 
-pub async fn login_handler(
+use super::create_cookie_session;
+
+pub async fn login(
     State(state): State<AppState>,
     jar: PrivateCookieJar,
-    Json(dto): Json<LoginDto>,
-) -> Result<(PrivateCookieJar, SuccessResponse<TokenInfo>), AppError> {
-    validate_dto(&dto)?;
+    Json(dto): Json<LoginReqDto>,
+) -> Result<(PrivateCookieJar, SuccessResponse<LoginResDto>), AppError> {
+    dto.validate()
+        .map_err(|e| AppError::new(StatusCode::UNPROCESSABLE_ENTITY, format!("{}", e)))?;
 
-    if dto.username.is_none() && dto.email.is_none() {
-        return Err(AppError::external(
-            "Missing `username` or `email`",
-            StatusCode::UNPROCESSABLE_ENTITY,
-        ));
-    }
+    let (username, email) = process_optional_fields(dto.username, dto.email)?;
 
-    let username = dto.username.as_deref().unwrap_or_default();
-    let email = dto.email.as_deref().unwrap_or_default();
-
-    let user = repositories::read_user_by_username_or_email(state.db_pool(), username, email)
+    let user = get_user_by_username_or_email(state.db_pool(), &username, &email)
         .await?
-        .ok_or_else(|| AppError::external("Invalid credentials", StatusCode::UNAUTHORIZED))?;
+        .ok_or_else(|| AppError::new(StatusCode::UNAUTHORIZED, "Invalid credentials"))?;
 
-    if !verify_password(dto.password.as_bytes(), &user.password_hash)? {
-        return Err(AppError::external(
-            "Invalid credentials",
+    if !check_password(&dto.password, &user.password_hash)? {
+        return Err(AppError::new(
             StatusCode::UNAUTHORIZED,
+            "Invalid credentials",
         ));
     }
 
-    let now = Utc::now();
-    let token_manager = TokenManager::new(state.config().jwt().secret().as_bytes());
-    let access_token_expires_at =
-        now + Duration::seconds(*state.config().jwt().access_token_expiration_in_secs());
-    let refresh_token_expires_at =
-        now + Duration::seconds(*state.config().jwt().refresh_token_expiration_in_secs());
+    let token_manager = TokenManager::new(state.config().jwt().secret().as_bytes(), None);
 
-    if let Ok((jar, response)) =
-        handle_existing_token(&state, &token_manager, jar.to_owned(), user.id, now).await
-    {
-        return Ok((jar, response));
+    if let Some(session) = get_session_by_user_id(state.db_pool(), user.id).await? {
+        // Check for stale sessions
+        // Enforce the policy of a single active session per user, ensuring it is not expired or revoked
+        // Prevent the accumulation of stale sessions in the database
+        // This approach might be revised in the future if requirements change
+        if session.is_expired() || session.is_revoked {
+            delete_session_by_user_id(state.db_pool(), session.user_id).await?;
+        } else {
+            let duration =
+                Duration::seconds(*state.config().jwt().access_token_expiration_in_secs());
+            let (access_token, access_claims) = token_manager.create_access_token(
+                session.user_id,
+                &user.email,
+                user.is_admin,
+                duration,
+            )?;
+
+            let jar = jar.add(create_cookie_session(
+                &session.refresh_token,
+                session.expires_at.timestamp(),
+            ));
+
+            let access_token_expires_at = *access_claims.exp() - *access_claims.iat();
+            let refresh_token_expires_at =
+                session.expires_at.timestamp() - session.created_at.timestamp();
+
+            return Ok((
+                jar,
+                SuccessResponse::created(LoginResDto {
+                    session_id: session.id,
+                    access_token,
+                    refresh_token: session.refresh_token,
+                    access_token_expires_at,
+                    refresh_token_expires_at,
+                    user: user.into(),
+                }),
+            ));
+        }
     }
 
-    let (access_token, new_refresh_token) = generate_tokens(
-        &token_manager,
+    let refresh_exp_secs = *state.config().jwt().refresh_token_expiration_in_secs();
+    let access_exp_secs = *state.config().jwt().access_token_expiration_in_secs();
+    let refresh_duration = Duration::seconds(refresh_exp_secs);
+    let access_duration = Duration::seconds(access_exp_secs);
+
+    let (refresh_token, refresh_claims) = token_manager.create_refresh_token(
         user.id,
-        access_token_expires_at,
-        refresh_token_expires_at,
-        now,
+        &user.email,
+        user.is_admin,
+        refresh_duration,
     )?;
 
-    let cookie = create_refresh_token_cookie(
-        new_refresh_token.to_owned(),
-        *state.config().jwt().refresh_token_expiration_in_secs(),
-    );
+    let (access_token, access_claims) =
+        token_manager.create_access_token(user.id, &user.email, user.is_admin, access_duration)?;
 
-    let jar = jar.add(cookie);
+    let session = Session::new(user.id, &refresh_token, Duration::seconds(refresh_exp_secs));
 
-    let expires_in = token_manager.get_expires_in(&access_token)?;
+    // Store the session in the database
+    create_session(state.db_pool(), &session).await?;
 
-    Ok((
-        jar,
-        SuccessResponse::created(TokenInfo {
-            access_token,
-            refresh_token: new_refresh_token,
-            token_type: "Bearer".to_string(),
-            expires_in,
-        }),
-    ))
+    // Add the refresh token to the cookie jar
+    let jar = jar.add(create_cookie_session(&refresh_token, *refresh_claims.exp()));
+
+    let access_token_expires_at = *access_claims.exp() - *access_claims.iat();
+    let refresh_token_expires_at = *refresh_claims.exp() - *refresh_claims.iat();
+
+    let body = LoginResDto {
+        session_id: session.id,
+        access_token,
+        refresh_token,
+        access_token_expires_at,
+        refresh_token_expires_at,
+        user: user.into(),
+    };
+
+    Ok((jar, SuccessResponse::created(body)))
 }
 
-pub async fn register_handler(
+pub async fn logout(
     State(state): State<AppState>,
-    Json(dto): Json<RegisterDto>,
-) -> Result<SuccessResponse<User>, AppError> {
-    validate_dto(&dto)?;
+    claims: Claims,
+    jar: PrivateCookieJar,
+) -> Result<impl IntoResponse, AppError> {
+    delete_session_by_user_id(state.db_pool(), *claims.jti()).await?;
 
-    let username = dto.username.as_deref().unwrap_or_default();
-    let email = dto.email.as_deref().unwrap_or_default();
+    let cookie = create_cookie_session("", 0);
+    let jar = jar.add(cookie);
 
-    if repositories::read_user_by_username_or_email(state.db_pool(), username, email)
-        .await?
-        .is_some()
-    {
-        return Err(AppError::external(
-            "User already exists",
-            StatusCode::CONFLICT,
-        ));
-    }
-
-    let password_hash = hash_password(dto.password.as_bytes())?;
-
-    let user = User::new(
-        email,
-        password_hash,
-        dto.github_id,
-        username,
-        dto.avatar_url,
-        Utc::now(),
-    );
-
-    let created_user = repositories::create_user(state.db_pool(), &user).await?;
-
-    Ok(SuccessResponse::created(created_user))
+    Ok((jar, StatusCode::NO_CONTENT))
 }
