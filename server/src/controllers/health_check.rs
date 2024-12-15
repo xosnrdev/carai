@@ -1,5 +1,6 @@
-use crate::response::{AppError, SuccessResponse};
 use serde::Serialize;
+
+use crate::utils::{AppError, SuccessResponse};
 
 #[derive(Serialize)]
 pub struct ServiceInfo {
@@ -10,7 +11,7 @@ pub struct ServiceInfo {
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub async fn health_check_handler() -> Result<SuccessResponse<ServiceInfo>, AppError> {
+pub async fn health_check() -> Result<SuccessResponse<ServiceInfo>, AppError> {
     let body = ServiceInfo {
         name: "Carai".to_string(),
         version: VERSION.to_string(),
