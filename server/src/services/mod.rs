@@ -1,5 +1,5 @@
-mod refresh_token;
+mod session;
 mod user;
 
-pub use refresh_token::*;
+pub use session::*;
 pub use user::*;
