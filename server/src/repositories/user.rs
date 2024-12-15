@@ -3,7 +3,7 @@ use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{models::User, response::CaraiResult};
+use crate::{models::User, utils::CaraiResult};
 
 pub async fn create_user(pool: &PgPool, user: &User) -> CaraiResult<User> {
     sqlx::query_as!(
@@ -11,9 +11,9 @@ pub async fn create_user(pool: &PgPool, user: &User) -> CaraiResult<User> {
         r#"
         INSERT INTO users (
             id, github_id, username, email, 
-            password_hash, avatar_url, created_at, updated_at
+            password_hash, avatar_url, is_admin, created_at, updated_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *
         "#,
         user.id,
@@ -22,15 +22,16 @@ pub async fn create_user(pool: &PgPool, user: &User) -> CaraiResult<User> {
         user.email,
         user.password_hash,
         user.avatar_url,
+        user.is_admin,
         user.created_at,
         user.updated_at
     )
     .fetch_one(pool)
     .await
-    .map_err(|e| anyhow!("Failed to create user: {}", e))
+    .map_err(|e| anyhow!("Unable to create user ({})", e))
 }
 
-pub async fn read_user_by_id(pool: &PgPool, id: Uuid) -> CaraiResult<Option<User>> {
+pub async fn get_user_by_id(pool: &PgPool, id: Uuid) -> CaraiResult<Option<User>> {
     sqlx::query_as!(
         User,
         r#"
@@ -41,10 +42,24 @@ pub async fn read_user_by_id(pool: &PgPool, id: Uuid) -> CaraiResult<Option<User
     )
     .fetch_optional(pool)
     .await
-    .map_err(|e| anyhow!("Failed to read user by id: {}", e))
+    .map_err(|e| anyhow!("Unable to get user by id ({})", e))
 }
 
-pub async fn read_user_by_email(pool: &PgPool, email: &str) -> CaraiResult<Option<User>> {
+pub async fn get_user_by_github_id(pool: &PgPool, github_id: i64) -> CaraiResult<Option<User>> {
+    sqlx::query_as!(
+        User,
+        r#"
+        SELECT * FROM users
+        WHERE github_id = $1
+        "#,
+        github_id
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| anyhow!("Unable to get user by GitHub ID ({})", e))
+}
+
+pub async fn get_user_by_email(pool: &PgPool, email: &str) -> CaraiResult<Option<User>> {
     sqlx::query_as!(
         User,
         r#"
@@ -55,10 +70,10 @@ pub async fn read_user_by_email(pool: &PgPool, email: &str) -> CaraiResult<Optio
     )
     .fetch_optional(pool)
     .await
-    .map_err(|e| anyhow!("Failed to read user by email: {}", e))
+    .map_err(|e| anyhow!("Unable to get user by email ({})", e))
 }
 
-pub async fn read_user_by_username(pool: &PgPool, username: &str) -> CaraiResult<Option<User>> {
+pub async fn get_user_by_username(pool: &PgPool, username: &str) -> CaraiResult<Option<User>> {
     sqlx::query_as!(
         User,
         r#"
@@ -69,10 +84,10 @@ pub async fn read_user_by_username(pool: &PgPool, username: &str) -> CaraiResult
     )
     .fetch_optional(pool)
     .await
-    .map_err(|e| anyhow!("Failed to read user by username: {}", e))
+    .map_err(|e| anyhow!("Unable to get user by username ({})", e))
 }
 
-pub async fn read_user_by_username_or_email(
+pub async fn get_user_by_username_or_email(
     pool: &PgPool,
     username: &str,
     email: &str,
@@ -88,10 +103,10 @@ pub async fn read_user_by_username_or_email(
     )
     .fetch_optional(pool)
     .await
-    .map_err(|e| anyhow!("Failed to read user by username or email: {}", e))
+    .map_err(|e| anyhow!("Unable to get user by username or email ({})", e))
 }
 
-pub async fn read_all_users(pool: &PgPool, limit: i64, offset: i64) -> CaraiResult<Vec<User>> {
+pub async fn get_all_users(pool: &PgPool, limit: i64, offset: i64) -> CaraiResult<Vec<User>> {
     sqlx::query_as!(
         User,
         r#"
@@ -104,35 +119,28 @@ pub async fn read_all_users(pool: &PgPool, limit: i64, offset: i64) -> CaraiResu
     )
     .fetch_all(pool)
     .await
-    .map_err(|e| anyhow!("Failed to read all users: {}", e))
+    .map_err(|e| anyhow!("Unable to get all users ({})", e))
 }
 
-pub async fn update_user_profile(
-    pool: &PgPool,
-    id: Uuid,
-    username: &str,
-    email: &str,
-    password_hash: &str,
-    avatar_url: Option<String>,
-) -> CaraiResult<User> {
+pub async fn update_user(pool: &PgPool, user: &User) -> CaraiResult<User> {
     sqlx::query_as!(
         User,
         r#"
         UPDATE users
-        SET username = $1, email = $2, password_hash = $3, avatar_url = $4, updated_at = $5
-        WHERE id = $6
+        SET username = $2, email = $3, avatar_url = $4, is_admin = $5,updated_at = $6
+        WHERE id = $1
         RETURNING *
         "#,
-        username,
-        email,
-        password_hash,
-        avatar_url,
-        Utc::now(),
-        id
+        user.id,
+        user.username,
+        user.email,
+        user.avatar_url,
+        user.is_admin,
+        Utc::now()
     )
     .fetch_one(pool)
     .await
-    .map_err(|e| anyhow!("Failed to update user profile: {}", e))
+    .map_err(|e| anyhow!("Unable to update user ({})", e))
 }
 
 pub async fn delete_user(pool: &PgPool, id: Uuid) -> CaraiResult<()> {
@@ -144,6 +152,7 @@ pub async fn delete_user(pool: &PgPool, id: Uuid) -> CaraiResult<()> {
         id
     )
     .execute(pool)
-    .await?;
+    .await
+    .map_err(|e| anyhow!("Unable to delete user ({})", e))?;
     Ok(())
 }

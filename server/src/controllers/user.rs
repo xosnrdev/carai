@@ -1,102 +1,193 @@
-use axum::{extract::State, http::StatusCode, Json};
-use axum_extra::extract::PrivateCookieJar;
+use axum::{
+    extract::{Path, Query, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
+use uuid::Uuid;
+use validator::Validate;
 
 use crate::{
     bootstrap::AppState,
-    dto::UpdateProfileDto,
-    middlewares::auth::check_authorization,
+    dto::{
+        process_optional_fields, GetAllUsersQueryDto, GetAllUsersResDto, PatchReqDto, UserReqDto,
+        UserResDto,
+    },
+    middlewares::auth::check_admin,
     models::User,
-    password::hash_password,
-    repositories,
-    response::{AppError, SuccessResponse},
-    services::{fetch_user_by_id, validate_dto},
-    token::{Claims, Role},
+    services::{
+        self, get_user_by_email, get_user_by_github_id, get_user_by_id, get_user_by_username,
+        get_user_by_username_or_email,
+    },
+    token::Claims,
+    utils::{hash_password, AppError, SuccessResponse},
 };
 
-pub async fn get_me_handler(
+pub async fn register(
     State(state): State<AppState>,
-    claims: Claims,
-) -> Result<SuccessResponse<User>, AppError> {
-    check_authorization(&claims, Role::User)?;
-    let user = fetch_user_by_id(&state, *claims.sub()).await?;
-    Ok(SuccessResponse::ok(user))
+    Json(dto): Json<UserReqDto>,
+) -> Result<SuccessResponse<UserResDto>, AppError> {
+    dto.validate()
+        .map_err(|e| AppError::new(StatusCode::UNPROCESSABLE_ENTITY, format!("{}", e)))?;
+
+    let (username, email) = process_optional_fields(dto.username, dto.email)?;
+
+    if get_user_by_username_or_email(state.db_pool(), &username, &email)
+        .await?
+        .is_some()
+    {
+        return Err(AppError::new(StatusCode::CONFLICT, "User already exists"));
+    }
+
+    let password_hash = hash_password(&dto.password)?;
+
+    let new_user = User::new(
+        dto.github_id,
+        email,
+        password_hash,
+        username,
+        dto.avatar_url,
+    );
+    tracing::info!("Creating new user: {}", new_user);
+    let user = services::create_user(state.db_pool(), &new_user).await?;
+    Ok(SuccessResponse::created(UserResDto::from(user)))
 }
 
-pub async fn update_me_handler(
+pub async fn get_all_users(
     State(state): State<AppState>,
     claims: Claims,
-    Json(dto): Json<UpdateProfileDto>,
-) -> Result<SuccessResponse<User>, AppError> {
-    validate_dto(&dto)?;
-    check_authorization(&claims, Role::User)?;
+    Query(query): Query<GetAllUsersQueryDto>,
+) -> Result<SuccessResponse<GetAllUsersResDto>, AppError> {
+    check_admin(&claims)?;
 
-    let mut user = fetch_user_by_id(&state, *claims.sub()).await?;
+    let limit = query.limit.unwrap_or(50);
+    let offset = query.offset.unwrap_or(0);
 
-    if let Some(username) = dto.username {
-        if repositories::read_user_by_username(state.db_pool(), &username)
+    // Limit the number of users to fetch to 100 for now.
+    let limit = limit.min(100);
+
+    let users = services::get_all_users(state.db_pool(), limit, offset).await?;
+    Ok(SuccessResponse::ok(GetAllUsersResDto::from(users)))
+}
+
+pub async fn update_me(
+    State(state): State<AppState>,
+    claims: Claims,
+    Json(dto): Json<PatchReqDto>,
+) -> Result<SuccessResponse<UserResDto>, AppError> {
+    handle_patch_updates(&state, dto, *claims.jti()).await
+}
+
+pub async fn update_user(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+    claims: Claims,
+    Json(dto): Json<PatchReqDto>,
+) -> Result<SuccessResponse<UserResDto>, AppError> {
+    check_admin(&claims)?;
+
+    handle_patch_updates(&state, dto, id).await
+}
+
+pub async fn delete_user(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+    claims: Claims,
+) -> Result<impl IntoResponse, AppError> {
+    check_admin(&claims)?;
+
+    services::delete_user(state.db_pool(), id).await?;
+    tracing::info!("Deleted user with ID: {}", id);
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn delete_me(
+    State(state): State<AppState>,
+    claims: Claims,
+) -> Result<impl IntoResponse, AppError> {
+    services::delete_user(state.db_pool(), *claims.jti()).await?;
+    tracing::info!("Deleted user with ID: {}", claims.jti());
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn get_user(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+    claims: Claims,
+) -> Result<SuccessResponse<UserResDto>, AppError> {
+    check_admin(&claims)?;
+    let user = get_user_by_id(state.db_pool(), id)
+        .await?
+        .ok_or_else(|| AppError::new(StatusCode::NOT_FOUND, "User not found"))?;
+    Ok(SuccessResponse::ok(UserResDto::from(user)))
+}
+
+pub async fn get_me(
+    State(state): State<AppState>,
+    claims: Claims,
+) -> Result<SuccessResponse<UserResDto>, AppError> {
+    let user = get_user_by_id(state.db_pool(), *claims.jti())
+        .await?
+        .ok_or_else(|| AppError::new(StatusCode::NOT_FOUND, "User not found"))?;
+    Ok(SuccessResponse::ok(UserResDto::from(user)))
+}
+
+async fn handle_patch_updates(
+    state: &AppState,
+    dto: PatchReqDto,
+    user_id: Uuid,
+) -> Result<SuccessResponse<UserResDto>, AppError> {
+    dto.validate()
+        .map_err(|e| AppError::new(StatusCode::UNPROCESSABLE_ENTITY, format!("{}", e)))?;
+
+    let mut user = get_user_by_id(state.db_pool(), user_id)
+        .await?
+        .ok_or_else(|| AppError::new(StatusCode::NOT_FOUND, "User not found"))?;
+
+    if dto.username.is_some() {
+        let username = dto.username.unwrap_or_default();
+        if get_user_by_username(state.db_pool(), &username)
             .await?
             .is_some()
         {
-            return Err(AppError::external(
-                "Username already exists",
+            return Err(AppError::new(
                 StatusCode::CONFLICT,
+                "Username already exists",
             ));
         }
         user.username = username;
     }
 
-    if let Some(email) = dto.email {
-        if repositories::read_user_by_email(state.db_pool(), &email)
-            .await?
-            .is_some()
-        {
-            return Err(AppError::external(
-                "Email already exists",
-                StatusCode::CONFLICT,
-            ));
+    if dto.email.is_some() {
+        let email = dto.email.unwrap_or_default();
+        if get_user_by_email(state.db_pool(), &email).await?.is_some() {
+            return Err(AppError::new(StatusCode::CONFLICT, "Email already exists"));
         }
         user.email = email;
     }
 
-    if let Some(password) = dto.password {
-        user.password_hash = hash_password(password.as_bytes())?;
+    if dto.github_id.is_some() {
+        if get_user_by_github_id(state.db_pool(), dto.github_id.unwrap())
+            .await?
+            .is_some()
+        {
+            return Err(AppError::new(
+                StatusCode::CONFLICT,
+                "GitHub ID already exists",
+            ));
+        }
+        user.github_id = dto.github_id;
     }
 
-    user.avatar_url = dto.avatar_url;
+    if dto.password.is_some() {
+        let password = dto.password.unwrap_or_default();
+        user.password_hash = hash_password(&password)?;
+    }
 
-    let updated_user = repositories::update_user_profile(
-        state.db_pool(),
-        *claims.sub(),
-        &user.username,
-        &user.email,
-        &user.password_hash,
-        user.avatar_url,
-    )
-    .await?;
+    if dto.avatar_url.is_some() {
+        user.avatar_url = dto.avatar_url;
+    }
 
-    Ok(SuccessResponse::ok(updated_user))
-}
-
-pub async fn delete_me_handler(
-    State(state): State<AppState>,
-    jar: PrivateCookieJar,
-    claims: Claims,
-) -> Result<(PrivateCookieJar, SuccessResponse<()>), AppError> {
-    check_authorization(&claims, Role::User)?;
-    repositories::delete_user(state.db_pool(), *claims.sub()).await?;
-    let jar = jar.remove("refresh_token");
-
-    Ok((jar, SuccessResponse::no_content(())))
-}
-
-pub async fn logout_handler(
-    State(state): State<AppState>,
-    jar: PrivateCookieJar,
-    claims: Claims,
-) -> Result<(PrivateCookieJar, SuccessResponse<()>), AppError> {
-    check_authorization(&claims, Role::User)?;
-    let jar = jar.remove("refresh_token");
-    repositories::delete_token(state.db_pool(), *claims.sub()).await?;
-
-    Ok((jar, SuccessResponse::no_content(())))
+    let user = services::update_user(state.db_pool(), &user).await?;
+    Ok(SuccessResponse::ok(UserResDto::from(user)))
 }
