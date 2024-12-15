@@ -6,7 +6,7 @@ use serde::Deserialize;
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
 use std::{str::FromStr, sync::LazyLock};
 
-use crate::response::CaraiResult;
+use crate::utils::CaraiResult;
 
 pub static CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::new().expect("Error"));
 
@@ -36,7 +36,7 @@ impl AppConfig {
             .set_default("database.port", 5432)?
             .set_default("database.ssl_mode", "prefer")?
             .set_default("environment", "local")?
-            .set_default("jwt.access_token_expiration_in_secs", 3600)?
+            .set_default("jwt.access_token_expiration_in_secs", 900)?
             .set_default("jwt.refresh_token_expiration_in_secs", 86400)?
             .set_default("redis.port", 6379)?
             .set_default("redis.host", "127.0.0.1")?
@@ -49,7 +49,7 @@ impl AppConfig {
             .add_source(Environment::with_prefix("APP").separator("__"))
             .build()?
             .try_deserialize()
-            .context("Failed to deserialize configuration")
+            .context("Unable to deserialize configuration")
     }
 }
 
@@ -157,7 +157,7 @@ impl RedisConfig {
 
     pub fn to_connection_info(&self) -> CaraiResult<redis::ConnectionInfo> {
         redis::ConnectionInfo::from_str(&self.to_connection_string())
-            .context("Failed to parse redis connection info")
+            .context("Unable to parse redis connection info")
     }
 }
 
