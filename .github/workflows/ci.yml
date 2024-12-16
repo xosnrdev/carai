@@ -5,7 +5,6 @@ on:
     branches:
       - master
   pull_request:
-
   workflow_dispatch:
 
 permissions:
@@ -19,14 +18,36 @@ jobs:
         working-directory: server
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ secrets.TEST_DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          POSTGRES_DB: anonymous
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install latest rust toolchain
+      - name: Install latest Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
 
+      - name: Wait for PostgreSQL to be ready
+        env:
+          POSTGRES_USER: ${{ secrets.TEST_DB_USERNAME }}
+        run: |
+          for i in {1..10}; do
+            pg_isready -h localhost -U $POSTGRES_USER && break
+            echo "PostgreSQL is unavailable - sleeping"
+            sleep 5
+          done
+
       - name: Run tests
+        env:
+          DATABASE_URL: postgres://${{ secrets.TEST_DB_USERNAME }}:${{ secrets.TEST_DB_PASSWORD }}@localhost:5432/anonymous
         run: cargo test
