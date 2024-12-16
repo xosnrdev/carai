@@ -1,7 +1,7 @@
 use anyhow::Context;
 use config::{Config, Environment};
 use derive_more::derive::TryFrom;
-use getset::Getters;
+use getset::{Getters, MutGetters, Setters};
 use serde::Deserialize;
 use sqlx::postgres::{PgConnectOptions, PgSslMode};
 use std::{str::FromStr, sync::LazyLock};
@@ -10,11 +10,11 @@ use crate::utils::CaraiResult;
 
 pub static CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::new().expect("Error"));
 
-#[derive(Debug, Deserialize, Getters, Clone)]
+#[derive(Debug, Deserialize, Getters, MutGetters, Clone)]
 pub struct AppConfig {
-    #[getset(get = "pub")]
+    #[getset(get = "pub", get_mut = "pub")]
     server: ServerConfig,
-    #[getset(get = "pub")]
+    #[getset(get = "pub", get_mut = "pub")]
     database: DatabaseConfig,
     pub environment: AppEnvironment,
     #[getset(get = "pub")]
@@ -53,11 +53,11 @@ impl AppConfig {
     }
 }
 
-#[derive(Debug, Deserialize, Getters, Clone)]
+#[derive(Debug, Deserialize, Getters, Setters, Clone)]
 pub struct ServerConfig {
-    #[getset(get = "pub")]
+    #[getset(get = "pub", set = "pub")]
     host: String,
-    #[getset(get = "pub")]
+    #[getset(get = "pub", set = "pub")]
     port: u16,
     #[getset(get = "pub")]
     timeout_in_secs: u64,
@@ -65,17 +65,22 @@ pub struct ServerConfig {
     origins: String,
 }
 
-#[derive(Debug, Deserialize, Getters, Clone)]
+#[derive(Debug, Deserialize, Getters, Setters, Clone)]
 pub struct DatabaseConfig {
-    #[getset(get = "pub")]
+    #[getset(get = "pub", set = "pub")]
+    #[serde(default)]
     username: String,
-    #[getset(get = "pub")]
+    #[getset(get = "pub", set = "pub")]
+    #[serde(default)]
     password: String,
     #[getset(get = "pub")]
+    #[serde(default)]
     port: u16,
     #[getset(get = "pub")]
+    #[serde(default)]
     host: String,
-    #[getset(get = "pub")]
+    #[getset(get = "pub", set = "pub")]
+    #[serde(default)]
     name: String,
     #[getset(get = "pub")]
     ssl_mode: PgSslModeExt,
@@ -123,6 +128,7 @@ pub enum AppEnvironment {
 #[derive(Debug, Deserialize, Getters, Clone)]
 pub struct JwtConfig {
     #[getset(get = "pub")]
+    #[serde(default)]
     secret: String,
     #[getset(get = "pub")]
     access_token_expiration_in_secs: i64,
@@ -133,8 +139,10 @@ pub struct JwtConfig {
 #[derive(Debug, Deserialize, Getters, Clone)]
 pub struct RedisConfig {
     #[getset(get = "pub")]
+    #[serde(default)]
     username: String,
     #[getset(get = "pub")]
+    #[serde(default)]
     password: String,
     #[getset(get = "pub")]
     port: u16,
@@ -164,10 +172,13 @@ impl RedisConfig {
 #[derive(Debug, Deserialize, Getters, Clone)]
 pub struct RateLimitConfig {
     #[getset(get = "pub")]
+    #[serde(default)]
     requests_per_window: usize,
     #[getset(get = "pub")]
+    #[serde(default)]
     window_size: u64,
     #[getset(get = "pub")]
+    #[serde(default)]
     redis_uri: String,
     #[getset(get = "pub")]
     key_strategy: KeyStrategy,

@@ -57,7 +57,7 @@ fn init_tracing() -> CaraiResult<()> {
         .context("Failed to initialize tracing")
 }
 
-fn create_connection_pool(config: &DatabaseConfig) -> PgPool {
+pub fn create_connection_pool(config: &DatabaseConfig) -> PgPool {
     PgPoolOptions::new().connect_lazy_with(config.to_pg_connect_options())
 }
 
@@ -77,7 +77,7 @@ impl FromRef<AppState> for Key {
     }
 }
 
-fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
+pub fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
     let key = Key::generate();
     let state = AppState {
         db_pool,
