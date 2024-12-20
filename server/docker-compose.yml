@@ -11,8 +11,6 @@ services:
         published: $APP__DATABASE__PORT
         protocol: tcp
         mode: host
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -27,9 +25,3 @@ services:
         mode: host
     depends_on:
       - postgres
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-
-volumes:
-  postgres_data:
-  pgadmin_data:
