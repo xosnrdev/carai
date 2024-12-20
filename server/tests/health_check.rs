@@ -1,27 +1,27 @@
-mod common;
-
 use axum::{
     body::Body,
     http::{Request, StatusCode},
 };
-use carai::{bootstrap::create_router, utils::CaraiResult};
-use common::{cleanup, TestContext};
-use tower::util::ServiceExt;
+use carai::{
+    bootstrap::create_router,
+    utils::{AppConfig, CaraiResult},
+};
+use sqlx::PgPool;
+use tower::ServiceExt;
 
-#[tokio::test]
-async fn test_health_check() -> CaraiResult<()> {
-    let TestContext {
-        db_pool,
-        config,
-        db_name,
-        ..
-    } = TestContext::new()?;
-    let app = create_router(db_pool.to_owned(), config);
+// See https://github.com/launchbadge/sqlx/blob/main/examples/postgres/axum-social-with-tests/tests/user.rs
+#[sqlx::test]
+async fn test_health_check(db_pool: PgPool) -> CaraiResult<()> {
+    // Arrange
+    let config = AppConfig::new()?;
+    let app = create_router(db_pool, config);
 
+    // Act
     let response = app
         .oneshot(Request::builder().uri("/").body(Body::empty())?)
         .await?;
 
+    // Assert
     assert_eq!(
         response.status(),
         StatusCode::OK,
@@ -31,9 +31,6 @@ async fn test_health_check() -> CaraiResult<()> {
         response.status().is_success(),
         "Health check endpoint should return 200 OK"
     );
-
-    // Explicit cleanup
-    cleanup(&db_pool, &db_name).await?;
 
     Ok(())
 }
