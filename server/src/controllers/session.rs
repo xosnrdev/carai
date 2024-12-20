@@ -99,8 +99,7 @@ async fn handle_stale_sessions(
             delete_session_by_user_id(state.db_pool(), session.user_id).await?;
             return Err(AppError::new(StatusCode::UNAUTHORIZED, "Invalid token"));
         } else {
-            let duration =
-                Duration::seconds(*state.config().jwt().access_token_expiration_in_secs());
+            let duration = Duration::seconds(*state.config().jwt().access_token_expiration_secs());
             let (access_token, access_claims) =
                 token_manager.create_access_token(session.user_id, sub, is_admin, duration)?;
 
