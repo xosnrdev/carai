@@ -2,19 +2,18 @@ use axum::{
     body::Body,
     http::{Request, StatusCode},
 };
-use carai::{
-    bootstrap::create_router,
-    utils::{AppConfig, CaraiResult},
-};
+use carai::utils::CaraiResult;
+use common::ctx;
 use sqlx::PgPool;
 use tower::ServiceExt;
+
+mod common;
 
 // See https://github.com/launchbadge/sqlx/blob/main/examples/postgres/axum-social-with-tests/tests/user.rs
 #[sqlx::test]
 async fn test_health_check(db_pool: PgPool) -> CaraiResult<()> {
     // Arrange
-    let config = AppConfig::new()?;
-    let app = create_router(db_pool, config);
+    let app = ctx(db_pool)?;
 
     // Act
     let response = app
