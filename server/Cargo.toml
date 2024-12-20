@@ -57,5 +57,3 @@ strip = true
 
 [dev-dependencies]
 serde_json = "1.0.133"
-testcontainers = { version = "0.23.1", features = ["blocking"] }
-testcontainers-modules = { version = "0.11.4", features = ["postgres"] }
