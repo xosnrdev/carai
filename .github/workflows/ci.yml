@@ -33,9 +33,9 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_USER: ${{ secrets.TEST_DB_USERNAME }}
-          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-          POSTGRES_DB: anonymous
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
 
     steps:
       - name: Checkout code
@@ -47,11 +47,9 @@ jobs:
           toolchain: stable
 
       - name: Wait for PostgreSQL to be ready
-        env:
-          POSTGRES_USER: ${{ secrets.TEST_DB_USERNAME }}
         run: |
           for i in {1..10}; do
-            pg_isready -h localhost -U $POSTGRES_USER && break
+            pg_isready -h localhost -U postgres && break
             echo "PostgreSQL is unavailable - sleeping"
             sleep 5
           done
@@ -62,9 +60,7 @@ jobs:
 
       - name: Migrate, Prepare and Test
         env:
-          DATABASE_URL: postgres://${{ secrets.TEST_DB_USERNAME }}:${{ secrets.TEST_DB_PASSWORD }}@localhost:5432/anonymous
-          TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
-          TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
         run: |
           cargo sqlx migrate run
           cargo sqlx prepare
