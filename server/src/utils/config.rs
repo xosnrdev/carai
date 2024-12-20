@@ -8,7 +8,7 @@ use std::{str::FromStr, sync::LazyLock};
 
 use crate::utils::CaraiResult;
 
-pub static CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::new().expect("Error"));
+pub static CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::new().unwrap());
 
 #[derive(Debug, Deserialize, Getters, MutGetters, Clone)]
 pub struct AppConfig {
@@ -19,10 +19,6 @@ pub struct AppConfig {
     pub environment: AppEnvironment,
     #[getset(get = "pub")]
     jwt: JwtConfig,
-    #[getset(get = "pub")]
-    redis: RedisConfig,
-    #[getset(get = "pub")]
-    rate_limit: RateLimitConfig,
 }
 
 impl AppConfig {
@@ -32,6 +28,8 @@ impl AppConfig {
             .set_default("server.port", 8000)?
             .set_default("server.timeout_in_secs", 10)?
             .set_default("server.origins", "localhost")?
+            .set_default("server.rate_limit_per_secs", 100)?
+            .set_default("server.rate_limit_burst", 10)?
             .set_default("database.host", "127.0.0.1")?
             .set_default("database.port", 5432)?
             .set_default("database.ssl_mode", "prefer")?
@@ -49,7 +47,7 @@ impl AppConfig {
             .add_source(Environment::with_prefix("APP").separator("__"))
             .build()?
             .try_deserialize()
-            .context("Unable to deserialize configuration")
+            .context("Failed to deserialize configuration")
     }
 }
 
@@ -63,6 +61,12 @@ pub struct ServerConfig {
     timeout_in_secs: u64,
     #[getset(get = "pub")]
     origins: String,
+    #[getset(get = "pub")]
+    rate_limit_per_secs: usize,
+    #[getset(get = "pub")]
+    rate_limit_burst: usize,
+    #[getset(get = "pub")]
+    cookie_secret: String,
 }
 
 #[derive(Debug, Deserialize, Getters, Setters, Clone)]
@@ -152,41 +156,4 @@ pub struct RedisConfig {
     db: i64,
     #[getset(get = "pub")]
     tls_mode: bool,
-}
-
-impl RedisConfig {
-    pub fn to_connection_string(&self) -> String {
-        let scheme = if self.tls_mode { "rediss" } else { "redis" };
-        format!(
-            "{}://{}:{}@{}:{}/{}",
-            scheme, self.username, self.password, self.host, self.port, self.db
-        )
-    }
-
-    pub fn to_connection_info(&self) -> CaraiResult<redis::ConnectionInfo> {
-        redis::ConnectionInfo::from_str(&self.to_connection_string())
-            .context("Unable to parse redis connection info")
-    }
-}
-
-#[derive(Debug, Deserialize, Getters, Clone)]
-pub struct RateLimitConfig {
-    #[getset(get = "pub")]
-    #[serde(default)]
-    requests_per_window: usize,
-    #[getset(get = "pub")]
-    #[serde(default)]
-    window_size: u64,
-    #[getset(get = "pub")]
-    #[serde(default)]
-    redis_uri: String,
-    #[getset(get = "pub")]
-    key_strategy: KeyStrategy,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub enum KeyStrategy {
-    Token,
-    Ip,
-    Mixed,
 }
