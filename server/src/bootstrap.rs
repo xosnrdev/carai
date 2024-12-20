@@ -3,7 +3,7 @@ use std::{net::SocketAddr, time::Duration};
 use anyhow::Context;
 use axum::{
     extract::FromRef,
-    http::HeaderValue,
+    http::{HeaderValue, Method},
     routing::{delete, get, patch, post},
     serve, Router,
 };
@@ -11,11 +11,7 @@ use axum_extra::extract::cookie::Key;
 use getset::Getters;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, signal};
-use tower_http::{
-    cors::{Any, CorsLayer},
-    timeout::TimeoutLayer,
-    trace::TraceLayer,
-};
+use tower_http::{cors::CorsLayer, timeout::TimeoutLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
@@ -132,7 +128,13 @@ pub fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
             TimeoutLayer::new(timeout),
             CorsLayer::new()
                 .allow_origin(origins)
-                .allow_methods(Any)
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::DELETE,
+                    Method::PUT,
+                    Method::PATCH,
+                ])
                 .allow_credentials(true),
         ))
         .with_state(state)
