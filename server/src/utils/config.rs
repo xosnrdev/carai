@@ -66,9 +66,9 @@ pub struct ServerConfig {
     #[getset(get = "pub")]
     origins: String,
     #[getset(get = "pub")]
-    rate_limit_per_secs: usize,
+    rate_limit_per_secs: u64,
     #[getset(get = "pub")]
-    rate_limit_burst: usize,
+    rate_limit_burst: u64,
     #[getset(get = "pub")]
     cookie_secret: String,
 }
