@@ -42,17 +42,21 @@ pub async fn run_application(config: AppConfig) -> CaraiResult<()> {
 }
 
 fn init_tracing() -> CaraiResult<()> {
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                format!(
-                    "{}=debug,tower_http=debug,axum=trace",
-                    env!("CARGO_CRATE_NAME")
-                )
-                .into()
-            }),
+    let env_filter = tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+        format!(
+            "{}=info,tower_http=info,axum=debug",
+            env!("CARGO_CRATE_NAME")
         )
-        .with(tracing_subscriber::fmt::layer().without_time())
+        .into()
+    });
+
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        .with_target(false)
+        .with_timer(tracing_subscriber::fmt::time::UtcTime::rfc_3339());
+
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(fmt_layer)
         .try_init()
         .context("Failed to initialize tracing")
 }
