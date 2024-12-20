@@ -26,7 +26,7 @@ use crate::{
 pub async fn run_application(config: AppConfig) -> CaraiResult<()> {
     init_tracing()?;
 
-    let db_pool = create_connection_pool(config.database());
+    let db_pool = create_connection_pool(config.database()).await?;
 
     let app = create_router(db_pool, config.clone());
 
@@ -61,8 +61,14 @@ fn init_tracing() -> CaraiResult<()> {
         .context("Failed to initialize tracing")
 }
 
-pub fn create_connection_pool(config: &DatabaseConfig) -> PgPool {
-    PgPoolOptions::new().connect_lazy_with(config.to_pg_connect_options())
+pub async fn create_connection_pool(config: &DatabaseConfig) -> CaraiResult<PgPool> {
+    PgPoolOptions::new()
+        .max_connections(*config.max_connections())
+        .min_connections(*config.min_connections())
+        .acquire_timeout(Duration::from_secs(*config.acquire_timeout_secs()))
+        .connect_with(config.to_pg_connect_options())
+        .await
+        .context("Failed to create database connection pool")
 }
 
 #[derive(Debug, Clone, Getters)]
@@ -82,7 +88,7 @@ impl FromRef<AppState> for Key {
 }
 
 pub fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
-    let key = Key::generate();
+    let key = Key::from(config.server().cookie_secret().as_bytes());
     let state = AppState {
         db_pool,
         config,
@@ -93,7 +99,8 @@ pub fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
         .config
         .server()
         .origins()
-        .split_whitespace()
+        .split(',')
+        .map(str::trim)
         .filter_map(|s| s.parse::<HeaderValue>().ok())
         .collect();
 
