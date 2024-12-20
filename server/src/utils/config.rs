@@ -33,9 +33,13 @@ impl AppConfig {
             .set_default("database.host", "127.0.0.1")?
             .set_default("database.port", 5432)?
             .set_default("database.ssl_mode", "prefer")?
+            .set_default("database.max_connections", 10)?
+            .set_default("database.min_connections", 1)?
+            .set_default("database.connect_timeout_secs", 5)?
+            .set_default("database.acquire_timeout_secs", 5)?
             .set_default("environment", "local")?
-            .set_default("jwt.access_token_expiration_in_secs", 900)?
-            .set_default("jwt.refresh_token_expiration_in_secs", 86400)?
+            .set_default("jwt.access_token_expiration_secs", 900)?
+            .set_default("jwt.refresh_token_expiration_secs", 86400)?
             .set_default("redis.port", 6379)?
             .set_default("redis.host", "127.0.0.1")?
             .set_default("redis.db", 0)?
@@ -88,6 +92,14 @@ pub struct DatabaseConfig {
     name: String,
     #[getset(get = "pub")]
     ssl_mode: PgSslModeExt,
+    #[getset(get = "pub")]
+    max_connections: u32,
+    #[getset(get = "pub")]
+    min_connections: u32,
+    #[getset(get = "pub")]
+    connect_timeout_secs: u64,
+    #[getset(get = "pub")]
+    acquire_timeout_secs: u64,
 }
 
 impl DatabaseConfig {
@@ -135,25 +147,7 @@ pub struct JwtConfig {
     #[serde(default)]
     secret: String,
     #[getset(get = "pub")]
-    access_token_expiration_in_secs: i64,
+    access_token_expiration_secs: i64,
     #[getset(get = "pub")]
-    refresh_token_expiration_in_secs: i64,
-}
-
-#[derive(Debug, Deserialize, Getters, Clone)]
-pub struct RedisConfig {
-    #[getset(get = "pub")]
-    #[serde(default)]
-    username: String,
-    #[getset(get = "pub")]
-    #[serde(default)]
-    password: String,
-    #[getset(get = "pub")]
-    port: u16,
-    #[getset(get = "pub")]
-    host: String,
-    #[getset(get = "pub")]
-    db: i64,
-    #[getset(get = "pub")]
-    tls_mode: bool,
+    refresh_token_expiration_secs: i64,
 }
