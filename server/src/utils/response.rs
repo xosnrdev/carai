@@ -156,7 +156,6 @@ macro_rules! impl_from_for_app_error {
 
 impl_from_for_app_error!(
     anyhow::Error,
-    redis::RedisError,
     sqlx::Error,
     config::ConfigError,
     std::io::Error
