@@ -46,8 +46,7 @@ pub async fn login(
         if session.is_expired() || session.is_revoked {
             delete_session_by_user_id(state.db_pool(), session.user_id).await?;
         } else {
-            let duration =
-                Duration::seconds(*state.config().jwt().access_token_expiration_in_secs());
+            let duration = Duration::seconds(*state.config().jwt().access_token_expiration_secs());
             let (access_token, access_claims) = token_manager.create_access_token(
                 session.user_id,
                 &user.email,
@@ -78,8 +77,8 @@ pub async fn login(
         }
     }
 
-    let refresh_exp_secs = *state.config().jwt().refresh_token_expiration_in_secs();
-    let access_exp_secs = *state.config().jwt().access_token_expiration_in_secs();
+    let refresh_exp_secs = *state.config().jwt().refresh_token_expiration_secs();
+    let access_exp_secs = *state.config().jwt().access_token_expiration_secs();
     let refresh_duration = Duration::seconds(refresh_exp_secs);
     let access_duration = Duration::seconds(access_exp_secs);
 
