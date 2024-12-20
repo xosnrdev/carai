@@ -61,6 +61,7 @@ jobs:
       - name: Migrate, Prepare and Test
         env:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+          APP__SERVER__COOKIE_SECRET: ${{ secrets.APP__SERVER__COOKIE_SECRET }}
         run: |
           cargo sqlx migrate run
           cargo sqlx prepare
