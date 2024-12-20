@@ -7,7 +7,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tracing::error;
 
 /// Details about an error, including its HTTP status and message.
@@ -45,11 +45,8 @@ impl AppError {
 
     /// Logs an internal error and returns a 500 status.
     pub fn internal(log_message: impl Into<anyhow::Error>) -> Self {
-        error!("Internal Error: {}", log_message.into());
-        Self::new(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "An internal error occurred",
-        )
+        error!("error: {}", log_message.into());
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
     }
 
     /// Converts `AppError` into a `ErrorResponse`.
@@ -74,7 +71,7 @@ impl IntoResponse for AppError {
 }
 
 /// A successful response with a status code and serializable body.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct SuccessResponse<T: Serialize> {
     /// The HTTP status code as a u16.
     pub status: u16,
