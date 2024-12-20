@@ -2,15 +2,17 @@ use std::{net::SocketAddr, time::Duration};
 
 use anyhow::Context;
 use axum::{
+    error_handling::HandleErrorLayer,
     extract::FromRef,
-    http::{HeaderValue, Method},
+    http::{HeaderValue, Method, StatusCode},
     routing::{delete, get, patch, post},
-    serve, Router,
+    serve, BoxError, Router,
 };
 use axum_extra::extract::cookie::Key;
 use getset::Getters;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::{net::TcpListener, signal};
+use tower::{buffer::BufferLayer, limit::RateLimitLayer, ServiceBuilder};
 use tower_http::{cors::CorsLayer, timeout::TimeoutLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -104,6 +106,35 @@ pub fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
         .filter_map(|s| s.parse::<HeaderValue>().ok())
         .collect();
 
+    let cors_layer = CorsLayer::new()
+        .allow_origin(origins)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::DELETE,
+            Method::PUT,
+            Method::PATCH,
+        ])
+        .allow_credentials(true);
+
+    let trace_layer = TraceLayer::new_for_http();
+
+    let timeout_layer = TimeoutLayer::new(timeout);
+
+    // See https://github.com/tokio-rs/axum/discussions/987
+    let rate_limit_layer = ServiceBuilder::new()
+        .layer(HandleErrorLayer::new(|err: BoxError| async move {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Unhandled error: {}", err),
+            )
+        }))
+        .layer(BufferLayer::new(1024))
+        .layer(RateLimitLayer::new(
+            *state.config.server().rate_limit_burst(),
+            Duration::from_secs(*state.config.server().rate_limit_per_secs()),
+        ));
+
     let users_router = Router::new()
         .route("/register", post(register))
         .route("/", get(get_all_users))
@@ -130,20 +161,10 @@ pub fn create_router(db_pool: PgPool, config: AppConfig) -> Router {
         .nest("/users", users_router)
         .nest("/auth", auth_router)
         .nest("/sessions", session_router)
-        .layer((
-            TraceLayer::new_for_http(),
-            TimeoutLayer::new(timeout),
-            CorsLayer::new()
-                .allow_origin(origins)
-                .allow_methods([
-                    Method::GET,
-                    Method::POST,
-                    Method::DELETE,
-                    Method::PUT,
-                    Method::PATCH,
-                ])
-                .allow_credentials(true),
-        ))
+        .layer(trace_layer)
+        .layer(cors_layer)
+        .layer(timeout_layer)
+        .layer(rate_limit_layer)
         .with_state(state)
 }
 
