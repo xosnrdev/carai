@@ -3,7 +3,7 @@ use validator::Validate;
 
 use crate::models::User;
 
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct UserReqDto {
     #[validate(length(min = 3, max = 30))]
     #[serde(default, deserialize_with = "super::to_lowercase")]
@@ -21,7 +21,7 @@ pub struct UserReqDto {
     pub github_id: Option<i64>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct UserResDto {
     pub username: String,
     pub email: String,
