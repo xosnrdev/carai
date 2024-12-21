@@ -1,4 +1,3 @@
-use anyhow::Context;
 use carai::{
     bootstrap::run_application,
     utils::{CaraiResult, CONFIG},
@@ -6,6 +5,6 @@ use carai::{
 
 #[tokio::main]
 async fn main() -> CaraiResult<()> {
-    dotenv::dotenv().context("Failed to load .env file")?;
+    dotenv::dotenv().ok();
     run_application(CONFIG.to_owned()).await
 }
