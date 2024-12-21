@@ -25,7 +25,7 @@ pub struct RegisterDto {
     pub avatar_url: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct LoginReqDto {
     #[validate(length(min = 3, max = 30))]
     #[serde(default, deserialize_with = "super::to_lowercase")]
@@ -39,7 +39,7 @@ pub struct LoginReqDto {
     pub password: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginResDto {
     pub session_id: Uuid,
