@@ -35,7 +35,6 @@ impl AppConfig {
             .set_default("database.ssl_mode", "prefer")?
             .set_default("database.max_connections", 10)?
             .set_default("database.min_connections", 1)?
-            .set_default("database.connect_timeout_secs", 5)?
             .set_default("database.acquire_timeout_secs", 5)?
             .set_default("environment", "local")?
             .set_default("jwt.access_token_expiration_secs", 900)?
@@ -96,8 +95,6 @@ pub struct DatabaseConfig {
     max_connections: u32,
     #[getset(get = "pub")]
     min_connections: u32,
-    #[getset(get = "pub")]
-    connect_timeout_secs: u64,
     #[getset(get = "pub")]
     acquire_timeout_secs: u64,
 }
